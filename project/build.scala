@@ -233,7 +233,7 @@ object build extends Build {
     crossScalaVersions := ScalaVersions,
     crossVersion := CrossVersion.binary,
     version := LibraryVersion,
-    organization := "org.scalameta",
+    organization := "com.geirsson", // only to publish 2.0-M1
     resolvers += Resolver.sonatypeRepo("snapshots"),
     resolvers += Resolver.sonatypeRepo("releases"),
     addCompilerPlugin("org.scalamacros" % "paradise" % "2.1.0" cross CrossVersion.full),

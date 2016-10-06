@@ -37,7 +37,7 @@ import scala.meta.internal.semantic._
 object Semantic {
   val cache = mutable.Map.empty[(Any, Any), Boolean]
   def equals(x1: Any, x2: Any): Boolean = {
-    false
+    x1 == x2
   }
 
   private def customEquals(x: Any, y: Any): Boolean = (x, y) match {
@@ -88,7 +88,7 @@ object Semantic {
       x == y
   }
 
-  def hashCode(x: Any): Int = customHashcode(x)
+  def hashCode(x: Any): Int = x.## // customHashcode(x)
 
   private def customHashcode(x: Any): Int = x match {
     case null =>
@@ -109,6 +109,7 @@ object Semantic {
         case Denotation.None => 0
         case Denotation.Single(prefix, symbol) => customHashcode(prefix) * 37 + customHashcode(symbol)
         case Denotation.Multi(prefix, symbols) => customHashcode(prefix) * 37 + customHashcode(symbols)
+        case _ => x.##
       }
     case x: Typing =>
       x match {

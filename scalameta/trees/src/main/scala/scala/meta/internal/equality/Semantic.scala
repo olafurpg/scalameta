@@ -2,6 +2,7 @@ package scala.meta
 package internal
 package equality
 
+import scala.collection.mutable
 import scala.meta.internal.semantic._
 
 // NOTE: Semantic comparison operates almost like structural comparison,
@@ -34,7 +35,10 @@ import scala.meta.internal.semantic._
 // I would like to fix this in the future.
 
 object Semantic {
-  def equals(x1: Any, x2: Any): Boolean = customEquals(x1, x2)
+  val cache = mutable.Map.empty[(Any, Any), Boolean]
+  def equals(x1: Any, x2: Any): Boolean = {
+    false
+  }
 
   private def customEquals(x: Any, y: Any): Boolean = (x, y) match {
     case (x, y) if x == null || y == null =>

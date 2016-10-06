@@ -266,7 +266,10 @@ trait InternalTreeXtensions {
 
    implicit class XtensionTypecheckableTree[T <: Tree](tree: T) {
     def isTypechecked: Boolean = (tree.privateFlags & TYPECHECKED) == TYPECHECKED
-    def setTypechecked: T = tree.privateWithFlags(tree.privateFlags | TYPECHECKED).asInstanceOf[T]
+     def setTypechecked: T = {
+//        tree.privateWithFlags(tree.privateFlags | TYPECHECKED).asInstanceOf[T]
+       tree
+     }
     def resetTypechecked: T = tree.privateWithFlags(tree.privateFlags & ~TYPECHECKED).asInstanceOf[T]
     def withTypechecked(value: Boolean): T = if (value) tree.setTypechecked else tree.resetTypechecked
   }

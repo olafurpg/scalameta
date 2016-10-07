@@ -101,7 +101,7 @@ trait InternalTree {
         implicit val recursion = Attributes.Recursion.Deep
         implicit val force = Attributes.Force.Never
         val message = "failed to enable TYPECHECKED for " + this.show[Attributes]
-        throw new UnsupportedOperationException(message)
+//        throw new UnsupportedOperationException(message)
       }
     }
     this.privateCopy(flags = flags)

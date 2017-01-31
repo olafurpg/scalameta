@@ -33,6 +33,7 @@ lazy val scalametaRoot = Project(
 ) aggregate (
   common,
   contrib,
+  cats,
   dialects,
   inline,
   inputs,
@@ -181,6 +182,15 @@ lazy val contrib = Project(
   publishableSettings,
   description := "Utilities for scala.meta"
 ) dependsOn (scalameta, testkit % Test)
+
+lazy val cats = Project(
+  id   = "cats",
+  base = file("scalameta/cats")
+) settings (
+  publishableSettings,
+  libraryDependencies += "org.typelevel" %% "cats" % "0.9.0",
+  description := "Utilities for scala.meta and cats"
+) dependsOn (contrib)
 
 lazy val readme = scalatex.ScalatexReadme(
   projectId = "readme",

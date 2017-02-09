@@ -42,6 +42,25 @@ case class Database(
     toString.getBytes(Charset.forName("UTF-8"));
   }
 
+  def writeToEachFile(): Unit = {
+    val grouped =symbols.groupBy(_._1.addr)
+    grouped.keys.toList.sortBy(_.syntax).foreach {
+      case addr @ Address.File(path) =>
+        val buf = new StringBuilder
+        val content = addr.content
+        grouped(addr).keys.toList.sortBy(_.start).foreach(k => {
+          val snippet = content.substring(k.start, k.end)
+          buf ++= (s"[${k.start}..${k.end}): $snippet => ${grouped(addr)(k).syntax}" + EOL)
+        })
+        buf ++= EOL
+        val outfile = new File(path + ".semanticdb")
+        val fos = new FileOutputStream(outfile)
+        try fos.write(buf.toString().getBytes("UTF-8"))
+        finally { fos.close() }
+      case _ =>
+    }
+  }
+
   def toFile(file: File): Unit = {
     val fos = new FileOutputStream(file)
     try fos.write(toBinary)

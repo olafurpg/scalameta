@@ -13,9 +13,11 @@ object FileLine {
 }
 
 object logger {
+
   /** Same as println except includes the file+line number of call-site. */
   def debug(x: Any)(implicit fileLine: FileLine): Unit = {
-    println(s"$fileLine $x")
+    if (!sys.props.contains("scala.meta.logger.quiet"))
+      println(s"$fileLine $x")
   }
 
   /** Prints out the value with and it's source code representation

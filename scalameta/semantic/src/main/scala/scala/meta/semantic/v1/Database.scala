@@ -3,6 +3,7 @@ package semantic
 package v1
 
 import scala.meta.prettyprinters._
+
 import java.io._
 import java.nio.charset.Charset
 import scala.io._
@@ -10,6 +11,8 @@ import scala.collection.mutable
 import scala.compat.Platform.EOL
 import scala.meta.semantic.v1._
 import scala.meta.internal.semantic.v1._
+
+import org.scalameta.logger
 
 // NOTE: This is an initial take on the semantic API.
 // Instead of immediately implementing the full vision described in my dissertation,
@@ -43,10 +46,12 @@ case class Database(
   }
 
   def writeToEachFile(): Unit = {
+    logger.debug("Writing to each file")
     val grouped =symbols.groupBy(_._1.addr)
     grouped.keys.toList.sortBy(_.syntax).foreach {
       case addr @ Address.File(path) =>
         val buf = new StringBuilder
+        buf ++= (addr + EOL) // makes it trivial to merge dbs in bash with cat.
         val content = addr.content
         grouped(addr).keys.toList.sortBy(_.start).foreach(k => {
           val snippet = content.substring(k.start, k.end)

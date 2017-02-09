@@ -11,6 +11,8 @@ import scala.meta.internal.scalahost.v1.online.{Mirror => OnlineMirror}
 
 import java.util.Properties
 
+import org.scalameta.logger
+
 trait ScalahostPipeline { self: ScalahostPlugin =>
 
   object ScalahostComponent extends PluginComponent {
@@ -20,11 +22,16 @@ trait ScalahostPipeline { self: ScalahostPlugin =>
     val phaseName = "scalameta"
     override val description = "compute the scala.meta semantic database"
     def newPhase(_prev: Phase) = new ScalahostPhase(_prev)
-    val configFile = new File(new File(global.settings.d.value), "scalahost.properties")
     val config = new Properties()
-    if (configFile.isFile) {
-      config.load(new FileInputStream(configFile))
-    }
+    sys.props
+      .get("scalahost.properties")
+      .map(new File(_))
+      .filter(_.isFile)
+      .foreach { file =>
+        val configFile = file.getAbsoluteFile
+        config.load(new FileInputStream(configFile))
+        logger.debug(s"Loading custom configuration $configFile")
+      }
 
     class ScalahostPhase(prev: Phase) extends StdPhase(prev) {
       override def apply(unit: g.CompilationUnit): Unit = {
@@ -34,9 +41,12 @@ trait ScalahostPipeline { self: ScalahostPlugin =>
       override def run(): Unit = {
         super.run()
         val database = new OnlineMirror(global).database
-        if (config.contains("scalahost.eachfile")) database.writeToEachFile()
+        logger.elem(config.toString)
+        if (config.get("writeToEachFile") != null) database.writeToEachFile()
         else {
-          val databaseFile = new File(new File(global.settings.d.value), "semanticdb")
+          val databaseFile =
+            new File(new File(global.settings.d.value), "semanticdb").getAbsoluteFile
+          logger.debug(s"Writing database to $databaseFile")
           val prevDatabase = if (databaseFile.exists) Database(databaseFile) else Database()
           val mergedDatabase = prevDatabase.append(database)
           val allowedAddrs = global.currentRun.units.map(_.source.toAddr).toSet

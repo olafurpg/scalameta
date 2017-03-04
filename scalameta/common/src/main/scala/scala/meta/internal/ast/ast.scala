@@ -150,7 +150,7 @@ class AstNamerMacros(val c: Context) extends AstReflection with CommonNamerMacro
       }
 
       // step 8: create the children method
-      stats1 += q"def children: Seq[$TreeClass] = $CommonTyperMacrosModule.children[$iname, $TreeClass]"
+      stats1 += q"lazy val children: Seq[$TreeClass] = $CommonTyperMacrosModule.children[$iname, $TreeClass]"
 
       // step 9: generate boilerplate required by the @ast infrastructure
       // TODO: remove leafClass and leafCompanion from here

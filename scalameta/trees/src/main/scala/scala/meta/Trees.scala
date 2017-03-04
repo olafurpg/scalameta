@@ -14,6 +14,8 @@ import scala.meta.internal.ast.Helpers._
 @root trait Tree extends InternalTree {
   def parent: Option[Tree]
   def children: Seq[Tree]
+  def is[U](implicit classifier: Classifier[Tree, U]): Boolean =
+    classifier.apply(this)
 
   def pos: Position
   def tokens(implicit dialect: Dialect): Tokens

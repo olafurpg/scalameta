@@ -6,6 +6,7 @@ import org.scalameta.tests._
 import org.scalameta.explore
 import scala.compat.Platform.EOL
 
+@Ignore
 class SurfaceSuite extends scala.meta.tests.ast.AstSuite {
   import AstReflection._
   val reflectedTrees = {

@@ -1,5 +1,7 @@
 package scala.meta.testkit
 
+import scala.collection.mutable
+import scala.meta.Term.Param
 import scala.meta._
 import scala.meta.parsers.Parsed
 
@@ -28,10 +30,7 @@ object ScalametaParserProperties {
       case Parsed.Success(parsedFromSyntheticTree) =>
         StructurallyEqual(syntheticTree, parsedFromSyntheticTree) match {
           case Left(err) =>
-            List(
-              ParserBug(err.mismatchClass,
-                        err.lineNumber,
-                        PrettyPrinterBroken))
+            List(ParserBug(err.mismatchClass, err.lineNumber, PrettyPrinterBroken))
           case _ => Nil
         }
       case _ =>
@@ -67,6 +66,33 @@ object ScalametaParserProperties {
 
   def main(args: Array[String]): Unit = {
     runAndPrintAnalysis()
+  }
+}
+object ImplicitFunctionParam {
+  def experiment(): mutable.Seq[(CorpusFile, Observation[Param])] = {
+    val corpus =
+      Corpus
+        .files(Corpus.fastparse)
+        .take(1000)
+        .toBuffer
+        .par
+    SyntaxAnalysis.run[Observation[Term.Param]](corpus) { file =>
+      file.jFile.parse[Source] match {
+        case Parsed.Success(s) =>
+          s.collect {
+            case param @ Term.Param(mods, name, Some(_: Type.Function), _)
+                if mods.exists(_.is[Mod.Implicit]) =>
+              Observation(name.syntax, param.tokens.head.pos.start.line, param)
+          }
+        case e: Parsed.Error => Nil
+      }
+    }
+  }
+  def main(args: Array[String]): Unit = {
+    val result = experiment()
+    val markdown = Observation.markdownTable(result)
+    println(markdown)
+
   }
 }
 

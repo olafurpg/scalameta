@@ -5,6 +5,9 @@ import scala.meta.Term.Param
 import scala.meta._
 import scala.meta.parsers.Parsed
 
+import java.nio.file.Files
+import java.nio.file.Paths
+
 import org.scalatest.FunSuiteLike
 
 object ScalametaParserProperties {
@@ -69,20 +72,20 @@ object ScalametaParserProperties {
   }
 }
 object ImplicitFunctionParam {
-  def experiment(): mutable.Seq[(CorpusFile, Observation[Param])] = {
+  def experiment(): mutable.Seq[(CorpusFile, Observation[String])] = {
     val corpus =
       Corpus
         .files(Corpus.fastparse)
-        .take(1000)
+//        .take(10000)
         .toBuffer
         .par
-    SyntaxAnalysis.run[Observation[Term.Param]](corpus) { file =>
+    SyntaxAnalysis.run[Observation[String]](corpus) { file =>
       file.jFile.parse[Source] match {
         case Parsed.Success(s) =>
           s.collect {
             case param @ Term.Param(mods, name, Some(_: Type.Function), _)
                 if mods.exists(_.is[Mod.Implicit]) =>
-              Observation(name.syntax, param.tokens.head.pos.start.line, param)
+              Observation(param.syntax, param.tokens.head.pos.start.line, "Implicit Type.Function Param")
           }
         case e: Parsed.Error => Nil
       }
@@ -92,7 +95,7 @@ object ImplicitFunctionParam {
     val result = experiment()
     val markdown = Observation.markdownTable(result)
     println(markdown)
-
+    Files.write(Paths.get("target", "analysis.txt"), markdown.getBytes())
   }
 }
 

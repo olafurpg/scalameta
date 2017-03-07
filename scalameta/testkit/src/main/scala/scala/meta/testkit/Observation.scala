@@ -38,6 +38,8 @@ object Observation {
       case (cat, rs) =>
         sb.append(s"$cat: ${rs.length}\n")
     }
+
+    sb.append(s"\nTotal: ${observations.length}")
     sb.toString()
   }
 }

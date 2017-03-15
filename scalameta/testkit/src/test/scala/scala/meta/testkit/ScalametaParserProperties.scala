@@ -21,10 +21,14 @@ object ScalametaParserProperties {
     * syntheticTree.structure == synthethicTree.syntax.parse.structure
     **/
   case object PrettyPrinterBroken extends BugKind
+  case object fInterpolator extends BugKind
 
   def onParseSuccess(source: Source): Seq[ParserBug] = {
+    val interpolators = source.collect {
+      case Term.Interpolate(q"f", _, _) => ParserBug("", -1, fInterpolator)
+    }
     val syntheticTree = Source(source.stats) // simple trick to remove origin.
-    syntheticTree.syntax.parse[Source] match {
+    val x = syntheticTree.syntax.parse[Source] match {
       case Parsed.Success(parsedFromSyntheticTree) =>
         StructurallyEqual(syntheticTree, parsedFromSyntheticTree) match {
           case Left(err) =>
@@ -37,6 +41,7 @@ object ScalametaParserProperties {
       case _ =>
         List(ParserBug("can't parse", 0, PrettyPrinterBroken))
     }
+    x ++ interpolators
   }
 
   def onParseError(scalaFile: CorpusFile, err: Parsed.Error): Seq[ParserBug] =
@@ -60,7 +65,7 @@ object ScalametaParserProperties {
   }
 
   def runAndPrintAnalysis(): Unit = {
-    val result = runAnalysis(100)
+    val result = runAnalysis(100000)
     val markdown = Observation.markdownTable(result)
     println(markdown)
   }

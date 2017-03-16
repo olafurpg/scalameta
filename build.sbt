@@ -190,7 +190,6 @@ lazy val scalameta = Project(
   base = file("scalameta/scalameta")
 ).settings(publishableSettings,
             description := "Scala.meta's metaprogramming APIs",
-            sources in (Compile, doc) := Nil,
             exposePaths("scalameta", Test))
   .dependsOn(common,
              dialects,
@@ -217,7 +216,7 @@ lazy val scalahost = Project(
       else if (shouldPublishToSonatype) true
       else (publishArtifact in (Compile, packageSrc)).value
     },
-    mergeSettings,
+    // mergeSettings,
     description := "Scala.meta's connector to the Scala compiler",
     crossVersion := CrossVersion.full,
     unmanagedSourceDirectories in Compile += {
@@ -421,6 +420,7 @@ lazy val readme = scalatex
 // ==========================================
 
 lazy val sharedSettings = Def.settings(
+            sources in (Compile, doc) := Nil,
   scalaVersion := ScalaVersion,
   crossScalaVersions := ScalaVersions,
   crossVersion := CrossVersion.binary,

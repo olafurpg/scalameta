@@ -7,6 +7,8 @@ import PgpKeys._
 import UnidocKeys._
 import sbt.ScriptedPlugin._
 
+enablePlugins(ScalaNativePlugin)
+
 lazy val ScalaVersion = "2.11.8"
 lazy val ScalaVersions = Seq("2.11.8", "2.12.1")
 lazy val LibrarySeries = "1.7.0"

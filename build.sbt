@@ -7,12 +7,11 @@ import PgpKeys._
 import UnidocKeys._
 import sbt.ScriptedPlugin._
 
-enablePlugins(ScalaNativePlugin)
 
 lazy val ScalaVersion = "2.11.8"
 lazy val ScalaVersions = Seq("2.11.8", "2.12.1")
 lazy val LibrarySeries = "1.7.0"
-lazy val LibraryVersion = sys.props.getOrElse("scalameta.version", computePreReleaseVersion(LibrarySeries))
+lazy val LibraryVersion = "1.7.0-native"
 
 // ==========================================
 // Projects
@@ -74,6 +73,7 @@ lazy val scalametaRoot = Project(
   transversers,
   trees
 )
+.enablePlugins(ScalaNativePlugin)
 
 lazy val common = Project(
   id   = "common",
@@ -134,7 +134,7 @@ lazy val tokenizers = Project(
 ) settings (
   publishableSettings,
   description := "Scala.meta's APIs for tokenization and its baseline implementation",
-  libraryDependencies += "com.lihaoyi" %% "scalaparse" % "0.4.2",
+  libraryDependencies += "com.lihaoyi" %% "scalaparse" % "0.4.5-native",
   enableMacros
 ) dependsOn (common, dialects, inputs, tokens)
 

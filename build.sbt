@@ -134,7 +134,7 @@ lazy val tokenizers = Project(
 ) settings (
   publishableSettings,
   description := "Scala.meta's APIs for tokenization and its baseline implementation",
-  libraryDependencies += "com.lihaoyi" %% "scalaparse" % "0.4.5-native",
+  libraryDependencies += "com.lihaoyi" %% "scalaparse" % "0.4.3-native",
   enableMacros
 ) dependsOn (common, dialects, inputs, tokens)
 

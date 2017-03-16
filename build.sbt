@@ -80,10 +80,11 @@ lazy val common = Project(
   base = file("scalameta/common")
 ).settings(
   publishableSettings,
-  libraryDependencies += "com.lihaoyi" %% "sourcecode" % "0.1.3",
+  libraryDependencies += "com.lihaoyi" %% "sourcecode" % "0.1.3-native",
   description := "Bag of private and public helpers used in scala.meta's APIs and implementations",
   enableMacros
 )
+  .enablePlugins(ScalaNativePlugin)
 
 lazy val dialects = Project(
   id = "dialects",
@@ -91,6 +92,7 @@ lazy val dialects = Project(
 ).settings(publishableSettings,
             description := "Scala.meta's dialects",
             enableMacros)
+  .enablePlugins(ScalaNativePlugin)
   .dependsOn(common)
 
 lazy val inline = Project(
@@ -100,6 +102,7 @@ lazy val inline = Project(
     publishableSettings,
     description := "Scala.meta's APIs for new-style (\"inline\") macros")
   .dependsOn(inputs)
+  .enablePlugins(ScalaNativePlugin)
 
 lazy val inputs = Project(
   id = "inputs",
@@ -109,6 +112,7 @@ lazy val inputs = Project(
     description := "Scala.meta's APIs for source code in textual format",
     enableMacros)
   .dependsOn(common)
+  .enablePlugins(ScalaNativePlugin)
 
 lazy val parsers = Project(
   id = "parsers",
@@ -117,6 +121,7 @@ lazy val parsers = Project(
     publishableSettings,
     description := "Scala.meta's API for parsing and its baseline implementation")
   .dependsOn(common, dialects, inputs, tokens, tokenizers, trees)
+  .enablePlugins(ScalaNativePlugin)
 
 lazy val quasiquotes = Project(
   id = "quasiquotes",
@@ -126,6 +131,7 @@ lazy val quasiquotes = Project(
     description := "Scala.meta's quasiquotes for abstract syntax trees",
     enableHardcoreMacros)
   .dependsOn(common, dialects, inputs, trees, parsers)
+  .enablePlugins(ScalaNativePlugin)
 
 lazy val tokenizers = Project(
   id = "tokenizers",
@@ -133,10 +139,11 @@ lazy val tokenizers = Project(
 ).settings(
     publishableSettings,
     description := "Scala.meta's APIs for tokenization and its baseline implementation",
-    libraryDependencies += "com.lihaoyi" %% "scalaparse" % "0.4.3-native",
+    libraryDependencies += "com.lihaoyi" %%% "scalaparse" % "0.4.3-native",
     enableMacros
   )
   .dependsOn(common, dialects, inputs, tokens)
+  .enablePlugins(ScalaNativePlugin)
 
 lazy val tokens = Project(
   id = "tokens",
@@ -146,6 +153,7 @@ lazy val tokens = Project(
     description := "Scala.meta's tokens and token-based abstractions (inputs and positions)",
     enableMacros)
   .dependsOn(common, dialects, inputs)
+  .enablePlugins(ScalaNativePlugin)
 
 lazy val transversers = Project(
   id = "transversers",
@@ -155,6 +163,7 @@ lazy val transversers = Project(
     description := "Scala.meta's traversal and transformation infrastructure for abstract syntax trees",
     enableMacros)
   .dependsOn(common, trees)
+  .enablePlugins(ScalaNativePlugin)
 
 lazy val trees = Project(
   id = "trees",
@@ -167,18 +176,21 @@ lazy val trees = Project(
     enableMacros
   )
   .dependsOn(common, dialects, inputs, tokens, tokenizers) // NOTE: tokenizers needed for Tree.tokens when Tree.pos.isEmpty
+  .enablePlugins(ScalaNativePlugin)
 
 lazy val semantic = Project(
   id = "semantic",
   base = file("scalameta/semantic")
 ).settings(publishableSettings, description := "Scala.meta's semantic APIs")
   .dependsOn(common, trees)
+  .enablePlugins(ScalaNativePlugin)
 
 lazy val scalameta = Project(
   id = "scalameta",
   base = file("scalameta/scalameta")
 ).settings(publishableSettings,
             description := "Scala.meta's metaprogramming APIs",
+            sources in (Compile, doc) := Nil,
             exposePaths("scalameta", Test))
   .dependsOn(common,
              dialects,
@@ -189,6 +201,7 @@ lazy val scalameta = Project(
              trees,
              inline,
              semantic)
+  .enablePlugins(ScalaNativePlugin)
 
 lazy val scalahost = Project(
   id = "scalahost",

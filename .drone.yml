@@ -58,5 +58,11 @@ pipeline:
 matrix:
   TEST:
     - ci-fast
-    - ci-slow
+    - ci-slow # skipped in Scala.js
+  SCALA_VERSION:
+    - 2.11.8
+    - 2.12.1
+  SCALA_JS:
+    - true
+    - false
 

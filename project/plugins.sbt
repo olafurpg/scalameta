@@ -20,7 +20,8 @@ addSbtPlugin("com.eed3si9n" % "sbt-buildinfo" % "0.6.1")
 
 addSbtPlugin("com.eed3si9n" % "sbt-doge" % "0.1.5")
 
-addSbtPlugin("com.thesamet" % "sbt-protoc" % "0.99.6")
+addSbtPlugin("com.thesamet" % "sbt-protoc" % "0.99.6" exclude ("com.trueaccord.scalapb", "protoc-bridge_2.10"))
+libraryDependencies += "com.trueaccord.scalapb" %% "compilerplugin-shaded" % "0.6.0-pre2"
 
 libraryDependencies += "com.trueaccord.scalapb" %% "compilerplugin" % "0.6.0-pre2"
 

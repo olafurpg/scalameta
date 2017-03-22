@@ -101,6 +101,14 @@ lazy val inline = Project(
   description := "Scala.meta's APIs for new-style (\"inline\") macros"
 ) dependsOn (inputs)
 
+lazy val io = Project(
+  id   = "io",
+  base = file("scalameta/io")
+) settings (
+  publishableSettings,
+  description := "Scala.meta's APIs for IO"
+)
+
 lazy val inputs = Project(
   id   = "inputs",
   base = file("scalameta/inputs")
@@ -108,7 +116,7 @@ lazy val inputs = Project(
   publishableSettings,
   description := "Scala.meta's APIs for source code in textual format",
   enableMacros
-) dependsOn (common)
+) dependsOn (common, io)
 
 lazy val parsers = Project(
   id   = "parsers",

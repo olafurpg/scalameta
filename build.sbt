@@ -18,131 +18,129 @@ lazy val LibraryVersion = sys.props
 // Projects
 // ==========================================
 
-lazy val scalametaRoot = Project(
-  id = "scalametaRoot",
-  base = file(".")
-).settings(
-    sharedSettings,
-    noPublish,
-    unidocSettings,
-    commands += Command.command("ci-fast") { state =>
-      // NOTE. The so/wow/such/very commands are from sbt-doge and are used to
-      // run commands with the correct scalaVersion in each project.
-      "so scalametaRoot/test" ::
-        "so contrib/test" ::
-        // slow tests below
-        "much doc" ::
-        state
-    },
-    commands += Command.command("ci-slow") { state =>
-      "very scalahost/test:runMain scala.meta.tests.scalahost.converters.LotsOfProjects" ::
-        "such testkit/test:runMain scala.meta.testkit.ScalametaParserPropertyTest" ::
-        "scalahostSbt/test" ::
-        state
-    },
-    commands += Command.command("ci-publish") { state =>
-      "very publish" ::
-        state
-    },
-    packagedArtifacts := Map.empty,
-    unidocProjectFilter in (ScalaUnidoc, unidoc) := inAnyProject,
-    aggregate in test := false,
-    test := {
-      val runScalametaTests = (test in scalameta in Test).value
-      val runScalahostTests = (test in scalahost in Test).value
-      val runBenchmarkTests = (test in benchmarks in Test).value
-      val runContribTests = (test in contrib in Test).value
-      val runDocs = (run in readme in Compile).toTask(" --validate").value
-    },
-    console := (console in scalameta in Compile).value
-  )
-  .aggregate(
-    benchmarks,
-    common,
-    contrib,
-    dialects,
-    inline,
-    inputs,
-    parsers,
-    quasiquotes,
-    scalahost,
-    scalahostSbt,
-    scalameta,
-    semantic,
-    testkit,
-    tokenizers,
-    tokens,
-    transversers,
-    trees
-  )
+name := "scalametaRoot"
+sharedSettings
+noPublish
+unidocSettings
+commands += Command.command("ci-fast") { state =>
+  // NOTE. The so/wow/such/very commands are from sbt-doge and are used to
+  // run commands with the correct scalaVersion in each project.
+  "so scalametaRoot/test" ::
+    "so contrib/test" ::
+    // slow tests below
+    "much doc" ::
+    state
+}
+commands += Command.command("ci-slow") { state =>
+  "very scalahost/test:runMain scala.meta.tests.scalahost.converters.LotsOfProjects" ::
+    "such testkit/test:runMain scala.meta.testkit.ScalametaParserPropertyTest" ::
+    "scalahostSbt/test" ::
+    state
+}
+commands += Command.command("ci-publish") { state =>
+  "very publish" ::
+    state
+}
+packagedArtifacts := Map.empty
+unidocProjectFilter in (ScalaUnidoc, unidoc) := inAnyProject
+aggregate in test := false
+test := {
+  val runScalametaTests = (test in scalametaJVM in Test).value
+  val runScalahostTests = (test in scalahost in Test).value
+  val runBenchmarkTests = (test in benchmarks in Test).value
+  val runContribTests = (test in contrib in Test).value
+  val runDocs = (run in readme in Compile).toTask(" --validate").value
+}
+console := (console in scalametaJVM in Compile).value
 
-lazy val common = Project(id = "common", base = file("scalameta/common"))
+lazy val common = crossProject
+  .in(file("scalameta/common"))
   .settings(
     publishableSettings,
     libraryDependencies += "com.lihaoyi" %% "sourcecode" % "0.1.3",
     description := "Bag of private and public helpers used in scala.meta's APIs and implementations",
     enableMacros
   )
+lazy val commonJVM = common.jvm
+lazy val commonJS = common.js
 
-lazy val dialects = Project(id = "dialects", base = file("scalameta/dialects"))
-  .settings(publishableSettings,
-            description := "Scala.meta's dialects",
-            enableMacros)
+lazy val dialects = crossProject
+  .in(file("scalameta/dialects"))
+  .settings(publishableSettings, description := "Scala.meta's dialects", enableMacros)
   .dependsOn(common)
+lazy val dialectsJVM = dialects.jvm
+lazy val dialectsJS = dialects.js
 
-lazy val inline = Project(id = "inline", base = file("scalameta/inline"))
-  .settings(
-    publishableSettings,
-    description := "Scala.meta's APIs for new-style (\"inline\") macros")
+lazy val inline = crossProject
+  .in(file("scalameta/inline"))
+  .settings(publishableSettings,
+            description := "Scala.meta's APIs for new-style (\"inline\") macros")
   .dependsOn(inputs)
+lazy val inlineJVM = inline.jvm
+lazy val inlineJS = inline.js
 
-lazy val inputs = Project(id = "inputs", base = file("scalameta/inputs"))
+lazy val inputs = crossProject
+  .in(file("scalameta/inputs"))
   .settings(
     publishableSettings,
     description := "Scala.meta's APIs for source code in textual format",
-    enableMacros)
+    enableMacros
+  )
   .dependsOn(common)
+lazy val inputsJVM = inputs.jvm
+lazy val inputsJS = inputs.js
 
-lazy val parsers = Project(id = "parsers", base = file("scalameta/parsers"))
+lazy val parsers = crossProject
+  .in(file("scalameta/parsers"))
+  .settings(publishableSettings,
+            description := "Scala.meta's API for parsing and its baseline implementation")
+  .dependsOn(common, dialects, inputs, tokens, tokenizers, trees)
+lazy val parsersJVM = parsers.jvm
+lazy val parsersJS = parsers.js
+
+lazy val quasiquotes = crossProject
+  .in(file("scalameta/quasiquotes"))
+  .settings(publishableSettings,
+            description := "Scala.meta's quasiquotes for abstract syntax trees",
+            enableHardcoreMacros)
+  .dependsOn(common, dialects, inputs, trees, parsers)
+lazy val quasiquotesJVM = quasiquotes.jvm
+lazy val quasiquotesJS = quasiquotes.js
+
+lazy val tokenizers = crossProject
+  .in(file("scalameta/tokenizers"))
   .settings(
     publishableSettings,
-    description := "Scala.meta's API for parsing and its baseline implementation")
-  .dependsOn(common, dialects, inputs, tokens, tokenizers, trees)
+    description := "Scala.meta's APIs for tokenization and its baseline implementation",
+    libraryDependencies += "com.lihaoyi" %%% "scalaparse" % "0.4.2",
+    enableMacros
+  )
+  .dependsOn(common, dialects, inputs, tokens)
+lazy val tokenizersJVM = tokenizers.jvm
+lazy val tokenizersJS = tokenizers.js
 
-lazy val quasiquotes =
-  Project(id = "quasiquotes", base = file("scalameta/quasiquotes"))
-    .settings(
-      publishableSettings,
-      description := "Scala.meta's quasiquotes for abstract syntax trees",
-      enableHardcoreMacros)
-    .dependsOn(common, dialects, inputs, trees, parsers)
-
-lazy val tokenizers =
-  Project(id = "tokenizers", base = file("scalameta/tokenizers"))
-    .settings(
-      publishableSettings,
-      description := "Scala.meta's APIs for tokenization and its baseline implementation",
-      libraryDependencies += "com.lihaoyi" %% "scalaparse" % "0.4.2",
-      enableMacros
-    )
-    .dependsOn(common, dialects, inputs, tokens)
-
-lazy val tokens = Project(id = "tokens", base = file("scalameta/tokens"))
+lazy val tokens = crossProject
+  .in(file("scalameta/tokens"))
   .settings(
     publishableSettings,
     description := "Scala.meta's tokens and token-based abstractions (inputs and positions)",
     enableMacros)
   .dependsOn(common, dialects, inputs)
+lazy val tokensJVM = tokens.jvm
+lazy val tokensJS = tokens.js
 
-lazy val transversers = Project(id = "transversers",
-                                base = file("scalameta/transversers"))
+lazy val transversers = crossProject
+  .in(file("scalameta/transversers"))
   .settings(
     publishableSettings,
     description := "Scala.meta's traversal and transformation infrastructure for abstract syntax trees",
     enableMacros)
   .dependsOn(common, trees)
+lazy val traversersJVM = transversers.jvm
+lazy val traversersJS = transversers.js
 
-lazy val trees = Project(id = "trees", base = file("scalameta/trees"))
+lazy val trees = crossProject
+  .in(file("scalameta/trees"))
   .settings(
     publishableSettings,
     description := "Scala.meta's abstract syntax trees",
@@ -151,8 +149,11 @@ lazy val trees = Project(id = "trees", base = file("scalameta/trees"))
     enableMacros
   )
   .dependsOn(common, dialects, inputs, tokens, tokenizers) // NOTE: tokenizers needed for Tree.tokens when Tree.pos.isEmpty
+lazy val treesJVM = trees.jvm
+lazy val treesJS = trees.js
 
-lazy val semantic = Project(id = "semantic", base = file("scalameta/semantic"))
+lazy val semantic = crossProject
+  .in(file("scalameta/semantic"))
   .settings(
     publishableSettings,
     description := "Scala.meta's semantic APIs",
@@ -162,24 +163,30 @@ lazy val semantic = Project(id = "semantic", base = file("scalameta/semantic"))
         flatPackage = true // Don't append filename to package
       ) -> sourceManaged.in(Compile).value
     ),
-    libraryDependencies += "com.trueaccord.scalapb" %% "scalapb-runtime" % scalapbVersion % "protobuf"
+    PB.protoSources.in(Compile) := Seq(file("scalameta/semantic/shared/src/main/protobuf")),
+    libraryDependencies += "com.trueaccord.scalapb" %%% "scalapb-runtime" % scalapbVersion,
+    libraryDependencies += "com.trueaccord.scalapb" %%% "scalapb-runtime" % scalapbVersion % "protobuf"
   )
   .dependsOn(common, trees)
+lazy val semanticJVM = semantic.jvm
+lazy val semanticJS = semantic.js
 
-lazy val scalameta =
-  Project(id = "scalameta", base = file("scalameta/scalameta"))
-    .settings(publishableSettings,
-              description := "Scala.meta's metaprogramming APIs",
-              exposePaths("scalameta", Test))
-    .dependsOn(common,
-               dialects,
-               parsers,
-               quasiquotes,
-               tokenizers,
-               transversers,
-               trees,
-               inline,
-               semantic)
+lazy val scalameta = crossProject
+  .in(file("scalameta/scalameta"))
+  .settings(publishableSettings,
+            description := "Scala.meta's metaprogramming APIs",
+            exposePaths("scalameta", Test))
+  .dependsOn(common,
+             dialects,
+             parsers,
+             quasiquotes,
+             tokenizers,
+             transversers,
+             trees,
+             inline,
+             semantic)
+lazy val scalametaJVM = scalameta.jvm
+lazy val scalametaJS = scalameta.js
 
 lazy val scalahost = Project(id = "scalahost", base = file("scalahost"))
   .settings(
@@ -217,14 +224,13 @@ lazy val scalahost = Project(id = "scalahost", base = file("scalahost"))
         }
         override def transform(node: XmlNode): XmlNodeSeq = node match {
           case e: Elem if isScalametaDependency(node) =>
-            Comment(
-              "scalameta dependency has been merged into scalahost via sbt-assembly")
+            Comment("scalameta dependency has been merged into scalahost via sbt-assembly")
           case _ => node
         }
       }).transform(node).head
     }
   )
-  .dependsOn(scalameta, testkit % Test)
+  .dependsOn(scalametaJVM, testkit % Test)
 
 lazy val scalahostSbt =
   Project(id = "scalahostSbt", base = file("scalahost-sbt"))
@@ -274,11 +280,19 @@ lazy val testkit = Project(id = "testkit", base = file("scalameta/testkit"))
     libraryDependencies += "org.scala-lang" % "scala-compiler" % scalaVersion.value % Test,
     description := "Testing utilities for scala.meta's metaprogramming APIs"
   )
-  .dependsOn(scalameta)
+  .dependsOn(scalametaJVM)
+
+lazy val exampleJsApp = project
+  .in(file("scalameta/example-js"))
+  .settings(
+    sharedSettings
+  )
+  .dependsOn(scalametaJS)
+  .enablePlugins(ScalaJSPlugin)
 
 lazy val contrib = Project(id = "contrib", base = file("scalameta/contrib"))
   .settings(publishableSettings, description := "Utilities for scala.meta")
-  .dependsOn(scalameta, testkit % Test)
+  .dependsOn(scalametaJVM, testkit % Test)
 
 lazy val benchmarks =
   Project(id = "benchmarks", base = file("scalameta/benchmarks"))
@@ -305,7 +319,7 @@ lazy val benchmarks =
         "-server"
       )
     )
-    .dependsOn(scalameta)
+    .dependsOn(scalametaJVM)
     .enablePlugins(JmhPlugin)
 
 lazy val readme = scalatex
@@ -318,11 +332,10 @@ lazy val readme = scalatex
   .settings(
     noPublish,
     exposePaths("readme", Runtime),
-    scalaVersion := (scalaVersion in scalameta).value,
+    scalaVersion := (scalaVersion in scalametaJVM).value,
     crossScalaVersions := ScalaVersions,
     libraryDependencies += "org.scala-lang" % "scala-compiler" % scalaVersion.value,
-    sources in Compile ++= List("os.scala").map(f =>
-      baseDirectory.value / "../project" / f),
+    sources in Compile ++= List("os.scala").map(f => baseDirectory.value / "../project" / f),
     watchSources ++= baseDirectory.value.listFiles.toList,
     publish := {
       if (sys.props("sbt.prohibit.publish") != null)
@@ -336,23 +349,17 @@ lazy val readme = scalatex
       if (!website.exists) sys.error("failed to generate the scalatex website")
 
       // import the scalatex readme into `repo`
-      val repo = new File(
-        os.temp.mkdir.getAbsolutePath + File.separator + "scalameta.org")
+      val repo = new File(os.temp.mkdir.getAbsolutePath + File.separator + "scalameta.org")
       os.shell.call(
         s"git clone https://github.com/scalameta/scalameta.github.com ${repo.getAbsolutePath}")
       println(s"erasing everything in ${repo.getAbsolutePath}...")
       repo.listFiles.filter(f => f.getName != ".git").foreach(os.shutil.rmtree)
-      println(
-        s"importing website from ${website.getAbsolutePath} to ${repo.getAbsolutePath}...")
-      new PrintWriter(
-        new File(repo.getAbsolutePath + File.separator + "CNAME")) {
+      println(s"importing website from ${website.getAbsolutePath} to ${repo.getAbsolutePath}...")
+      new PrintWriter(new File(repo.getAbsolutePath + File.separator + "CNAME")) {
         write("scalameta.org"); close
       }
-      website.listFiles.foreach(
-        src =>
-          os.shutil.copytree(
-            src,
-            new File(repo.getAbsolutePath + File.separator + src.getName)))
+      website.listFiles.foreach(src =>
+        os.shutil.copytree(src, new File(repo.getAbsolutePath + File.separator + src.getName)))
 
       // commit and push the changes if any
       os.shell.call(s"git add -A", cwd = repo.getAbsolutePath)
@@ -362,8 +369,7 @@ lazy val readme = scalatex
           .currentSha()
         os.shell.call(s"git config user.email 'scalametabot@gmail.com'",
                       cwd = repo.getAbsolutePath)
-        os.shell.call(s"git config user.name 'Scalameta Bot'",
-                      cwd = repo.getAbsolutePath)
+        os.shell.call(s"git config user.name 'Scalameta Bot'", cwd = repo.getAbsolutePath)
         os.shell.call(s"git commit -m $currentUrl", cwd = repo.getAbsolutePath)
         val httpAuthentication = os.secret
           .obtain("github")
@@ -371,8 +377,7 @@ lazy val readme = scalatex
           .getOrElse("")
         val authenticatedUrl =
           s"https://${httpAuthentication}github.com/scalameta/scalameta.github.com"
-        os.shell.call(s"git push $authenticatedUrl master",
-                      cwd = repo.getAbsolutePath)
+        os.shell.call(s"git push $authenticatedUrl master", cwd = repo.getAbsolutePath)
       } catch {
         case ex: Exception if ex.getMessage.contains(nothingToCommit) =>
           println(nothingToCommit)
@@ -384,7 +389,7 @@ lazy val readme = scalatex
     publishLocalSigned := {},
     publishM2 := {}
   )
-  .dependsOn(scalameta)
+  .dependsOn(scalametaJVM)
 
 // ==========================================
 // Settings
@@ -398,10 +403,9 @@ lazy val sharedSettings = Def.settings(
   organization := "org.scalameta",
   resolvers += Resolver.sonatypeRepo("snapshots"),
   resolvers += Resolver.sonatypeRepo("releases"),
-  addCompilerPlugin(
-    ("org.scalamacros" % "paradise" % "2.1.0").cross(CrossVersion.full)),
-  libraryDependencies += "org.scalatest" %% "scalatest" % "3.0.1" % "test",
-  libraryDependencies += "org.scalacheck" %% "scalacheck" % "1.13.4" % "test",
+  addCompilerPlugin(("org.scalamacros" % "paradise" % "2.1.0").cross(CrossVersion.full)),
+  libraryDependencies += "org.scalatest" %%% "scalatest" % "3.0.1" % "test",
+  libraryDependencies += "org.scalacheck" %%% "scalacheck" % "1.13.5" % "test",
   scalacOptions ++= Seq("-deprecation", "-feature", "-unchecked"),
   scalacOptions in (Compile, doc) ++= Seq("-skip-packages", ""),
   scalacOptions in (Compile, doc) ++= Seq("-implicits", "-implicits-hide:."),
@@ -481,8 +485,7 @@ lazy val publishableSettings = Def.settings(
       else if (shouldPublishToSonatype) "publishing to Sonatype"
       else "publishing disabled"
     }
-    println(
-      s"[info] Welcome to scala.meta $LibraryVersion ($publishingStatus)")
+    println(s"[info] Welcome to scala.meta $LibraryVersion ($publishingStatus)")
     publish in Compile := (Def.taskDyn {
       if (shouldPublishToBintray)
         Def.task { publish.value } else if (shouldPublishToSonatype) Def.task {
@@ -499,9 +502,7 @@ lazy val publishableSettings = Def.settings(
   publishTo := {
     if (shouldPublishToBintray) (publishTo in bintray).value
     else if (shouldPublishToSonatype)
-      Some(
-        "releases".at(
-          "https://oss.sonatype.org/" + "service/local/staging/deploy/maven2"))
+      Some("releases".at("https://oss.sonatype.org/" + "service/local/staging/deploy/maven2"))
     else publishTo.value
   },
   credentials ++= {
@@ -529,8 +530,7 @@ lazy val publishableSettings = Def.settings(
   pomIncludeRepository := { x =>
     false
   },
-  licenses += "BSD" -> url(
-    "https://github.com/scalameta/scalameta/blob/master/LICENSE.md"),
+  licenses += "BSD" -> url("https://github.com/scalameta/scalameta/blob/master/LICENSE.md"),
   pomExtra := (
     <url>https://github.com/scalameta/scalameta</url>
     <inceptionYear>2014</inceptionYear>
@@ -565,7 +565,7 @@ lazy val publishableSettings = Def.settings(
 lazy val buildInfoSettings = Def.settings(
   buildInfoKeys := Seq[BuildInfoKey](
     version,
-    "supportedScalaVersions" -> crossScalaVersions.in(scalameta).value
+    "supportedScalaVersions" -> crossScalaVersions.in(scalametaJVM).value
   ),
   buildInfoPackage := "org.scalameta",
   buildInfoObject := "BuildInfo"
@@ -602,8 +602,7 @@ def exposePaths(projectName: String, config: Configuration) = {
       val scalaLibrary =
         classpath.map(_.toString).find(_.contains("scala-library")).get
       System.setProperty("sbt.paths.scalalibrary.classes", scalaLibrary)
-      System.setProperty(prefix + "classes",
-                         classpath.mkString(java.io.File.pathSeparator))
+      System.setProperty(prefix + "classes", classpath.mkString(java.io.File.pathSeparator))
       defaultValue
     }
   )
@@ -618,8 +617,7 @@ def macroDependencies(hardcore: Boolean) = libraryDependencies ++= {
     Seq("org.scala-lang" % "scala-reflect" % scalaVersion.value % "provided")
   val scalaCompiler = {
     if (hardcore)
-      Seq(
-        "org.scala-lang" % "scala-compiler" % scalaVersion.value % "provided")
+      Seq("org.scala-lang" % "scala-compiler" % scalaVersion.value % "provided")
     else Nil
   }
   val backwardCompat210 = {

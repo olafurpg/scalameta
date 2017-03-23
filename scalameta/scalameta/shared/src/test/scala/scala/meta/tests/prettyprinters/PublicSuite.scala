@@ -137,9 +137,9 @@ class PublicSuite extends FunSuite {
     import java.io._
     import java.nio.charset.Charset
     val file = AbsolutePath("hello.scala")
-    val input1 = Input.File(file, Charset.forName("cp1251"))
+    val input1 = Input.File(file, Charset.forName("latin1"))
     val input2 = Input.File(file, Charset.forName("UTF-8"))
-    assert(input1.toString == """Input.File(new File("hello.scala"), Charset.forName("windows-1251"))""")
+    assert(input1.toString == """Input.File(new File("hello.scala"), Charset.forName("ISO-8859-1"))""")
     assert(input2.toString == """Input.File(new File("hello.scala"), Charset.forName("UTF-8"))""")
   }
 
@@ -151,11 +151,11 @@ class PublicSuite extends FunSuite {
   test("scala.meta.inputs.Input.Stream.toString") {
     import java.io._
     import java.nio.charset.Charset
-    val cp1251 = Charset.forName("cp1251")
-    val stream = new ByteArrayInputStream("Привет(мир!)".getBytes(cp1251))
-    val input1 = Input.Stream(stream, cp1251)
+    val latin1 = Charset.forName("latin1")
+    val stream = new ByteArrayInputStream("Привет(мир!)".getBytes(latin1))
+    val input1 = Input.Stream(stream, latin1)
     val input2 = Input.Stream(stream, Charset.forName("UTF-8"))
-    assert(input1.toString == """Input.Stream(<stream>, Charset.forName("windows-1251"))""")
+    assert(input1.toString == """Input.Stream(<stream>, Charset.forName("ISO-8859-1"))""")
     assert(input2.toString == """Input.Stream(<stream>, Charset.forName("UTF-8"))""")
   }
 

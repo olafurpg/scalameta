@@ -118,6 +118,9 @@ class PublicSuite extends FunSuite {
     assert(scala.meta.dialects.ParadiseTypelevel212.toString === "ParadiseTypelevel212")
   }
 
+  test("scala.meta.io.PlatformIO") {}
+  test("scala.meta.io.AbsolutePath") {}
+
   test("scala.meta.inputs.Input.toString") {
     // covered below
   }
@@ -130,15 +133,15 @@ class PublicSuite extends FunSuite {
     assert(Input.None.toString == "Input.None")
   }
 
-//  test("scala.meta.inputs.Input.File.toString") {
-//    import java.io._
-//    import java.nio.charset.Charset
-//    val file = new File("hello.scala")
-//    val input1 = Input.File(file, Charset.forName("cp1251"))
-//    val input2 = Input.File(file, Charset.forName("UTF-8"))
-//    assert(input1.toString == """Input.File(new File("hello.scala"), Charset.forName("windows-1251"))""")
-//    assert(input2.toString == """Input.File(new File("hello.scala"), Charset.forName("UTF-8"))""")
-//  }
+  test("scala.meta.inputs.Input.File.toString") {
+    import java.io._
+    import java.nio.charset.Charset
+    val file = AbsolutePath("hello.scala")
+    val input1 = Input.File(file, Charset.forName("cp1251"))
+    val input2 = Input.File(file, Charset.forName("UTF-8"))
+    assert(input1.toString == """Input.File(new File("hello.scala"), Charset.forName("windows-1251"))""")
+    assert(input2.toString == """Input.File(new File("hello.scala"), Charset.forName("UTF-8"))""")
+  }
 
   test("scala.meta.inputs.Input.Slice.toString") {
     val input = Input.Slice(Input.String("foo"), 0, 2)

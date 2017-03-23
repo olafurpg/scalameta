@@ -64,6 +64,15 @@ lazy val common = crossProject
 lazy val commonJVM = common.jvm
 lazy val commonJS = common.js
 
+lazy val io = crossProject
+  .in(file("scalameta/io"))
+  .settings(
+    publishableSettings,
+    description := "Scala.meta's API for JVM/JS agnostic IO."
+  )
+lazy val ioJVM = io.jvm
+lazy val ioJS = io.js
+
 lazy val dialects = crossProject
   .in(file("scalameta/dialects"))
   .settings(publishableSettings, description := "Scala.meta's dialects", enableMacros)
@@ -86,7 +95,7 @@ lazy val inputs = crossProject
     description := "Scala.meta's APIs for source code in textual format",
     enableMacros
   )
-  .dependsOn(common)
+  .dependsOn(common, io)
 lazy val inputsJVM = inputs.jvm
 lazy val inputsJS = inputs.js
 

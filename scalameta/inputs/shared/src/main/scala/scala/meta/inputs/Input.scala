@@ -8,9 +8,10 @@ import org.scalameta.data._
 import org.scalameta.invariants._
 import scala.meta.common._
 import scala.meta.internal.inputs._
+import scala.meta.io._
 
 trait Input extends Optional with Product with Serializable with InternalInput {
-  def location: scala.Predef.String = "<input>"
+  def location = "<input>"
   def chars: Array[Char]
 }
 
@@ -47,16 +48,16 @@ object Input {
     }
   }
 
-  @data class File(file: java.io.File, charset: Charset) extends Input {
-    override def location = file.getName
-    lazy val chars = scala.io.Source.fromFile(file)(scala.io.Codec(charset)).mkString.toArray
+  @data class File(file: AbsolutePath, charset: Charset) extends Input {
+    override def location = s"<${file.str}>"
+    lazy val chars = file.read.toArray
     protected def writeReplace(): AnyRef = new File.SerializationProxy(this)
-    override def toString = "Input.File(new File(\"" + file + "\"), Charset.forName(\"" + charset.name + "\"))"
+    override def toString = "Input.File(new File(\"" + file.str + "\"), Charset.forName(\"" + charset.name + "\"))"
   }
   object File {
-    def apply(path: Predef.String): Input.File = new Input.File(new java.io.File(path), Charset.forName("UTF-8"))
-    def apply(file: java.io.File): Input.File = new Input.File(file, Charset.forName("UTF-8"))
-    def apply(file: java.io.File, charset: Charset): Input.File = new Input.File(file, charset)
+    def apply(path: Predef.String): Input.File = new Input.File(AbsolutePath.get(path), Charset.forName("UTF-8"))
+    def apply(file: java.io.File): Input.File = apply(file, Charset.forName("UTF-8"))
+    def apply(file: java.io.File, charset: Charset): Input.File = new Input.File(AbsolutePath.get(file.getAbsolutePath), charset)
 
     @SerialVersionUID(1L) private class SerializationProxy(@transient private var orig: File) extends Serializable {
       private def writeObject(out: java.io.ObjectOutputStream): Unit = {

@@ -52,12 +52,14 @@ object Input {
     override def location = s"<${file.str}>"
     lazy val chars = file.read.toArray
     protected def writeReplace(): AnyRef = new File.SerializationProxy(this)
-    override def toString = "Input.File(new File(\"" + file.str + "\"), Charset.forName(\"" + charset.name + "\"))"
+    override def toString = "Input.File(new File(\"" + file + "\"), Charset.forName(\"" + charset.name + "\"))"
   }
   object File {
-    def apply(path: Predef.String): Input.File = new Input.File(AbsolutePath.get(path), Charset.forName("UTF-8"))
-    def apply(file: java.io.File): Input.File = apply(file, Charset.forName("UTF-8"))
-    def apply(file: java.io.File, charset: Charset): Input.File = new Input.File(AbsolutePath.get(file.getAbsolutePath), charset)
+    def apply(path: AbsolutePath, charset: Charset): Input.File = new Input.File(path, charset)
+    def apply(path: AbsolutePath): Input.File = apply(path, Charset.forName("UTF-8"))
+    def apply(path: Predef.String): Input.File = apply(AbsolutePath(path))
+    def apply(file: java.io.File): Input.File = apply(file.getAbsolutePath)
+    def apply(file: java.io.File, charset: Charset): Input.File = apply(AbsolutePath(file), charset)
 
     @SerialVersionUID(1L) private class SerializationProxy(@transient private var orig: File) extends Serializable {
       private def writeObject(out: java.io.ObjectOutputStream): Unit = {

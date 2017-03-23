@@ -148,16 +148,16 @@ class PublicSuite extends FunSuite {
     assert(input.toString == """Input.Slice(Input.String("foo"), 0, 2)""")
   }
 
-//  test("scala.meta.inputs.Input.Stream.toString") {
-//    import java.io._
-//    import java.nio.charset.Charset
-//    val cp1251 = Charset.forName("cp1251")
-//    val stream = new ByteArrayInputStream("Привет(мир!)".getBytes(cp1251))
-//    val input1 = Input.Stream(stream, cp1251)
-//    val input2 = Input.Stream(stream, Charset.forName("UTF-8"))
-//    assert(input1.toString == """Input.Stream(<stream>, Charset.forName("windows-1251"))""")
-//    assert(input2.toString == """Input.Stream(<stream>, Charset.forName("UTF-8"))""")
-//  }
+  test("scala.meta.inputs.Input.Stream.toString") {
+    import java.io._
+    import java.nio.charset.Charset
+    val cp1251 = Charset.forName("cp1251")
+    val stream = new ByteArrayInputStream("Привет(мир!)".getBytes(cp1251))
+    val input1 = Input.Stream(stream, cp1251)
+    val input2 = Input.Stream(stream, Charset.forName("UTF-8"))
+    assert(input1.toString == """Input.Stream(<stream>, Charset.forName("windows-1251"))""")
+    assert(input2.toString == """Input.Stream(<stream>, Charset.forName("UTF-8"))""")
+  }
 
   test("scala.meta.inputs.Input.String.toString") {
     val input = Input.String("foo")
@@ -260,16 +260,18 @@ class PublicSuite extends FunSuite {
     // n/a
   }
 
+  test("scala.meta.semantic.v1.Address.File") {}
+
   test("scala.meta.semantic.v1.Address.toString") {
     // covered below
   }
 
-//  test("scala.meta.semantic.v1.Address.File.toString") {
-//    val syntax = "file:source.scala"
-//    val address = scala.meta.semantic.v1.Address(syntax)
-//    val scala.meta.semantic.v1.Address.File("source.scala") = address
-//    assert(address.toString === syntax)
-//  }
+  test("scala.meta.semantic.v1.Address.File.toString") {
+    val syntax = "file:source.scala"
+    val address = scala.meta.semantic.v1.Address(syntax)
+    val scala.meta.semantic.v1.Address.File("source.scala") = address
+    assert(address.toString === syntax)
+  }
 
   test("scala.meta.semantic.v1.Address.Snippet.toString") {
     val syntax = "snippet:Int"
@@ -294,10 +296,10 @@ class PublicSuite extends FunSuite {
     // n/a
   }
 
-//  test("scala.meta.semantic.v1.Location.toString") {
-//    val location = scala.meta.semantic.v1.Location(scala.meta.semantic.v1.Address("file:source.scala"), 40, 42)
-//    assert(location.toString === """Location(Address("file:source.scala"), 40, 42)""")
-//  }
+  test("scala.meta.semantic.v1.Location.toString") {
+    val location = scala.meta.semantic.v1.Location(scala.meta.semantic.v1.Address("file:source.scala"), 40, 42)
+    assert(location.toString === """Location(Address("file:source.scala"), 40, 42)""")
+  }
 
   test("scala.meta.semantic.v1.Mirror.toString") {
     // n/a
@@ -368,9 +370,9 @@ class PublicSuite extends FunSuite {
     val globalSelf @ Symbol.Global(Symbol.Global(Symbol.None, Signature.Term("_root_")), Signature.Self("self")) = Symbol(syntaxGlobalSelf)
     assert(globalSelf.toString === syntaxGlobalSelf)
 
-//    val syntaxLocal = "file:source.scala@40..42"
-//    val local @ Symbol.Local(Address.File("source.scala"), 40, 42) = Symbol(syntaxLocal)
-//    assert(local.toString === syntaxLocal)
+    val syntaxLocal = "file:source.scala@40..42"
+    val local @ Symbol.Local(Address.File("source.scala"), 40, 42) = Symbol(syntaxLocal)
+    assert(local.toString === syntaxLocal)
 
     val syntaxMulti = "_root_.C#;_root.C."
     val multi @ Symbol.Multi(List(Symbol.Global(Symbol.Global(Symbol.None, Signature.Term("_root_")), Signature.Type("C")), Symbol.Global(Symbol.Global(Symbol.None, Signature.Term("_root")), Signature.Term("C")))) = Symbol(syntaxMulti)

@@ -49,7 +49,7 @@ object Input {
   }
 
   @data class File(file: AbsolutePath, charset: Charset) extends Input {
-    override def location = s"<${file.str}>"
+    override def location = s"<${file.path}>"
     lazy val chars = file.read.toArray
     protected def writeReplace(): AnyRef = new File.SerializationProxy(this)
     override def toString = "Input.File(new File(\"" + file + "\"), Charset.forName(\"" + charset.name + "\"))"

@@ -269,7 +269,8 @@ class PublicSuite extends FunSuite {
   test("scala.meta.semantic.v1.Address.File.toString") {
     val syntax = "file:source.scala"
     val address = scala.meta.semantic.v1.Address(syntax)
-    val scala.meta.semantic.v1.Address.File("source.scala") = address
+    val scala.meta.semantic.v1.Address.File(AbsolutePath(path)) = address
+    assert(path.endsWith("source.scala"))
     assert(address.toString === syntax)
   }
 
@@ -371,7 +372,8 @@ class PublicSuite extends FunSuite {
     assert(globalSelf.toString === syntaxGlobalSelf)
 
     val syntaxLocal = "file:source.scala@40..42"
-    val local @ Symbol.Local(Address.File("source.scala"), 40, 42) = Symbol(syntaxLocal)
+    val local @ Symbol.Local(Address.File(AbsolutePath(path)), 40, 42) = Symbol(syntaxLocal)
+    assert(path.endsWith("source.scala"))
     assert(local.toString === syntaxLocal)
 
     val syntaxMulti = "_root_.C#;_root.C."

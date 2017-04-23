@@ -8,7 +8,6 @@ package object meta extends classifiers.Api with classifiers.Aliases
                        with inline.Api with inline.Aliases
                        with io.Api with io.Aliases
                        with inputs.Api with inputs.Aliases
-                       with semantic.Api with semantic.Aliases
                        with tokenizers.Api with tokenizers.Aliases
                        with tokens.Api with tokens.Aliases
                        with transversers.Api with transversers.Aliases {

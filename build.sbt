@@ -59,6 +59,7 @@ lazy val common = crossProject(JSPlatform, JVMPlatform, NativePlatform)
     description := "Bag of private and public helpers used in scala.meta's APIs and implementations",
     enableMacros
   )
+lazy val commonNative = common.native
 lazy val commonJVM = common.jvm
 lazy val commonJS = common.js
 
@@ -69,6 +70,7 @@ lazy val io = crossProject(JSPlatform, JVMPlatform, NativePlatform)
     description := "Scala.meta's API for JVM/JS agnostic IO."
   )
 
+lazy val ioNative = io.native
 lazy val ioJVM = io.jvm
 lazy val ioJS = io.js
 
@@ -80,6 +82,7 @@ lazy val dialects = crossProject(JSPlatform, JVMPlatform, NativePlatform)
     enableMacros
   )
   .dependsOn(common)
+lazy val dialectsNative = dialects.native
 lazy val dialectsJVM = dialects.jvm
 lazy val dialectsJS = dialects.js
 
@@ -90,6 +93,7 @@ lazy val inline = crossProject(JSPlatform, JVMPlatform, NativePlatform)
     description := "Scala.meta's APIs for new-style (\"inline\") macros"
   )
   .dependsOn(inputs)
+lazy val inlineNative = inline.native
 lazy val inlineJVM = inline.jvm
 lazy val inlineJS = inline.js
 
@@ -101,6 +105,7 @@ lazy val inputs = crossProject(JSPlatform, JVMPlatform, NativePlatform)
     enableMacros
   )
   .dependsOn(common, io)
+lazy val inputsNative = inputs.native
 lazy val inputsJVM = inputs.jvm
 lazy val inputsJS = inputs.js
 
@@ -111,6 +116,7 @@ lazy val parsers = crossProject(JSPlatform, JVMPlatform, NativePlatform)
     description := "Scala.meta's API for parsing and its baseline implementation"
   )
   .dependsOn(common, dialects, inputs, tokens, tokenizers, trees)
+lazy val parsersNative = parsers.native
 lazy val parsersJVM = parsers.jvm
 lazy val parsersJS = parsers.js
 
@@ -122,6 +128,7 @@ lazy val quasiquotes = crossProject(JSPlatform, JVMPlatform, NativePlatform)
     enableHardcoreMacros
   )
   .dependsOn(common, dialects, inputs, trees, parsers)
+lazy val quasiquotesNative = quasiquotes.native
 lazy val quasiquotesJVM = quasiquotes.jvm
 lazy val quasiquotesJS = quasiquotes.js
 
@@ -134,6 +141,7 @@ lazy val tokenizers = crossProject(JSPlatform, JVMPlatform, NativePlatform)
     enableMacros
   )
   .dependsOn(common, dialects, inputs, tokens)
+lazy val tokenizersNative = tokenizers.native
 lazy val tokenizersJVM = tokenizers.jvm
 lazy val tokenizersJS = tokenizers.js
 
@@ -145,6 +153,7 @@ lazy val tokens = crossProject(JSPlatform, JVMPlatform, NativePlatform)
     enableMacros
   )
   .dependsOn(common, dialects, inputs)
+lazy val tokensNative = tokens.native
 lazy val tokensJVM = tokens.jvm
 lazy val tokensJS = tokens.js
 
@@ -156,6 +165,7 @@ lazy val transversers = crossProject(JSPlatform, JVMPlatform, NativePlatform)
     enableMacros
   )
   .dependsOn(common, trees)
+lazy val traversersNative = transversers.native
 lazy val traversersJVM = transversers.jvm
 lazy val traversersJS = transversers.js
 
@@ -169,6 +179,7 @@ lazy val trees = crossProject(JSPlatform, JVMPlatform, NativePlatform)
     enableMacros
   )
   .dependsOn(common, dialects, inputs, tokens, tokenizers) // NOTE: tokenizers needed for Tree.tokens when Tree.pos.isEmpty
+lazy val treesNative = trees.native
 lazy val treesJVM = trees.jvm
 lazy val treesJS = trees.js
 
@@ -187,6 +198,7 @@ lazy val semantic = crossProject(JSPlatform, JVMPlatform, NativePlatform)
     libraryDependencies += "com.trueaccord.scalapb" %%% "scalapb-runtime" % scalapbVersion
   )
   .dependsOn(common, trees)
+lazy val semanticNative = semantic.native
 lazy val semanticJVM = semantic.jvm
 lazy val semanticJS = semantic.js
 
@@ -205,9 +217,10 @@ lazy val scalameta = crossProject(JSPlatform, JVMPlatform, NativePlatform)
     tokenizers,
     transversers,
     trees,
-    inline,
-    semantic
+    inline
+    //, semantic
   )
+lazy val scalametaNative = scalameta.native
 lazy val scalametaJVM = scalameta.jvm
 lazy val scalametaJS = scalameta.js
 
@@ -337,6 +350,7 @@ lazy val contrib = crossProject(JSPlatform, JVMPlatform, NativePlatform)
   )
   .jvmConfigure(_.dependsOn(testkit))
   .dependsOn(scalameta)
+lazy val contribNative = contrib.native
 lazy val contribJVM = contrib.jvm
 lazy val contribJS = contrib.js
 
@@ -449,8 +463,8 @@ lazy val sharedSettings = Def.settings(
   resolvers += Resolver.sonatypeRepo("snapshots"),
   resolvers += Resolver.sonatypeRepo("releases"),
   addCompilerPlugin("org.scalamacros" % "paradise" % "2.1.0" cross CrossVersion.full),
-  libraryDependencies += "org.scalatest" %%% "scalatest" % "3.0.1" % "test",
-  libraryDependencies += "org.scalacheck" %%% "scalacheck" % "1.13.5" % "test",
+  // libraryDependencies += "org.scalatest" %%% "scalatest" % "3.0.1" % "test",
+  // libraryDependencies += "org.scalacheck" %%% "scalacheck" % "1.13.5" % "test",
   scalacOptions ++= Seq("-deprecation", "-feature", "-unchecked"),
   scalacOptions.in(Compile, doc) ++= Seq("-skip-packages", ""),
   scalacOptions.in(Compile, doc) ++= Seq("-implicits", "-implicits-hide:."),

@@ -22,3 +22,7 @@ addSbtPlugin("com.thesamet" % "sbt-protoc" % "0.99.6" exclude ("com.trueaccord.s
 libraryDependencies += "com.trueaccord.scalapb" %% "compilerplugin-shaded" % "0.6.0-pre2"
 
 libraryDependencies += "org.scala-sbt" % "scripted-plugin" % sbtVersion.value
+
+addSbtPlugin("org.scala-native" % "sbt-crossproject"         % "0.1.0")  // (1)
+addSbtPlugin("org.scala-native" % "sbt-scalajs-crossproject" % "0.1.0")  // (2)
+addSbtPlugin("org.scala-native" % "sbt-scala-native"         % "0.2.0-SNAPSHOT")  // (3)

@@ -9,7 +9,6 @@ import sbt.ScriptedPlugin._
 import com.trueaccord.scalapb.compiler.Version.scalapbVersion
 import sbtcrossproject.crossProject
 
-
 lazy val LanguageVersions = Seq("2.11.8", "2.12.2")
 lazy val LanguageVersion = LanguageVersions.head
 lazy val LibraryVersion = "1.8.0-native" // sys.props.getOrElseUpdate("scalameta.version", os.version.preRelease())
@@ -183,7 +182,7 @@ lazy val treesNative = trees.native
 lazy val treesJVM = trees.jvm
 lazy val treesJS = trees.js
 
-lazy val semantic = crossProject(JSPlatform, JVMPlatform, NativePlatform)
+lazy val semantic = crossProject(JSPlatform, JVMPlatform)
   .in(file("scalameta/semantic"))
   .settings(
     publishableSettings,
@@ -198,7 +197,7 @@ lazy val semantic = crossProject(JSPlatform, JVMPlatform, NativePlatform)
     libraryDependencies += "com.trueaccord.scalapb" %%% "scalapb-runtime" % scalapbVersion
   )
   .dependsOn(common, trees)
-lazy val semanticNative = semantic.native
+//lazy val semanticNative = semantic.native
 lazy val semanticJVM = semantic.jvm
 lazy val semanticJS = semantic.js
 
@@ -223,6 +222,18 @@ lazy val scalameta = crossProject(JSPlatform, JVMPlatform, NativePlatform)
 lazy val scalametaNative = scalameta.native
 lazy val scalametaJVM = scalameta.jvm
 lazy val scalametaJS = scalameta.js
+
+lazy val example = crossProject(JSPlatform, JVMPlatform, NativePlatform)
+  .in(file("scalameta/example"))
+  .settings(
+    sharedSettings,
+    nonPublishableSettings,
+    description := "Example app with scalameta"
+  )
+  .dependsOn(scalameta)
+lazy val exampleNative = example.native
+lazy val exampleJVM = example.jvm
+lazy val exampleJS = example.js
 
 lazy val scalahost = project
   .in(file("scalahost/core"))
@@ -411,7 +422,8 @@ lazy val readme = scalatex
 
       // import the scalatex readme into `repo`
       val repo = new File(os.temp.mkdir.getAbsolutePath + File.separator + "scalameta.org")
-      os.shell.call(s"git clone https://github.com/scalameta/scalameta.github.com ${repo.getAbsolutePath}")
+      os.shell.call(
+        s"git clone https://github.com/scalameta/scalameta.github.com ${repo.getAbsolutePath}")
       println(s"erasing everything in ${repo.getAbsolutePath}...")
       repo.listFiles.filter(f => f.getName != ".git").foreach(os.shutil.rmtree)
       println(s"importing website from ${website.getAbsolutePath} to ${repo.getAbsolutePath}...")
@@ -426,7 +438,8 @@ lazy val readme = scalatex
       val nothingToCommit = "nothing to commit, working directory clean"
       try {
         val url = "https://github.com/scalameta/scalameta/tree/" + os.git.currentSha()
-        os.shell.call(s"git config user.email 'scalametabot@gmail.com'", cwd = repo.getAbsolutePath)
+        os.shell.call(s"git config user.email 'scalametabot@gmail.com'",
+                      cwd = repo.getAbsolutePath)
         os.shell.call(s"git config user.name 'Scalameta Bot'", cwd = repo.getAbsolutePath)
         os.shell.call(s"git commit -m $url", cwd = repo.getAbsolutePath)
         os.secret.obtain("github").foreach {
@@ -507,8 +520,7 @@ lazy val publishableSettings = Def.settings(
   sharedSettings,
   bintrayOrganization := Some("scalameta"),
   publishArtifact.in(Compile) := true,
-  publishArtifact.in(Test) := false,
-  {
+  publishArtifact.in(Test) := false, {
     val publishingEnabled: Boolean = {
       if (!new File(sys.props("user.home") + "/.bintray/.credentials").exists) false
       else if (sys.props("sbt.prohibit.publish") != null) false
@@ -659,4 +671,3 @@ def CiCommand(name: String)(commands: List[String]): Command = Command.command(n
   }
 }
 def ci(command: String) = s"plz $ciScalaVersion $command"
-

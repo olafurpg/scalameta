@@ -10,7 +10,7 @@ import com.trueaccord.scalapb.compiler.Version.scalapbVersion
 import sbtcrossproject.crossProject
 
 
-lazy val LanguageVersions = Seq("2.11.11", "2.12.2")
+lazy val LanguageVersions = Seq("2.11.8", "2.12.2")
 lazy val LanguageVersion = LanguageVersions.head
 lazy val LibraryVersion = "1.8.0-native" // sys.props.getOrElseUpdate("scalameta.version", os.version.preRelease())
 
@@ -458,6 +458,7 @@ lazy val sharedSettings = Def.settings(
       case _ => CrossVersion.binary
     }
   },
+  sources.in(Compile, doc) := Nil,
   version := LibraryVersion,
   organization := "org.scalameta",
   resolvers += Resolver.sonatypeRepo("snapshots"),

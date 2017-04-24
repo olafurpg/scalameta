@@ -9,7 +9,7 @@ import scala.meta.inputs._
 private[meta] trait Api {
   implicit class XtensionTokenizeInputLike[T](inputLike: T) {
     def tokenize(implicit convert: Convert[T, Input], tokenize: Tokenize, dialect: Dialect): Tokenized = {
-      (dialect, convert(inputLike)).tokenize
+      tokenize.apply(convert(inputLike), dialect)
     }
   }
   implicit class XtensionTokenizersDialectApply(dialect: Dialect) {
@@ -23,12 +23,12 @@ private[meta] trait Api {
       tokenize.apply(input, dialect)
     }
   }
-  implicit class XtensionTokenizeInputDialect(inputDialect: (Input, Dialect)) {
-    def tokenize(implicit tokenize: Tokenize): Tokenized = {
-      val (input, dialect) = inputDialect
-      (dialect, input).tokenize
-    }
-  }
+//  implicit class XtensionTokenizeInputDialect(inputDialect: (Input, Dialect)) {
+//    def tokenize(implicit tokenize: Tokenize): Tokenized = {
+//      val (input, dialect) = inputDialect
+//      (dialect, input).tokenize
+//    }
+//  }
 }
 
 private[meta] trait Aliases {

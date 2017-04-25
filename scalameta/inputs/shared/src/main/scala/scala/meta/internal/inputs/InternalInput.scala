@@ -13,8 +13,8 @@ trait InternalInput {
   // However, as #334 shows, we just can't redo offset -> line conversions over and over again.
   // This means that we gotta cache, and this instance is really the only place versatile enough.
   private lazy val cachedLineIndices: Array[Int] = {
-    val chars = this.chars
-    val buf = new mutable.ArrayBuffer[Int]
+    val chars = this.chars.to[Vector]
+    val buf = new mutable.ListBuffer[Int]
     buf += 0
     var i = 0
     while (i < chars.length) {
@@ -35,7 +35,7 @@ trait InternalInput {
   }
 
   private[meta] def offsetToLine(offset: Int): Int = {
-    val chars = this.chars
+    val chars = this.chars.to[Vector]
     val a = cachedLineIndices
     // NOTE: We allow chars.length, because it's a valid value for an offset.
     if (!(0 <= offset && offset <= chars.length)) {

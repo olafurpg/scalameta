@@ -721,7 +721,6 @@ class ScalametaParser(input: Input, dialect: Dialect) { parser =>
                   // Unquote's pt may not be directly equal unwrapped ellipsis's pt, but be its refinement instead.
                   // For example, in `new { ..$stats }`, ellipsis's pt is Seq[Stat], but quasi's pt is Term.
                   // This is an artifact of the current implementation, so we just need to keep it mind and work around it.
-                  require(classTag[T].runtimeClass.isAssignableFrom(quasi.pt) && debug(ellipsis, result, result.structure))
                   atPos(quasi, quasi)(astInfo.quasi(quasi.rank, quasi.tree))
                 case other =>
                   other
@@ -3803,6 +3802,9 @@ object Location {
   val InTemplate = new Location(2)
 }
 
-object InfixMode extends Enumeration {
-  val FirstOp, LeftOp, RightOp = Value
+object InfixMode {
+  type Value = Int
+  var id = 0
+  def op = { val x = id; id += 1; x }
+  val FirstOp, LeftOp, RightOp = op
 }

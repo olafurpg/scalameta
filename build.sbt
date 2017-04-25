@@ -223,12 +223,18 @@ lazy val scalametaNative = scalameta.native
 lazy val scalametaJVM = scalameta.jvm
 lazy val scalametaJS = scalameta.js
 
+import scalanative.tools.LinkerReporter
+import scalanative.sbtplugin.ScalaNativePluginInternal.nativeLinkerReporter
+
 lazy val example = crossProject(JSPlatform, JVMPlatform, NativePlatform)
   .in(file("scalameta/example"))
   .settings(
     sharedSettings,
     nonPublishableSettings,
     description := "Example app with scalameta"
+  )
+  .nativeSettings(
+    nativeLinkerReporter := LinkerReporter.toFile(target.value / "out.dot")
   )
   .dependsOn(scalameta)
 lazy val exampleNative = example.native

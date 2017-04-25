@@ -172,17 +172,17 @@ class ReificationMacros(val c: Context) extends AstReflection with AdtLiftables 
   }
 
   private def instantiateParser(interpolator: ReflectSymbol): MetaParser = {
-//    ???
-     val parserModule = interpolator.owner.owner.companion
-     val parsersModuleClass = Class.forName("scala.meta.quasiquotes.package$", true, this.getClass.getClassLoader)
-     val parsersModule = parsersModuleClass.getField("MODULE$").get(null)
-     val parserModuleGetter = parsersModule.getClass.getDeclaredMethod(parserModule.name.toString)
-     val parserModuleInstance = parserModuleGetter.invoke(parsersModule)
-     val parserMethod = parserModuleInstance.getClass.getDeclaredMethods().find(_.getName == "parse").head
-     (input: Input, dialect: Dialect) => {
-       try parserMethod.invoke(parserModuleInstance, input, dialect).asInstanceOf[MetaTree]
-       catch { case ex: java.lang.reflect.InvocationTargetException => throw ex.getTargetException }
-     }
+   ???
+     // val parserModule = interpolator.owner.owner.companion
+     // val parsersModuleClass = Class.forName("scala.meta.quasiquotes.package$", true, this.getClass.getClassLoader)
+     // val parsersModule = parsersModuleClass.getField("MODULE$").get(null)
+     // val parserModuleGetter = parsersModule.getClass.getDeclaredMethod(parserModule.name.toString)
+     // val parserModuleInstance = ??? //  parserModuleGetter.invoke(parsersModule)
+     // val parserMethod = parserModuleInstance.getClass.getDeclaredMethods().find(_.getName == "parse").head
+     // (input: Input, dialect: Dialect) => {
+     //   try ???parserMethod.invoke(parserModuleInstance, input, dialect).asInstanceOf[MetaTree]
+     //   catch { case ex: java.lang.reflect.InvocationTargetException => throw ex.getTargetException }
+     // }
   }
 
   private def parseSkeleton(parser: MetaParser, input: Input, dialect: Dialect): MetaTree = {

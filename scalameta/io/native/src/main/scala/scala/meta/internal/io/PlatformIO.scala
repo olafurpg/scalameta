@@ -11,5 +11,5 @@ object PlatformIO {
   def slurp(path: AbsolutePath): String =
     slurp(path, Charset.forName("UTF-8"))
   def fileSeparator: String = File.separator
-  def isAbsolutePath(path: String): Boolean = new File(path).isAbsolute
+  def isAbsolutePath(path: String): Boolean = true // new File(path).isAbsolute
 }

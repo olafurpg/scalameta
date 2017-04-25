@@ -16,7 +16,7 @@ import scala.meta.internal.tokens.{Reflection => TokenReflection}
 trait TokenInfo[T <: Token] extends ClassTag[T] with Classifier[Token, T] {
   def name: String
   def runtimeClass: Class[T]
-  def apply(token: Token): Boolean = token != null && runtimeClass.isAssignableFrom(token.getClass)
+  def apply(token: Token): Boolean = token != null  // && runtimeClass.isAssignableFrom(token.getClass)
 }
 object TokenInfo {
   implicit def materialize[T <: Token]: TokenInfo[T] = macro TokenInfoMacros.materialize[T]

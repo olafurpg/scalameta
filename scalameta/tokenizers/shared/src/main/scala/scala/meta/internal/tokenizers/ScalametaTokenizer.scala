@@ -252,7 +252,7 @@ class ScalametaTokenizer(input: Input, dialect: Dialect) {
           val isEof = dollarOffset >= input.chars.length
           // Are we at the start of an embedded scala expression?
           if (!isEof && input.chars(dollarOffset) == '{') {
-            emitSpliceStart(dollarOffset - 1)
+            emitSpliceStart(dollarOffset)
             legacyIndex = loop(legacyIndex, braceBalance = 0, returnWhenBraceBalanceHitsZero = true)
             nextToken()
             emitSpliceEnd(curr.offset)

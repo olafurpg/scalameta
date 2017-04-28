@@ -46,7 +46,7 @@ class XmlSuite extends ParseSuite with DiffAssertions {
       |            BOF [0..0) ----> class scala.meta.tokens.Token$BOF
       |                [0..0) ----> class scala.meta.tokens.Token$Xml$Start
       |          <foo> [0..5) ----> class scala.meta.tokens.Token$Xml$Part
-      |                [4..4) ----> class scala.meta.tokens.Token$Xml$SpliceStart
+      |                [5..5) ----> class scala.meta.tokens.Token$Xml$SpliceStart
       |              { [5..6) ----> class scala.meta.tokens.Token$LeftBrace
       |            bar [6..9) ----> class scala.meta.tokens.Token$Ident
       |             } [9..10) ----> class scala.meta.tokens.Token$RightBrace
@@ -64,7 +64,7 @@ class XmlSuite extends ParseSuite with DiffAssertions {
        |            BOF [0..0) ----> class scala.meta.tokens.Token$BOF
        |                [0..0) ----> class scala.meta.tokens.Token$Xml$Start
        |          <foo> [0..5) ----> class scala.meta.tokens.Token$Xml$Part
-       |                [4..4) ----> class scala.meta.tokens.Token$Xml$SpliceStart
+       |                [5..5) ----> class scala.meta.tokens.Token$Xml$SpliceStart
        |              { [5..6) ----> class scala.meta.tokens.Token$LeftBrace
        |            "{" [6..9) ----> class scala.meta.tokens.Token$Constant$String
        |               [9..10) ----> class scala.meta.tokens.Token$Space
@@ -99,7 +99,7 @@ class XmlSuite extends ParseSuite with DiffAssertions {
        |               [9..10) ----> class scala.meta.tokens.Token$Space
        |              [10..10) ----> class scala.meta.tokens.Token$Xml$Start
        |   <div href= [10..20) ----> class scala.meta.tokens.Token$Xml$Part
-       |              [19..19) ----> class scala.meta.tokens.Token$Xml$SpliceStart
+       |              [20..20) ----> class scala.meta.tokens.Token$Xml$SpliceStart
        |            { [20..21) ----> class scala.meta.tokens.Token$LeftBrace
        |          "/" [21..24) ----> class scala.meta.tokens.Token$Constant$String
        |              [24..25) ----> class scala.meta.tokens.Token$Space
@@ -109,7 +109,7 @@ class XmlSuite extends ParseSuite with DiffAssertions {
        |            } [30..31) ----> class scala.meta.tokens.Token$RightBrace
        |              [31..31) ----> class scala.meta.tokens.Token$Xml$SpliceEnd
        |      >Hello  [31..38) ----> class scala.meta.tokens.Token$Xml$Part
-       |              [37..37) ----> class scala.meta.tokens.Token$Xml$SpliceStart
+       |              [38..38) ----> class scala.meta.tokens.Token$Xml$SpliceStart
        |            { [38..39) ----> class scala.meta.tokens.Token$LeftBrace
        |         name [39..43) ----> class scala.meta.tokens.Token$Ident
        |            } [43..44) ----> class scala.meta.tokens.Token$RightBrace
@@ -126,7 +126,7 @@ class XmlSuite extends ParseSuite with DiffAssertions {
        |              [69..70) ----> class scala.meta.tokens.Token$Space
        |              [70..70) ----> class scala.meta.tokens.Token$Xml$Start
        |         <h1> [70..74) ----> class scala.meta.tokens.Token$Xml$Part
-       |              [73..73) ----> class scala.meta.tokens.Token$Xml$SpliceStart
+       |              [74..74) ----> class scala.meta.tokens.Token$Xml$SpliceStart
        |            { [74..75) ----> class scala.meta.tokens.Token$LeftBrace
        |          msg [75..78) ----> class scala.meta.tokens.Token$Ident
        |              [78..79) ----> class scala.meta.tokens.Token$Space
@@ -150,6 +150,20 @@ class XmlSuite extends ParseSuite with DiffAssertions {
        |        EOF [108..108) ----> class scala.meta.tokens.Token$EOF
         """.stripMargin
   )
+
+  test("array") {
+    val input =
+      """|object a {
+         |  <tr>
+         |    <td> {session} </td>
+         |    <td> <a href={sessionLink}> {session} </a> </td>
+         |    <td> {formatDate(session)} </td>
+         |    <td> {foo} </td>
+         |  </tr>
+         |}""".stripMargin
+
+    input.tokenize.get
+  }
 
   test("deconstruct") {
     val parsedTricky = term(trickyXml)

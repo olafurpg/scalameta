@@ -128,7 +128,7 @@ case class RangePosition(from: Int, to: Int)
   * Doesn't really parse scala expressions, only reads until the curly brace
   * balance hits 0.
   */
-class ScalaExprPositionParser(input: Input, dialect: Dialect) extends Parser[Unit] {
+class ScalaExprPositionParser(dialect: Dialect) extends Parser[Unit] {
   private val splicePositions = Seq.newBuilder[RangePosition]
   def getSplicePositions = splicePositions.result()
 
@@ -136,7 +136,7 @@ class ScalaExprPositionParser(input: Input, dialect: Dialect) extends Parser[Uni
     var current = 0
     var curlyBraceCount = 1
     val scanner =
-      new LegacyScanner(Input.Slice(input, index, input.chars.length), dialect)
+      new LegacyScanner(Input.String(cfg.input.slice(index, cfg.input.length)), dialect)
     scanner.reader.nextChar()
     while (curlyBraceCount > 0) {
       scanner.nextToken()

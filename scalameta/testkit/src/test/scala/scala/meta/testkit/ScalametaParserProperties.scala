@@ -3,6 +3,9 @@ package scala.meta.testkit
 import scala.meta._
 import scala.meta.parsers.Parsed
 
+import java.nio.file.Files
+import java.nio.file.Paths
+
 import org.scalatest.FunSuiteLike
 
 object ScalametaParserProperties {
@@ -74,6 +77,9 @@ object ScalametaParserPropertyTest extends FunSuiteLike {
   import ScalametaParserProperties._
   def main(args: Array[String]): Unit = {
     val result = runAnalysis()
+    Files.write(
+      Paths.get("target", "parser_bugs.md"),
+      Observation.markdownTable(result).getBytes())
     val parserProken = result.count(_._2.kind == ParserBroken)
     val prettyPrinterBroken = result.count(_._2.kind == PrettyPrinterBroken)
     println(s"""Parser broken: $parserProken

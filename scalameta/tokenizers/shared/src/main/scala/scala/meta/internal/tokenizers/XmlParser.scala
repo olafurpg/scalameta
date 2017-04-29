@@ -53,7 +53,7 @@ class XmlParser(Block: P0,
 
     val Reference = P( EntityRef | CharRef )
     val EntityRef = P( "&" ~ Name ~/ ";" )
-    val CharRef   = P( "&#" ~ Num ~/ ";" | "&#x" ~ HexNum ~/ ";" )
+    val CharRef   = P( "&#" ~ Num ~ ";" | "&#x" ~ HexNum ~ ";" )
     val Num       = P( CharIn('0' to '9').rep )
     val HexNum    = P( CharIn('0' to '9', 'a' to 'f', 'A' to 'F').rep )
 

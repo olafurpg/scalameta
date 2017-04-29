@@ -16,7 +16,7 @@ class XmlSuite extends ParseSuite with DiffAssertions {
   }
 
   def skip(original: String, expected: String): Unit = ignore(logger.revealWhitespace(original)) {}
-  def check(original: String, expected: String): Unit = {
+  def checkToken(original: String, expected: String): Unit = {
     test(logger.revealWhitespace(original)) {
       val obtained = tokensStructure(tokenize(original))
       assertNoDiff(obtained, expected)
@@ -29,7 +29,16 @@ class XmlSuite extends ParseSuite with DiffAssertions {
       .mkString("\n")
   }
 
-  check(
+
+  override def checkError(stat: String)(implicit dialect: Dialect): Unit =
+    test(logger.revealWhitespace(stat).take(50)) {
+      val thrown = intercept[Exception] {
+        templStat(stat)(dialect)
+      }
+      assert(thrown.isInstanceOf[ParseException] || thrown.isInstanceOf[TokenizeException])
+    }
+
+  checkToken(
     "<foo>bar</foo>",
     """|
        |            BOF [0..0) ----> class scala.meta.tokens.Token$BOF
@@ -40,7 +49,7 @@ class XmlSuite extends ParseSuite with DiffAssertions {
        |""".stripMargin
   )
 
-  check(
+  checkToken(
     "<foo>{bar}</foo> ",
     """
       |            BOF [0..0) ----> class scala.meta.tokens.Token$BOF
@@ -58,7 +67,7 @@ class XmlSuite extends ParseSuite with DiffAssertions {
     """.stripMargin
   )
 
-  check(
+  checkToken(
     """<foo>{"{" + `{`}</foo>""",
     """|
        |            BOF [0..0) ----> class scala.meta.tokens.Token$BOF
@@ -79,13 +88,15 @@ class XmlSuite extends ParseSuite with DiffAssertions {
        |""".stripMargin
   )
 
+
+
   val trickyXml =
     """|{
        |val x = <div href={"/" + url}>Hello {name}</div>;
        |val noSemicolon = <h1>{msg infix upper}</h1>
        |val y = 2
        |}""".stripMargin
-  check(
+  checkToken(
     trickyXml,
     """|
        |            BOF [0..0) ----> class scala.meta.tokens.Token$BOF
@@ -151,19 +162,104 @@ class XmlSuite extends ParseSuite with DiffAssertions {
         """.stripMargin
   )
 
-  test("array") {
-    val input =
-      """|object a {
-         |  <tr>
-         |    <td> {session} </td>
-         |    <td> <a href={sessionLink}> {session} </a> </td>
-         |    <td> {formatDate(session)} </td>
-         |    <td> {foo} </td>
-         |  </tr>
-         |}""".stripMargin
+  checkOK("<foo/>")
+  checkOK("<foo></foo>")
+  checkOK("<foo/><bar/>")
+  checkOK("<foo:bar/>")
+  checkOK("<foo><bar/></foo>")
+  checkOK("<foo\n>\t <bar   />\t  </foo\n>")
+  checkOK("""<foo a="a" b="b"/>""")
+  checkOK("""<foo a:a="a" b:b="b"/>""")
+  checkOK("""<foo a="'"/>""")
+  checkOK("""<foo a='"'/>""")
+  checkOK("<foo>&name;</foo>")
+  checkOK("<foo>&lt;</foo>")
+  checkOK("<foo>Hello &name;!</foo>")
+  checkOK("""<foo a="&name;" />""")
+  checkOK("""<foo a="&lt;" />""")
+  checkOK("""<foo a="Hello &name;!"/>""")
+  checkOK("""<foo a="1 &lt; 2"/>""")
+  checkOK("<foo>&#1234;</foo>")
+  checkOK("<foo>&#x1234;</foo>")
+  checkOK("<foo>Hello&#x1234;Allan</foo>")
+  checkOK("""<foo a="&#1234;" />""")
+  checkOK("""<foo a="&#x1234;" />""")
+  checkOK("""<foo a="Hello&#x1234;Allan" />""")
+  checkOK("<xml:group><foo/><bar/></xml:group>")
+  checkOK("<xml:group></xml:group>")
+  checkOK("<!---->")
+  checkOK("<!----->")
+  checkOK("<!--foo-->")
+  checkOK("<!--a-b-->")
+  checkOK("<![CDATA[foo]]>")
+  checkOK("<![CDATA[]]>")
+  checkOK("<![CDATA[>]]>")
+  checkOK("<![CDATA[]>]]>")
+  checkOK("<![CDATA[]]]]>")
+  checkOK("<?foo bar?>")
+  checkOK("<?foo?>")
+  checkOK("<?foo     ?>")
+  checkOK("<xml:unparsed>foo</xml:unparsed>")
+  checkOK("<xml:unparsed>{</xml:unparsed>")
+  checkOK("<xml:unparsed><</xml:unparsed>")
+  checkOK("<![CDATA[hello, world]]>")
+  checkOK("<![CDATA[hello, world]]><![CDATA[hello, world]]>")
+  checkOK("<foo>x<![CDATA[hello, world]]></foo>")
+  checkOK("<foo><![CDATA[hello, world]]></foo>")
+  checkOK("<foo><![CDATA[hello, world]]><![CDATA[hello, world]]></foo>")
+  checkOK("<a><b/>start<![CDATA[hi & bye]]><c/>world<d/>stuff<![CDATA[red & black]]></a>")
+  checkOK("<foo>{foo}</foo>")
+  checkOK("<foo>{foo }</foo>")
+  checkOK("<foo>{ foo}</foo>")
+  checkOK("<foo>{ foo }</foo>")
+  checkOK("<foo>{2}</foo>")
+  checkOK("""<foo>{"bar"}</foo>""")
+  checkOK("<foo>{1}</foo>")
+  checkOK("<foo>{<bar/>}</foo>")
+  checkOK("<foo>{<bar/><bat/>}</foo>")
+  checkOK("""<foo a={"foo"}/>""")
+  checkOK("<foo a={<bar/>}/>")
+  checkOK("<foo a={<bar/><bat/>}/>")
+  checkOK("<a>{ List(1, 2) }</a>")
+  checkOK(
+    """<a>
+      |  <b/>
+      |</a>
+    """.stripMargin)
+  checkOK(
+    """|object a {
+       |  <tr>
+       |    <td> {session} </td>
+       |    <td> <a href={sessionLink}> {session} </a> </td>
+       |    <td> {formatDate(session)} </td>
+       |    <td> {foo} </td>
+       |  </tr>
+       |}""".stripMargin
+  )
 
-    input.tokenize.get
-  }
+  // Matches bugs in scalac
+  checkOK("""<a b="&#;"/>""")
+  checkOK("""<a b="&#x;"/>""")
+  checkOK("<a>&#;</a>")
+  checkOK("<a>&#x;</a>")
+  checkOK("<a>]]></a> ")
+  //checkOK("e match { case <a>&</a> => () }")
+
+  checkError("<!-- -- -->")
+  checkError("<!--->")
+  checkError("<!-- >")
+  checkError("<!-- ->")
+  checkError("<!------>")
+  checkError("<![CDATA[]]>]]>")
+  checkError("<a></ a>")
+  checkError("<a></\na>")
+
+  // These should not parse: we need to differentiate between expression and pattern position
+  //checkError("""e match { case <a b="foo"/> => () }""" )
+  //checkError("e match { case <xml:unparsed><</xml:unparsed> => () }")
+  //checkError("e match { case <!-- comment --> => () }" )
+  //checkError("e match { case <![CDATA[foo]]> => () }" )
+  //checkError("e match { case <?foo bar?> => () }" )
 
   test("deconstruct") {
     val parsedTricky = term(trickyXml)

@@ -133,22 +133,21 @@ class ScalaExprPositionParser(dialect: Dialect) extends Parser[Unit] {
   def getSplicePositions = splicePositions.result()
 
   def parseRec(cfg: ParseCtx, index: Int) = {
-    var current = 0
     var curlyBraceCount = 1
+    val input = cfg.input
     val scanner =
-      new LegacyScanner(Input.String(cfg.input.slice(index, cfg.input.length)), dialect)
+      new LegacyScanner(Input.String(input.slice(index, input.length)), dialect)
     scanner.reader.nextChar()
     while (curlyBraceCount > 0) {
       scanner.nextToken()
-      current += scanner.curr.endOffset - scanner.curr.offset + 1
       (scanner.curr.token: @switch) match {
         case LegacyToken.LBRACE => curlyBraceCount += 1
         case LegacyToken.RBRACE => curlyBraceCount -= 1
         case _ =>
       }
     }
-    current -= 1 // account for }
-    splicePositions += RangePosition(index, index + current)
-    success(cfg.success, (), index + current, Set.empty, false)
+    val nextIndex = index + scanner.curr.offset
+    splicePositions += RangePosition(index, nextIndex)
+    success(cfg.success, (), nextIndex, Set.empty, cut = false)
   }
 }

@@ -971,11 +971,12 @@ class LegacyScanner(input: Input, dialect: Dialect) {
     import fastparse.core.Parsed
     val start = offset
     val embeddedScalaExprPositions = new ScalaExprPositionParser(dialect)
+    import fastparse.all._
     val xmlParser = new XmlParser(embeddedScalaExprPositions)
     val result: Int = xmlParser.XmlExpr.parse(new String(input.chars), index = start) match {
       case Parsed.Success(_, endExclusive) => endExclusive - 1
-      case foo @ Parsed.Failure(expected, failIndex, _) =>
-        syntaxError(s"malformed xml literal, expected: $expected", at = failIndex)
+      case Parsed.Failure(_, failIndex, extra) =>
+        syntaxError(s"malformed xml literal, expected: ${extra.traced.expected}", at = failIndex)
     }
 
     // 2. Populate upcomingXmlLiteralParts with xml literal part positions.

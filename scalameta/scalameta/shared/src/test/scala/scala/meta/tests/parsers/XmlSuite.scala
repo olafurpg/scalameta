@@ -221,6 +221,7 @@ class XmlSuite extends ParseSuite with DiffAssertions {
   checkOK("<foo a={<bar/>}/>")
   checkOK("<foo a={<bar/><bat/>}/>")
   checkOK("<a>{ List(1, 2) }</a>")
+  checkOK("<a>{1}{2}<b/>{3}</a>")
   checkOK(
     """<a>
       |  <b/>
@@ -236,6 +237,20 @@ class XmlSuite extends ParseSuite with DiffAssertions {
        |  </tr>
        |}""".stripMargin
   )
+  checkOK("<a>{<b>{1}</b>}</a>")
+  checkOK(
+    """val ips = <ips>{
+      |  for {
+      |    field <-ipsList
+      |    JString(ip) <- field.value
+      |  } yield <ip>{ ip }</ip>
+      |}</ips>
+    """.stripMargin)
+
+
+  //FIXME checkOK("<a>{}</a>")
+
+
 
   // Matches bugs in scalac
   checkOK("""<a b="&#;"/>""")
@@ -275,5 +290,4 @@ class XmlSuite extends ParseSuite with DiffAssertions {
         Defn.Val(Nil, Seq(Pat.Var.Term(Term.Name("y"))), None, Lit(2)))) = parsedTricky
     // format: on
   }
-
 }

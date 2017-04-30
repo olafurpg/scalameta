@@ -77,9 +77,11 @@ object ScalametaParserPropertyTest extends FunSuiteLike {
   import ScalametaParserProperties._
   def main(args: Array[String]): Unit = {
     val result = runAnalysis()
+    val mdResult = Observation.markdownTable(result)
     Files.write(
       Paths.get("target", "parser_bugs.md"),
-      Observation.markdownTable(result).getBytes())
+      mdResult.getBytes())
+    println(mdResult)
     val parserProken = result.count(_._2.kind == ParserBroken)
     val prettyPrinterBroken = result.count(_._2.kind == PrettyPrinterBroken)
     println(s"""Parser broken: $parserProken

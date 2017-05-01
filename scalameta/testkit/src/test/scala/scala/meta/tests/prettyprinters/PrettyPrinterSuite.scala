@@ -31,11 +31,8 @@ class PrettyPrinterSuite extends FunSuite {
   }
 
   checkOk("val x = 1")
-  checkOk(
-    """
-      |{val directives = sort(flat)
-      |
-      |      { case x ⇒ directives collectFirst { case (c, d) if c isInstance x ⇒ d } getOrElse Escalate }}
-    """.stripMargin)
+  checkOk("""|{sort
+             |
+             |      { case x => directives}}""".stripMargin)
 
 }

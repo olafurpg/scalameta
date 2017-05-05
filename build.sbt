@@ -11,6 +11,7 @@ import Versions._
 
 lazy val LanguageVersions = Seq(LatestScala211, LatestScala212)
 lazy val LanguageVersion = LanguageVersions.head
+lazy val LatestStableVersion = os.version.stable()
 lazy val LibraryVersion = sys.props.getOrElseUpdate("scalameta.version", os.version.preRelease())
 
 // ==========================================
@@ -289,6 +290,7 @@ lazy val scalahostSbt = project
     buildInfoSettings,
     Defaults.itSettings,
     sbt.ScriptedPlugin.scriptedSettings,
+    mimaPreviousArtifacts := Set("org.scalameta" % "sbt-scalahost_2.10_0.13" % LatestStableVersion),
     sbtPlugin := true,
     publishMavenStyle := isCustomRepository,
     bintrayRepository := "maven", // sbtPlugin overrides this to sbt-plugins
@@ -562,6 +564,8 @@ lazy val publishableSettings = Def.settings(
     false
   },
   licenses += "BSD" -> url("https://github.com/scalameta/scalameta/blob/master/LICENSE.md"),
+  mimaPreviousArtifacts := Set("org.scalameta" %% moduleName.value % LatestStableVersion),
+  mimaBinaryIssueFilters ++= Mima.ignoredABIProblems,
   pomExtra := (
     <url>https://github.com/scalameta/scalameta</url>
     <inceptionYear>2014</inceptionYear>
@@ -594,6 +598,7 @@ lazy val publishableSettings = Def.settings(
 )
 
 lazy val nonPublishableSettings = Seq(
+  mimaPreviousArtifacts := Set.empty,
   publishArtifact in (Compile, packageDoc) := false,
   publishArtifact in packageDoc := false,
   sources in (Compile,doc) := Seq.empty,

@@ -75,7 +75,7 @@ object Term {
   @ast class Tuple(args: Seq[Term] @nonEmpty) extends Term {
     // tuple must have more than one element
     // however, this element may be Quasi with "hidden" list of elements inside
-    checkFields(args.length > 1 || (args.length == 1 && args.head.is[scala.meta.internal.ast.Quasi]))
+    checkFields(args.length > 1 || (args.length == 1 && args.head.is[Term.Quasi]))
   }
   @ast class Block(stats: Seq[Stat]) extends Term {
     checkFields(stats.forall(_.isBlockStat))
@@ -127,7 +127,7 @@ object Type {
   @ast class ApplyInfix(lhs: Type, op: Name, rhs: Type) extends Type
   @ast class Function(params: Seq[Type.Arg], res: Type) extends Type
   @ast class Tuple(args: Seq[Type] @nonEmpty) extends Type {
-    checkFields(args.length > 1 || (args.length == 1 && args.head.is[scala.meta.internal.ast.Quasi]))
+    checkFields(args.length > 1 || (args.length == 1 && args.head.is[Type.Quasi]))
   }
   @ast class With(lhs: Type, rhs: Type) extends Type
   @ast class And(lhs: Type, rhs: Type) extends Type
@@ -221,7 +221,7 @@ object Pat {
   @ast class Bind(lhs: Pat.Var.Term, rhs: Pat.Arg) extends Pat
   @ast class Alternative(lhs: Pat, rhs: Pat) extends Pat
   @ast class Tuple(args: Seq[Pat] @nonEmpty) extends Pat {
-    checkFields(args.length > 1 || (args.length == 1 && args.head.is[scala.meta.internal.ast.Quasi]))
+    checkFields(args.length > 1 || (args.length == 1 && args.head.is[Pat.Quasi]))
   }
   @ast class Extract(ref: Term.Ref, targs: Seq[scala.meta.Pat.Type], args: Seq[Pat.Arg]) extends Pat {
     checkFields(ref.isStableId)
@@ -254,7 +254,7 @@ object Pat {
     @ast class ApplyInfix(lhs: Pat.Type, op: scala.meta.Type.Name, rhs: Pat.Type) extends Pat.Type
     @ast class Function(params: Seq[Pat.Type], res: Pat.Type) extends Pat.Type
     @ast class Tuple(args: Seq[Pat.Type] @nonEmpty) extends Pat.Type {
-      checkFields(args.length > 1 || (args.length == 1 && args.head.is[scala.meta.internal.ast.Quasi]))
+      checkFields(args.length > 1 || (args.length == 1 && args.head.is[Pat.Type.Quasi]))
     }
     @ast class With(lhs: Pat.Type, rhs: Pat.Type) extends Pat.Type
     @ast class And(lhs: Pat.Type, rhs: Pat.Type) extends Pat.Type
@@ -382,8 +382,7 @@ object Defn {
                    tparams: Seq[scala.meta.Type.Param],
                    ctor: Ctor.Primary,
                    templ: Template) extends Defn with Member.Type {
-    // TODO: hardcoded in the @ast macro, find out a better way
-    // checkFields(templ.stats.getOrElse(Nil).forall(!_.is[Ctor]))
+    checkFields(templ.is[Template.Quasi] || templ.stats.getOrElse(Nil).forall(!_.is[Ctor]))
 
     // TODO this doesn't work because the Dialect in implicit
     // scope is the dialect of the host Scala environment
@@ -396,16 +395,14 @@ object Defn {
   @ast class Object(mods: Seq[Mod],
                     name: Term.Name,
                     templ: Template) extends Defn with Member.Term {
-    // TODO: hardcoded in the @ast macro, find out a better way
-    // checkFields(templ.stats.getOrElse(Nil).forall(!_.is[Ctor]))
+    checkFields(templ.is[Template.Quasi] || templ.stats.getOrElse(Nil).forall(!_.is[Ctor]))
   }
 }
 
 @ast class Pkg(ref: Term.Ref, stats: Seq[Stat])
      extends Member.Term with Stat {
   checkFields(ref.isQualId)
-  // TODO: hardcoded in the @ast macro, find out a better way
-  // checkFields(stats.forall(_.isTopLevelStat))
+  checkFields(stats.forall(_.isTopLevelStat))
   def name: Term.Name = ref match {
     case name: Term.Name => name
     case Term.Select(_, name: Term.Name) => name
@@ -414,8 +411,7 @@ object Defn {
 object Pkg {
   @ast class Object(mods: Seq[Mod], name: Term.Name, templ: Template)
        extends Member.Term with Stat {
-    // TODO: hardcoded in the @ast macro, find out a better way
-    // checkFields(templ.stats.getOrElse(Nil).forall(!_.is[Ctor]))
+    checkFields(templ.is[Template.Quasi] || templ.stats.getOrElse(Nil).forall(!_.is[Ctor]))
   }
 }
 
@@ -455,10 +451,8 @@ object Ctor {
                     self: Term.Param,
                     stats: Option[Seq[Stat]]) extends Tree {
   checkFields(parents.forall(_.isCtorCall))
-  // TODO: hardcoded in the @ast macro, find out a better way
-  // checkFields(early.nonEmpty ==> parents.nonEmpty)
-  // checkFields(early.forall(_.isEarlyStat))
-  // checkFields(stats.getOrElse(Nil).forall(_.isTemplateStat))
+  checkFields(early.forall(_.isEarlyStat && parents.nonEmpty))
+  checkFields(stats.getOrElse(Nil).forall(_.isTemplateStat))
 }
 
 @branch trait Mod extends Tree

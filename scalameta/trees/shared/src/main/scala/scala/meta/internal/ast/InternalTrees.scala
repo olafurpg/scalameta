@@ -34,6 +34,7 @@ trait InternalTree {
   private[meta] def privateCopy(
     prototype: Tree = this,
     parent: Tree = privateParent,
+    destination: String = null,
     origin: Origin = privateOrigin): Tree
 
   // =============================================================================================

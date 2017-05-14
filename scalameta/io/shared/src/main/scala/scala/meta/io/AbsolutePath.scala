@@ -3,8 +3,12 @@ package io
 
 import java.io._
 import java.net._
+
 import org.scalameta.data._
 import scala.meta.internal.io.{FileIO, PathIO}
+
+import java.nio.{file => nio}
+import java.nio.file.Paths
 
 @data class AbsolutePath private (value: String) {
   def syntax: String = value
@@ -12,6 +16,7 @@ import scala.meta.internal.io.{FileIO, PathIO}
   override def toString: String = syntax
 
   def toFile: File = new File(value)
+  def toNIO: nio.Path = Paths.get(toURI)
   def toURI: URI = toFile.toURI
   @deprecated("Use toString() instead", "1.8")
   def absolute: String = toString()
@@ -35,4 +40,6 @@ object AbsolutePath {
     if (PathIO.isAbsolutePath(path)) new AbsolutePath(path)
     else sys.error(s"not an absolute path: $path")
   }
+
+  def apply(path: nio.Path): AbsolutePath = apply(path.toString)
 }

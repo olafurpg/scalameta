@@ -25,13 +25,33 @@ object JSShell extends js.Any {
 @JSImport("fs", Namespace)
 object JSFs extends js.Any {
 
-  /** Returns the file contents using blocking apis */
-  def readFileSync(path: String, encoding: String): js.Any = js.native
+  /** Returns the file contents as Buffer using blocking APIs.
+    *
+    * NOTE. The actual return value is a nodejs Buffer, not a js.Array. However,
+    * their APIs are the same for square bracket index access and .length.
+    */
+  def readFileSync(path: String): js.Array[Int] = js.native
 
-  /** Writes file contents using blocking apis */
+  /** Returns the file contents as String using blocking APIs. */
+  def readFileSync(path: String, encoding: String): String = js.native
+
+  /** Writes file contents using blocking apis. */
   def writeFileSync(path: String, contents: String): Unit = js.native
+
+  /** Writes file contents using blocking apis. */
+  def readdirSync(path: String): js.Array[String] = js.native
 }
 
+
+/** Facade for native nodejs module "process".
+  *
+  * @see https://nodejs.org/api/process.html
+  */
+@js.native
+@JSImport("process", Namespace)
+object JSProcess extends js.Any {
+  def cwd(): String = js.native
+}
 /** Facade for native nodejs module "path".
   *
   * @see https://nodejs.org/api/path.html
@@ -48,4 +68,9 @@ object JSPath extends js.Any {
 
 object PlatformIO {
   private[io] def isNode = JSFs != null
+  def inNodeJS[T](f: => T): T =
+    if (PlatformIO.isNode) f
+    else {
+      throw new IllegalStateException("This operation is not supported in this environment.")
+    }
 }

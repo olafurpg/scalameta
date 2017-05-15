@@ -348,9 +348,10 @@ object TreeSyntax {
         // Pat
         case t: Pat.Var.Term         => m(SimplePattern, s(t.name.value))
         case _: Pat.Wildcard         => m(SimplePattern, kw("_"))
+        case _: Pat.SeqWildcard      => m(SimplePattern, kw("_*"))
         case t: Pat.Bind             =>
           val separator = t.rhs match {
-            case Pat.Arg.SeqWildcard() =>
+            case Pat.SeqWildcard() =>
               if (dialect.allowAtForExtractorVarargs) s(" ", kw("@"))
               else if (dialect.allowColonForExtractorVarargs) s(kw(":"))
               else throw new UnsupportedOperationException(s"$dialect doesn't support extractor varargs")
@@ -383,7 +384,6 @@ object TreeSyntax {
           if (dialect.allowLiteralTypes) m(Pattern1, s(p(SimplePattern, lhs), kw(":"), " ", p(Literal, rhs)))
           else throw new UnsupportedOperationException(s"$dialect doesn't support literal types")
         case t: Pat.Typed            => m(Pattern1, s(p(SimplePattern, t.lhs), kw(":"), " ", p(RefineTyp, t.rhs)))
-        case _: Pat.Arg.SeqWildcard  => m(SimplePattern, kw("_*"))
 
         // Pat.Type
         // TODO: fix copy/paste with Type
@@ -579,9 +579,6 @@ object TreeSyntax {
         else s("[", r(ptargs, ", "), "]")
       }
       implicit def syntaxPats: Syntax[Seq[Pat]] = Syntax { pats =>
-        s("(", r(pats, ", "), ")")
-      }
-      implicit def syntaxPatArgs: Syntax[Seq[Pat.Arg]] = Syntax { pats =>
         s("(", r(pats, ", "), ")")
       }
       implicit def syntaxMods: Syntax[Seq[Mod]] = Syntax { mods =>

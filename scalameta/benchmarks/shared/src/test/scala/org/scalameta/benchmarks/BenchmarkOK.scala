@@ -4,7 +4,7 @@ import org.scalatest.FunSuite
 
 class BenchmarkOK extends FunSuite {
 
-  Seq(
+  List(
     new Micro.ExtraLarge,
     new Micro.Large,
     new Micro.Medium,

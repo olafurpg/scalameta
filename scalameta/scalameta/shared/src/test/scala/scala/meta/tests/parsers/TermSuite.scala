@@ -74,7 +74,7 @@ class TermSuite extends ParseSuite {
   }
 
   test("f(x = xs: _*)") {
-    val Term.Apply(Term.Name("f"), Seq(Assign(Term.Name("x"), Repeated(Term.Name("xs"))))) = term("f(x = xs: _*)")
+    val Term.Apply(Term.Name("f"), List(Assign(Term.Name("x"), Repeated(Term.Name("xs"))))) = term("f(x = xs: _*)")
   }
 
   test("a + ()") {
@@ -403,9 +403,9 @@ class TermSuite extends ParseSuite {
   }
 
   test("#312") {
-    val Term.Block(Seq(
-      Defn.Val(Nil, Seq(Pat.Var.Term(Term.Name("x"))), None, Term.Ascribe(Term.Name("yz"), Type.Tuple(Seq(Type.Name("Y"), Type.Name("Z"))))),
-      Term.Tuple(Seq(Term.Name("x"), Term.Name("x"))))) =
+    val Term.Block(List(
+      Defn.Val(Nil, List(Pat.Var.Term(Term.Name("x"))), None, Term.Ascribe(Term.Name("yz"), Type.Tuple(List(Type.Name("Y"), Type.Name("Z"))))),
+      Term.Tuple(List(Term.Name("x"), Term.Name("x"))))) =
     term("""{
       val x = yz: (Y, Z)
       (x, x)
@@ -415,14 +415,14 @@ class TermSuite extends ParseSuite {
   test("spawn { var v: Int = _; ??? }") {
     val Term.Apply(
       Term.Name("spawn"),
-      Seq(
-        Term.Block(Seq(
-          Defn.Var(Nil, Seq(Pat.Var.Term(Term.Name("v"))), Some(Type.Name("Int")), None), Term.Name("???"))))) =
+      List(
+        Term.Block(List(
+          Defn.Var(Nil, List(Pat.Var.Term(Term.Name("v"))), Some(Type.Name("Int")), None), Term.Name("???"))))) =
     term("spawn { var v: Int = _; ??? }")
   }
 
   test("#345") {
-    val Term.Match(_, Seq(Case(_, _, rhs), _)) = term("""x match {
+    val Term.Match(_, List(Case(_, _, rhs), _)) = term("""x match {
       case x => true
       // sobaka
       case y => y
@@ -436,10 +436,10 @@ class TermSuite extends ParseSuite {
 
   test("a + (c, d) * e") {
     val Term.ApplyInfix(
-      Term.Name("a"), Term.Name("+"), Nil, Seq(
+      Term.Name("a"), Term.Name("+"), Nil, List(
         Term.ApplyInfix(
-          Term.Tuple(Seq(Term.Name("c"), Term.Name("d"))), Term.Name("*"), Nil,
-          Seq(Term.Name("e"))))) =
+          Term.Tuple(List(Term.Name("c"), Term.Name("d"))), Term.Name("*"), Nil,
+          List(Term.Name("e"))))) =
     term("a + (c, d) * e")
   }
 
@@ -447,18 +447,18 @@ class TermSuite extends ParseSuite {
     val Term.ApplyInfix(
       Term.ApplyInfix(
         Term.Name("a"), Term.Name("*"), Nil,
-        Seq(Term.Name("c"), Term.Name("d"))),
-      Term.Name("+"), Nil, Seq(Term.Name("e"))) =
+        List(Term.Name("c"), Term.Name("d"))),
+      Term.Name("+"), Nil, List(Term.Name("e"))) =
     term("a * (c, d) + e")
   }
 
   test("(a + b) c") {
-    val Term.Select(Term.ApplyInfix(Term.Name("a"), Term.Name("+"), Nil, Seq(Term.Name("b"))), Term.Name("c")) =
+    val Term.Select(Term.ApplyInfix(Term.Name("a"), Term.Name("+"), Nil, List(Term.Name("b"))), Term.Name("c")) =
       term("(a + b) c")
   }
 
   test("a + b c") {
-    val Term.Select(Term.ApplyInfix(Term.Name("a"), Term.Name("+"), Nil, Seq(Term.Name("b"))), Term.Name("c")) =
+    val Term.Select(Term.ApplyInfix(Term.Name("a"), Term.Name("+"), Nil, List(Term.Name("b"))), Term.Name("c")) =
       term("a + b c")
   }
 
@@ -489,12 +489,12 @@ class TermSuite extends ParseSuite {
         Term.ApplyType(
           Term.Select(
             Term.ApplyInfix(
-              Term.ApplyType(Term.Select(Term.Name("arr"), Term.Name("cast")), Seq(Type.Apply(Type.Name("Ptr"), Seq(Type.Name("Byte"))))),
+              Term.ApplyType(Term.Select(Term.Name("arr"), Term.Name("cast")), List(Type.Apply(Type.Name("Ptr"), List(Type.Name("Byte"))))),
               Term.Name("+"),
               Nil,
-              Seq(Term.ApplyType(Term.Name("sizeof"), Seq(Type.Apply(Type.Name("Ptr"), Seq(Type.Placeholder(Type.Bounds(None, None)))))))),
+              List(Term.ApplyType(Term.Name("sizeof"), List(Type.Apply(Type.Name("Ptr"), List(Type.Placeholder(Type.Bounds(None, None)))))))),
             Term.Name("cast")),
-          Seq(Type.Apply(Type.Name("Ptr"), Seq(Type.Name("Int")))))),
+          List(Type.Apply(Type.Name("Ptr"), List(Type.Name("Int")))))),
       Term.Name("length")) =
     term("!(arr.cast[Ptr[Byte]] + sizeof[Ptr[_]]).cast[Ptr[Int]] = length")
   }

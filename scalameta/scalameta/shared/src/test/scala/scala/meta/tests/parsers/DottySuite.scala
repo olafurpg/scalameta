@@ -7,7 +7,7 @@ import scala.meta.dialects.Dotty
 class DottySuite extends ParseSuite {
   test("case List(xs: _*)") {
     val tree = pat("List(xs: _*)")
-    assert(tree.show[Structure] === "Pat.Extract(Term.Name(\"List\"), Nil, Seq(Pat.Bind(Pat.Var.Term(Term.Name(\"xs\")), Pat.SeqWildcard())))")
+    assert(tree.show[Structure] === "Pat.Extract(Term.Name(\"List\"), Nil, List(Pat.Bind(Pat.Var.Term(Term.Name(\"xs\")), Pat.SeqWildcard())))")
     assert(tree.show[Syntax] === "List(xs: _*)")
   }
   test("xml literals") {
@@ -15,8 +15,8 @@ class DottySuite extends ParseSuite {
   }
 
   test("inline def x = 42") {
-    val tree1@Defn.Def(Seq(Mod.Inline()), Term.Name("x"), Nil, Nil, None, Lit(42)) = templStat("inline def x = 42")
-    val tree2@Defn.Def(Seq(Mod.Inline()), Term.Name("x"), Nil, Nil, None, Lit(42)) = blockStat("inline def x = 42")
+    val tree1@Defn.Def(List(Mod.Inline()), Term.Name("x"), Nil, Nil, None, Lit(42)) = templStat("inline def x = 42")
+    val tree2@Defn.Def(List(Mod.Inline()), Term.Name("x"), Nil, Nil, None, Lit(42)) = blockStat("inline def x = 42")
 
     assert(tree1.show[Syntax] === "inline def x = 42")
     assert(tree2.show[Syntax] === "inline def x = 42")

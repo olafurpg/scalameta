@@ -1,20 +1,18 @@
 package scala.meta
 package io
 
-import scala.language.implicitConversions
-
 import java.net._
 import java.io._
 import java.util.zip._
-
-import org.scalameta.adt._
+import scala.language.implicitConversions
 import scala.collection.mutable
+import org.scalameta.adt._
 import scala.meta.internal.io.FileIO
 import scala.meta.internal.io.PathIO
 import scala.meta.internal.io.PathIO.pathSeparator
 
 @root trait Multipath {
-  def shallow: Seq[AbsolutePath]
+  def shallow: List[AbsolutePath]
   def syntax: String = shallow.mkString(pathSeparator)
   def deep: List[Fragment] = {
     var buf = mutable.LinkedHashSet[Fragment]()
@@ -70,7 +68,7 @@ import scala.meta.internal.io.PathIO.pathSeparator
   }
 }
 
-@leaf class Classpath(shallow: Seq[AbsolutePath]) extends Multipath {
+@leaf class Classpath(shallow: List[AbsolutePath]) extends Multipath {
   def structure: String = s"""Classpath("$syntax")"""
   override def toString: String = syntax
 }
@@ -78,7 +76,7 @@ object Classpath {
   // NOTE: These methods are duplicated in Classpath and Sourcepath.
   // The @leaf annotation should synthesize at least the default apply(List[Path])
   // but it doesn't seem to do that for some reason.
-  def apply(paths: Seq[AbsolutePath]): Classpath =
+  def apply(paths: List[AbsolutePath]): Classpath =
     new Classpath(paths)
   def apply(path: AbsolutePath): Classpath =
     new Classpath(List(path))
@@ -90,12 +88,12 @@ object Classpath {
   }
 }
 
-@leaf class Sourcepath(shallow: Seq[AbsolutePath]) extends Multipath {
+@leaf class Sourcepath(shallow: List[AbsolutePath]) extends Multipath {
   def structure: String = s"""Sourcepath("$syntax")"""
   override def toString: String = syntax
 }
 object Sourcepath {
-  def apply(paths: Seq[AbsolutePath]): Sourcepath =
+  def apply(paths: List[AbsolutePath]): Sourcepath =
     new Sourcepath(paths)
   def apply(path: AbsolutePath): Sourcepath =
     new Sourcepath(List(path))

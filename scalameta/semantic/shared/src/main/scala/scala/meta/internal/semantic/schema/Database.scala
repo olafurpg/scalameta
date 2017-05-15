@@ -3,7 +3,8 @@ package internal
 package semantic
 package schema
 
-import scala.collection.immutable.Seq
+import java.io._
+import org.scalameta.data._
 import scala.meta.inputs.{Input => mInput}
 import scala.meta.inputs.{Point => mPoint}
 import scala.meta.inputs.{Position => mPosition}
@@ -12,17 +13,11 @@ import scala.meta.internal.semantic.{vfs => v}
 import scala.meta.io._
 import scala.meta.{Dialect => mDialect}
 import scala.meta.{semantic => m}
-import scala.{Seq => _}
-
-import java.io._
-
-import org.scalameta.data._
-import org.scalameta.logger
 
 // NOTE: s.Attributes and friends are generated from semanticdb.proto.
 // See scalameta/semantic/jvm/target/scala-<version>/src_managed/main/scala/meta/internal/semantic/schema.
 @data
-class Database(entries: Seq[Attributes]) {
+class Database(entries: List[Attributes]) {
   def toVfs(targetroot: AbsolutePath): v.Database = {
     val ventries = entries.map { sentry =>
       // TODO: Would it make sense to support multiclasspaths?

@@ -2891,7 +2891,7 @@ class ScalametaParser(input: Input, dialect: Dialect) { parser =>
 
   def importWildcardOrName(): Importee = autoPos {
     if (token.is[Underscore]) { next(); Importee.Wildcard() }
-    else if (token.is[Unquote]) Importee.Name(unquote[Name.Indeterminate.Quasi])
+    else if (token.is[Unquote]) Importee.Name(unquote[Name.Quasi])
     else { val name = termName(); Importee.Name(atPos(name, name)(Name.Indeterminate(name.value))) }
   }
 

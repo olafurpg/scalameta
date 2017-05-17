@@ -84,6 +84,7 @@ abstract class DatabaseSuite extends FunSuite { self =>
     val path = g.currentRun.units.toList.last.source.file.file.getAbsolutePath
     val payload = database.toString.split(EOL)
     val section = payload.dropWhile(_ != sectionName + ":").drop(1).takeWhile(_ != "")
+    // println(section.mkString(EOL).replace(path, "<...>"))
     section.mkString(EOL).replace(path, "<...>")
   }
 

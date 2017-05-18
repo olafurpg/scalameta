@@ -19,6 +19,15 @@ package object ast {
     def isReference: Boolean = !isBinder
   }
 
+  implicit class XtensionHelpersRef(ref: Ref) {
+    def isWithin: Boolean = ref match {
+      case _: Ref.Quasi => true
+      case _: Name => true
+      case Term.This(Name.Anonymous()) => true
+      case _ => false
+    }
+  }
+
   implicit class XtensionHelpersTermName(name: Term.Name) {
     import name._
     // some heuristic is needed to govern associativity and precedence of unquoted operators
@@ -113,12 +122,10 @@ package object ast {
   }
 
   implicit class XtensionHelpersMod(mod: Mod) {
-    def hasAccessBoundary: Boolean = mod match {
-      case _: Mod.PrivateThis     => true
-      case _: Mod.PrivateWithin   => true
-      case _: Mod.ProtectedThis   => true
-      case _: Mod.ProtectedWithin => true
-      case _                      => false
+    def isAccessQualifier: Boolean = mod match {
+      case _: Mod.Private   => true
+      case _: Mod.Protected => true
+      case _                => false
     }
   }
 

@@ -2339,28 +2339,25 @@ class ScalametaParser(input: Input, dialect: Dialect) { parser =>
 
   def accessModifier(): Mod = autoPos {
     val mod = token match {
-      case KwPrivate() | KwProtected() => token
+      case KwPrivate() => (ref: Ref) => Mod.Private(ref)
+      case KwProtected() => (ref: Ref) => Mod.Protected(ref)
       case other => unreachable(debug(other, other.structure))
     }
     next()
-    if (token.isNot[LeftBracket]) {
-      val within = autoPos(Name.Anonymous())
-      if (mod.is[KwPrivate]) Mod.PrivateWithin(within)
-      else Mod.ProtectedWithin(within)
-    } else {
-      next()
+    if (in.token.isNot[LeftBracket]) mod(autoPos(Name.Anonymous()))
+    else {
+      accept[LeftBracket]
       val result = {
         if (token.is[KwThis]) {
+          val qual = atPos(in.tokenPos, in.prevTokenPos)(Name.Anonymous())
           next()
-          if (mod.is[KwPrivate]) Mod.PrivateThis()
-          else Mod.ProtectedThis()
+          mod(atPos(in.prevTokenPos, auto)(Term.This(qual)))
         } else {
           val within = termName() match {
-            case q: Term.Name.Quasi => q.become[Name.Quasi]
+            case q: Term.Name.Quasi => q.become[Ref.Quasi]
             case name => atPos(name, name)(Name.Indeterminate(name.value))
           }
-          if (mod.is[KwPrivate]) Mod.PrivateWithin(within)
-          else Mod.ProtectedWithin(within)
+          mod(within)
         }
       }
       accept[RightBracket]
@@ -2428,7 +2425,7 @@ class ScalametaParser(input: Input, dialect: Dialect) { parser =>
       def validate() = {
         if (isLocal && !mod.tokens.head.is[LocalModifier]) syntaxError("illegal modifier for a local definition", at = mod)
         if (!mod.is[Mod.Quasi]) mods.foreach(m => if (m.productPrefix == mod.productPrefix) syntaxError("repeated modifier", at = mod))
-        if (mod.hasAccessBoundary) mods.filter(_.hasAccessBoundary).foreach(mod => syntaxError("duplicate access qualifier", at = mod))
+        if (mod.isAccessQualifier) mods.filter(_.isAccessQualifier).foreach(mod => syntaxError("duplicate access qualifier", at = mod))
       }
       validate()
       mods :+ mod
@@ -2541,7 +2538,7 @@ class ScalametaParser(input: Input, dialect: Dialect) { parser =>
                   def mayNotBeByName(subj: String) =
                     syntaxError(s"$subj parameters may not be call-by-name", at = name)
                   val isLocalToThis: Boolean = {
-                    val isExplicitlyLocal = mods.exists(_.is[Mod.PrivateThis])
+                    val isExplicitlyLocal = mods.exists{ case Mod.Private(_: Term.This) => true; case _ => false }
                     if (ownerIsCase) isExplicitlyLocal
                     else isExplicitlyLocal || (!isValParam && !isVarParam)
                   }

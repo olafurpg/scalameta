@@ -985,10 +985,9 @@ class LegacyScanner(input: Input, dialect: Dialect) {
     embeddedScalaExprPositions.getSplicePositions.foreach { pos =>
       // pos contains the start and end positions of a scala expression.
       // We want the range of the xml literal part which starts at lastFrom
-      // and ends at pos.from.
-      val to = pos.from - 1
-      upcomingXmlLiteralParts.update(lastFrom, to)
-      lastFrom = pos.to + 1
+      // and ends at pos._1.
+      upcomingXmlLiteralParts.update(lastFrom, pos._1 - 1)
+      lastFrom = pos._2 + 1
     }
     // The final xml literal part is not followed by any embedded scala expr.
     upcomingXmlLiteralParts.update(lastFrom, result + 1)

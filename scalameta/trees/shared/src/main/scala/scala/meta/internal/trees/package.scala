@@ -8,10 +8,10 @@ import org.scalameta.invariants._
 import scala.annotation.switch
 import scala.meta.classifiers._
 import scala.meta.prettyprinters._
-import scala.meta.internal.ast.Metadata.Ast
+import scala.meta.internal.trees.Metadata.Ast
 
-package object ast {
-  implicit class XtensionHelpersName(name: Name) {
+package object trees {
+  implicit class XtensionTreesName(name: Name) {
     def isBinder: Boolean = name.parent match {
       case Some(parent: Member) => parent.name == name
       case _ => false
@@ -19,7 +19,7 @@ package object ast {
     def isReference: Boolean = !isBinder
   }
 
-  implicit class XtensionHelpersRef(ref: Ref) {
+  implicit class XtensionTreesRef(ref: Ref) {
     def isWithin: Boolean = ref match {
       case _: Ref.Quasi => true
       case _: Name => true
@@ -28,7 +28,7 @@ package object ast {
     }
   }
 
-  implicit class XtensionHelpersTermName(name: Term.Name) {
+  implicit class XtensionTreesTermName(name: Term.Name) {
     import name._
     // some heuristic is needed to govern associativity and precedence of unquoted operators
     def isLeftAssoc: Boolean = if (name.is[Term.Name.Quasi]) true
@@ -80,7 +80,7 @@ package object ast {
     }
   }
 
-  implicit class XtensionHelpersTerm(tree: Term) {
+  implicit class XtensionTreesTerm(tree: Term) {
     def isExtractor: Boolean = tree match {
       case quasi: Term.Quasi => true
       case ref: Term.Ref => ref.isStableId
@@ -89,7 +89,7 @@ package object ast {
     }
   }
 
-  implicit class XtensionHelpersTermRef(tree: Term.Ref) {
+  implicit class XtensionTreesTermRef(tree: Term.Ref) {
     def isPath: Boolean = tree.isStableId || tree.is[Term.This]
     def isQualId: Boolean = tree match {
       case _: Term.Ref.Quasi              => true
@@ -106,7 +106,7 @@ package object ast {
     }
   }
 
-  implicit class XtensionHelpersType(tree: Type) {
+  implicit class XtensionTreesType(tree: Type) {
     def isConstructable: Boolean = tree match {
       case _: Type.Quasi                               => true
       case _: Type.Name                                => true
@@ -121,7 +121,7 @@ package object ast {
     }
   }
 
-  implicit class XtensionHelpersMod(mod: Mod) {
+  implicit class XtensionTreesMod(mod: Mod) {
     def isAccessQualifier: Boolean = mod match {
       case _: Mod.Private   => true
       case _: Mod.Protected => true
@@ -129,7 +129,7 @@ package object ast {
     }
   }
 
-  implicit class XtensionHelpersMods(mods: List[Mod]) {
+  implicit class XtensionTreesMods(mods: List[Mod]) {
     def has[T <: Mod](implicit classifier: Classifier[Mod, T]): Boolean =
       mods.exists(classifier.apply)
     def getAll[T <: Mod](implicit tag: ClassTag[T],
@@ -141,7 +141,7 @@ package object ast {
       getAll[T].zip(getAll[U])
   }
 
-  implicit class XtensionHelpersStat(stat: Stat) {
+  implicit class XtensionTreesStat(stat: Stat) {
     def isTopLevelStat: Boolean = stat match {
       case _: Stat.Quasi => true
       case _: Import => true
@@ -189,7 +189,7 @@ package object ast {
     }
   }
 
-  implicit class XtensionHelpersCase(tree: Case) {
+  implicit class XtensionTreesCase(tree: Case) {
     def stats: List[Stat] = tree.body match {
       case Term.Block(stats) => stats
       case body => List(body)

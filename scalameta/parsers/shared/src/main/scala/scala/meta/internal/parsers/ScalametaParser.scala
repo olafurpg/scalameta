@@ -95,6 +95,11 @@ class ScalametaParser(input: Input, dialect: Dialect) { parser =>
     else parseRule(_.entrypointInit())
   }
 
+  def parseSelf(): Self = {
+    if (dialect.allowUnquotes) parseRule(_.quasiquoteSelf())
+    else parseRule(_.entrypointSelf())
+  }
+
   def parseTemplate(): Template = {
     if (dialect.allowUnquotes) parseRule(_.quasiquoteTemplate())
     else parseRule(_.entrypointTemplate())
@@ -1842,7 +1847,7 @@ class ScalametaParser(input: Input, dialect: Dialect) { parser =>
           next()
           atPos(in.prevTokenPos, auto) {
             template() match {
-              case trivial @ Template(Nil, List(init), Term.Param(Nil, Name.Anonymous(), None, None), Nil) =>
+              case trivial @ Template(Nil, List(init), Self(Name.Anonymous(), None), Nil) =>
                 if (!token.prev.is[RightBrace]) Term.New(init)
                 else Term.NewAnonymous(trivial)
               case other =>
@@ -3017,6 +3022,34 @@ class ScalametaParser(input: Input, dialect: Dialect) { parser =>
     }
   }
 
+/* ---------- SELFS --------------------------------------------- */
+
+  def quasiquoteSelf(): Self = entrypointSelf()
+
+  def entrypointSelf(): Self = self()
+
+  def self(): Self = autoPos {
+    val name = token match {
+      case Ident(_) =>
+        termName()
+      case KwThis() =>
+        autoPos{ next(); Name.Anonymous() }
+      case Unquote() =>
+        if (ahead(token.is[Colon])) unquote[Term.Name.Quasi]
+        else return unquote[Self.Quasi]
+      case _ =>
+        syntaxError("expected identifier, `this' or unquote", at = token)
+    }
+    val decltpe = token match {
+      case Colon() =>
+        next()
+        Some(startInfixType())
+      case _ =>
+        None
+    }
+    Self(name, decltpe)
+  }
+
 /* -------- TEMPLATES ------------------------------------------- */
 
   sealed trait TemplateOwner {
@@ -3091,10 +3124,10 @@ class ScalametaParser(input: Input, dialect: Dialect) { parser =>
     }
   }
 
-  def templateBody(isPre: Boolean): (Term.Param, List[Stat]) =
+  def templateBody(isPre: Boolean): (Self, List[Stat]) =
     inBraces(templateStatSeq(isPre = isPre))
 
-  def templateBodyOpt(parenMeansSyntaxError: Boolean): (Term.Param, List[Stat]) = {
+  def templateBodyOpt(parenMeansSyntaxError: Boolean): (Self, List[Stat]) = {
     newLineOptWhenFollowedBy[LeftBrace]
     if (token.is[LeftBrace]) {
       templateBody(isPre = false)
@@ -3105,7 +3138,7 @@ class ScalametaParser(input: Input, dialect: Dialect) { parser =>
           syntaxError(s"$what may not have parameters", at = token)
         } else syntaxError("unexpected opening parenthesis", at = token)
       }
-      (autoPos(Term.Param(Nil, autoPos(Name.Anonymous()), None, None)), Nil)
+      (autoPos(Self(autoPos(Name.Anonymous()), None)), Nil)
     }
   }
 
@@ -3191,30 +3224,24 @@ class ScalametaParser(input: Input, dialect: Dialect) { parser =>
       topLevelTmplDef
   }
 
-  def templateStatSeq(isPre : Boolean): (Term.Param, List[Stat]) = {
-    var self: Term.Param = autoPos(Term.Param(Nil, autoPos(Name.Anonymous()), None, None))
+  def templateStatSeq(isPre : Boolean): (Self, List[Stat]) = {
+    val emptySelf = autoPos(Self(autoPos(Name.Anonymous()), None))
+    var selfOpt: Option[Self] = None
     var firstOpt: Option[Stat] = None
     if (token.is[ExprIntro]) {
-      val first = expr(InTemplate) // @S: first statement is potentially converted so cannot be stubbed.
+      val beforeFirst = in.fork
+      val first = expr(InTemplate)
+      val afterFirst = in.fork
       if (token.is[RightArrow]) {
-        first match {
-          case q: Term.Quasi =>
-            self = q.become[Term.Param.Quasi]
-          case name: Term.Placeholder =>
-            self = atPos(first, first)(Term.Param(Nil, atPos(name, name)(Name.Anonymous()), None, None))
-          case name @ Term.This(Name.Anonymous()) =>
-            self = atPos(first, first)(Term.Param(Nil, atPos(name, name)(Name.Anonymous()), None, None))
-          case name: Term.Name =>
-            self = atPos(first, first)(Term.Param(Nil, name, None, None))
-          case Term.Ascribe(name: Term.Placeholder, tpt) =>
-            self = atPos(first, first)(Term.Param(Nil, atPos(name, name)(Name.Anonymous()), Some(tpt), None))
-          case Term.Ascribe(name @ Term.This(Name.Anonymous()), tpt) =>
-            self = atPos(first, first)(Term.Param(Nil, atPos(name, name)(Name.Anonymous()), Some(tpt), None))
-          case Term.Ascribe(name: Term.Name, tpt) =>
-            self = atPos(first, first)(Term.Param(Nil, name, Some(tpt), None))
-          case _ =>
+        try {
+          in = beforeFirst
+          selfOpt = Some(self())
+          next()
+        } catch {
+          case ex: ParseException =>
+            in = afterFirst
+            unreachable
         }
-        next()
       } else {
         firstOpt = Some(first match {
           case q: Term.Quasi => q.become[Stat.Quasi]
@@ -3223,7 +3250,7 @@ class ScalametaParser(input: Input, dialect: Dialect) { parser =>
         acceptStatSepOpt()
       }
     }
-    (self, firstOpt ++: templateStats())
+    (selfOpt.getOrElse(emptySelf), firstOpt ++: templateStats())
   }
 
   def templateStats(): List[Stat] = statSeq(templateStat)

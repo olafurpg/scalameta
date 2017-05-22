@@ -46,9 +46,7 @@ class Database(entries: List[Attributes]) {
         }
         object sRange {
           def unapply(srange: s.Range): Option[mPosition] = {
-            val mstart = mPoint.Offset(minput, srange.start)
-            val mend = mPoint.Offset(minput, srange.end)
-            Some(mPosition.Range(minput, mstart, mend))
+            Some(mPosition.Range(minput, srange.start, srange.end))
           }
         }
         object sSeverity {

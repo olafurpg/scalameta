@@ -115,7 +115,7 @@ abstract class DatabaseSuite extends FunSuite { self =>
     val names = ps.map {
       case (s, e) =>
         val names = source.collect {
-          case name: m.Name if name.pos.start.offset == s && name.pos.end.offset == e => name
+          case name: m.Name if name.pos.start == s && name.pos.end == e => name
         }
         val chevron = "<<" + code.substring(s, e) + ">>"
         names match {

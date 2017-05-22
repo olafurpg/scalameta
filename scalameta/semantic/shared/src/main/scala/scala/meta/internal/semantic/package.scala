@@ -19,7 +19,7 @@ package object semantic {
         case (minput, m.Attributes(mdialect, mnames, mmessages, mdenots, msugars)) =>
           object mRange {
             def unapply(mpos: mPosition): Option[s.Range] = mpos match {
-              case mPosition.Range(`minput`, mPoint.Offset(_, sstart), mPoint.Offset(_, send)) =>
+              case mPosition.Range(`minput`, sstart, send) =>
                 Some(s.Range(sstart, send))
               case _ =>
                 None

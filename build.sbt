@@ -384,6 +384,19 @@ lazy val contrib = crossProject
 lazy val contribJVM = contrib.jvm
 lazy val contribJS = contrib.js
 
+lazy val paiges = crossProject
+  .in(file("scalameta/paiges"))
+  .settings(
+    publishableSettings,
+    moduleName := "paiges",
+    description := "Pretty-printers for scalameta trees using paiges",
+    libraryDependencies += "org.typelevel" %%% "paiges-core" % "0.1.0"
+  )
+  .jsConfigure(_.enablePlugins(ScalaJSBundlerPlugin))
+  .dependsOn(scalameta)
+lazy val paigesJVM = paiges.jvm
+lazy val paigesJS = paiges.js
+
 lazy val benchmarks =
   Project(id = "benchmarks", base = file("scalameta/benchmarks"))
     .settings(

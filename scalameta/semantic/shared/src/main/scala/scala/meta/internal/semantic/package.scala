@@ -4,7 +4,6 @@ package internal
 import java.nio.charset.Charset
 import scala.util.Try
 import scala.meta.inputs.{Input => mInput}
-import scala.meta.inputs.{Point => mPoint}
 import scala.meta.inputs.{Position => mPosition}
 import scala.meta.internal.semantic.{schema => s}
 import scala.meta.internal.semantic.{vfs => v}

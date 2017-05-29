@@ -6,7 +6,6 @@ package schema
 import java.io._
 import org.scalameta.data._
 import scala.meta.inputs.{Input => mInput}
-import scala.meta.inputs.{Point => mPoint}
 import scala.meta.inputs.{Position => mPosition}
 import scala.meta.internal.semantic.{schema => s}
 import scala.meta.internal.semantic.{vfs => v}

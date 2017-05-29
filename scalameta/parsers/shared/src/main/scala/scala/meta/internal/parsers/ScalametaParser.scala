@@ -1372,7 +1372,7 @@ class ScalametaParser(input: Input, dialect: Dialect) { parser =>
     interpolate[Pat, Pat.Interpolate](unquotePattern _, Pat.Interpolate.apply _)
 
   def xmlPat(): Pat.Xml =
-    interpolate[Pat.Arg, Pat.Xml](unquoteXmlPattern _, (_, parts, args) => Pat.Xml.apply(parts, args))
+    interpolate[Pat, Pat.Xml](unquoteXmlPattern _, (_, parts, args) => Pat.Xml.apply(parts, args))
 
 /* ------------- NEW LINES ------------------------------------------------- */
 
@@ -2150,7 +2150,7 @@ class ScalametaParser(input: Input, dialect: Dialect) { parser =>
             Pat.Typed(p, patternTyp(allowInfix = false, allowImmediateTypevars = false))
           case p: Pat.Var if dialect.allowColonForExtractorVarargs && ahead(isLegitimateSeqWildcard) =>
             nextOnce()
-            val seqWildcard = autoPos({ nextTwice(); Pat.Arg.SeqWildcard() })
+            val seqWildcard = autoPos({ nextTwice(); Pat.SeqWildcard() })
             Pat.Bind(p, seqWildcard)
           case p: Pat.Var if !dialect.allowColonForExtractorVarargs && isColonWildcardStar =>
             syntaxError(s"$dialect does not support var: _*", at = p)

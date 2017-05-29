@@ -54,7 +54,9 @@ object ParentChecks {
     def bindRhs = parent.is[Pat.Bind] && destination == "rhs"
     def extractArgs = parent.is[Pat.Extract] && destination == "args"
     def extractInfixArgs = parent.is[Pat.ExtractInfix] && destination == "args"
-    bindRhs || extractArgs || extractInfixArgs
+    def interpolateArgs = parent.is[Pat.Interpolate] && destination == "args"
+    def xmlArgs = parent.is[Pat.Xml] && destination == "args"
+    bindRhs || extractArgs || extractInfixArgs || interpolateArgs || xmlArgs
   }
 
   def NameAnonymous(tree: Name.Anonymous, parent: Tree, destination: String): Boolean = {

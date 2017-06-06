@@ -20,8 +20,8 @@ class ReflectionSuite extends FunSuite {
   // but please deal with that (or come up with a more effective way of testing TreeReflection)
   test("root") {
     assert(symbolOf[scala.meta.Tree].isRoot)
-    assert(symbolOf[scala.meta.Tree].asRoot.allBranches.length === 19)
-    assert(symbolOf[scala.meta.Tree].asRoot.allLeafs.length === 265)
+    assert(symbolOf[scala.meta.Tree].asRoot.allBranches.length === 20)
+    assert(symbolOf[scala.meta.Tree].asRoot.allLeafs.length === 267)
   }
 
   test("If") {

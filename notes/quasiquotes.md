@@ -54,6 +54,7 @@ This specification describes quasiquote syntax using a markedly condensed notati
  And               | `t"$tpe & $tpe"` (only for [supported dialects](/scalameta/dialects/src/main/scala/scala/meta/dialects/package.scala))
  Or                | `t"$tpe | $tpe"` (only for [supported dialects](/scalameta/dialects/src/main/scala/scala/meta/dialects/package.scala))
  Function          | `t"(..$tpes) => $tpe"`
+ Implicit Function | `t"implicit (..$tpes) => $tpe"`
  Tuple             | `t"(..$tpesnel)"`
  Refine            | `t"$tpeopt { ..$stats }"`
  Existential       | `t"$tpe forSome { ..$statsnel }"`

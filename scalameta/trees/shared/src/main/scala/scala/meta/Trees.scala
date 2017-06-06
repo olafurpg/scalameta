@@ -142,6 +142,7 @@ object Type {
   @ast class Apply(tpe: Type, args: List[Type] @nonEmpty) extends Type
   @ast class ApplyInfix(lhs: Type, op: Name, rhs: Type) extends Type
   @ast class Function(params: List[Type], res: Type) extends Type
+  @ast class ImplicitFunction(params: List[Type], res: Type) extends Type
   @ast class Tuple(args: List[Type] @nonEmpty) extends Type {
     checkFields(args.length > 1 || (args.length == 1 && args.head.is[Type.Quasi]))
   }

@@ -22,8 +22,7 @@ case class SbthostConfig(sourceroot: Path, targetroot: Path) {
   val semanticdb = metainf.resolve("semanticdb")
   def relativePath(path: Path) = sourceroot.relativize(path)
   def semanticdbPath(relativePath: Path) = {
-    val sibling =
-      relativePath.getFileName.toString.stripSuffix(".scala") + ".semanticdb"
+    val sibling = relativePath.getFileName.toString + ".semanticdb"
     semanticdb
       .resolve(relativePath)
       .resolveSibling(sibling)

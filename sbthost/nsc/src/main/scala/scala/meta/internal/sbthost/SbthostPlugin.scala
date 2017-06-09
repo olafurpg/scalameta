@@ -21,7 +21,6 @@ case class SbthostConfig(sourceroot: Path, targetroot: Path) {
   def target = targetroot.resolve("META-INF").resolve("semanticdb")
   def relativePath(path: Path) = sourceroot.relativize(path)
   def semanticdbPath(relativePath: Path) = {
-    println("Targetroot: " + targetroot.toAbsolutePath)
     val sibling = relativePath.getFileName.toString + ".semanticdb"
     target
       .resolve(relativePath)
@@ -53,7 +52,6 @@ class SbthostPlugin(val global: Global) extends Plugin {
     sourceroot = workingDirectory.toAbsolutePath,
     targetroot = targetroot.toAbsolutePath
   )
-  println(s"CONFIG=$config")
   def hijackReporter() = {
     global.reporter match {
       case s: StoreReporter =>
@@ -159,6 +157,7 @@ class SbthostPlugin(val global: Global) extends Plugin {
             if (pretty.contains("<import>") ||
                 pretty.contains("<none>") ||
                 pretty.contains("<init>") ||
+                pretty.contains("<empty>") ||
                 pretty.contains(".<local ")) {
               // nothing
             } else {
@@ -191,7 +190,7 @@ class SbthostPlugin(val global: Global) extends Plugin {
         )
         val semanticdbOutFile = config.semanticdbPath(filename)
         semanticdbOutFile.toFile.getParentFile.mkdirs()
-        Files.write(semanticdbOutFile, attributes.toByteArray)
+        Files.write(semanticdbOutFile.normalize(), attributes.toByteArray)
       }
     }
   }

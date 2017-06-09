@@ -278,13 +278,18 @@ lazy val sbthostTests = project
   .in(file("sbthost/tests"))
   .settings(
     moduleName := "scalahost-tests",
-    scalaVersion := LatestScala210,
-    crossScalaVersions := List(LatestScala210),
     description := "Tests for sbthost",
     sharedSettings,
     nonPublishableSettings,
-    test.in(Test) := test.in(Test).dependsOn(compile.in(sbthostInput, Compile)).value
+    test.in(Test) := test.in(Test).dependsOn(compile.in(sbthostInput, Compile)).value,
+    buildInfoPackage := "scala.meta.tests",
+    buildInfoKeys := Seq[BuildInfoKey](
+      "targetroot" -> classDirectory.in(sbthostInput, Compile).value,
+      "sourceroot" -> baseDirectory.in(ThisBuild).value
+    )
   )
+  .dependsOn(testkit % Test)
+  .enablePlugins(BuildInfoPlugin)
 
 lazy val scalahostNsc = project
   .in(file("scalahost/nsc"))

@@ -28,7 +28,9 @@ case class SbthostConfig(sourceroot: Path, targetroot: Path) {
       .toAbsolutePath
   }
 }
-
+// NOTE: This is proof-of-concept to show that we can emit .semanticdb files
+// for 2.10. The emitted data is not as accurate as in scalahost, my hypothesis
+// is that it's still better than many other hacks.
 class SbthostPlugin(val global: Global) extends Plugin {
   val name = "sbthost"
   val description = "Compiler plugin for sbt v1.0 migration."
@@ -40,6 +42,7 @@ class SbthostPlugin(val global: Global) extends Plugin {
         .map(_.file.toURI)
         .getOrElse(new File(global.settings.d.value).toURI))
   )
+
   private object SbthostComponent extends PluginComponent {
     val global = SbthostPlugin.this.global
     import global._

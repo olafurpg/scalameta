@@ -250,7 +250,7 @@ lazy val sbthost = project
     moduleName := "sbthost",
     mergeSettings,
     publishableSettings,
-//    isFullCrossVersion,
+    isFullCrossVersion,
     isScala210,
     description := "Scala 2.x compiler plugin that persists the scalameta semantic DB on compile",
     libraryDependencies += "org.scala-lang" % "scala-compiler" % scalaVersion.value,

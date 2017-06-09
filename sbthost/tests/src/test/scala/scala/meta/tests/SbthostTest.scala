@@ -10,7 +10,9 @@ class SbthostTest extends org.scalatest.FunSuite {
       val sattrs = s.Attributes.parseFrom(entry.bytes)
       org.scalameta.logger.elem(sattrs)
       assert(sattrs.names.nonEmpty)
+      val mattrs =
+        new s.Database(List(sattrs)).toMeta(Some(Sourcepath(AbsolutePath(BuildInfo.sourceroot))))
+      assert(mattrs.names.nonEmpty)
     }
   }
-
 }

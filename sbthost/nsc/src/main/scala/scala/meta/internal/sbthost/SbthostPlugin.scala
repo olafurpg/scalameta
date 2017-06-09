@@ -53,10 +53,9 @@ class SbthostPlugin(val global: Global) extends Plugin {
       global.reporter match {
         case reporter: StoreReporter =>
           reporter.infos.withFilter(_.pos.source == source).map { info =>
-            val range = info.pos match {
+            val range = Option(info.pos).collect {
               case p: RangePosition => s.Range(p.start, p.end)
-              case p: OffsetPosition => s.Range(p.start, -1)
-              case _ => s.Range(-1, -1)
+              case p: OffsetPosition => s.Range(p.point, p.point)
             }
             val severity = info.severity.id match {
               case 0 => s.Message.Severity.INFO
@@ -64,12 +63,13 @@ class SbthostPlugin(val global: Global) extends Plugin {
               case 2 => s.Message.Severity.ERROR
               case els => s.Message.Severity.UNKNOWN
             }
-            s.Message(Some(range), severity, info.msg)
+            s.Message(range, severity, info.msg)
           }
         case els =>
           global.reporter.warning(NoPosition, s"Unknown reporter $els")
           Nil
       }
+    // Copy-pasted from scalahost.
     def jvmSignature(sym: MethodSymbol): String = {
       def encode(tpe: Type): String = {
         val TypeRef(_, sym, args) = tpe
@@ -106,8 +106,17 @@ class SbthostPlugin(val global: Global) extends Plugin {
       object traverser extends Traverser {
         override def traverse(tree: Tree): Unit = {
           if (tree.pos.isDefined && isValidSymbol(tree.symbol)) {
-            val range = s.Range(tree.pos.point, -1)
-            buffer += s.ResolvedName(Some(range), prettySymbol(tree.symbol))
+            val range = s.Range(tree.pos.point, tree.pos.point)
+            val pretty = prettySymbol(tree.symbol)
+            // Hack and hacks, this should not be necessary, just trying to get something running.
+            if (pretty.contains("<import>") ||
+                pretty.contains("<none>") ||
+                pretty.contains("<init>") ||
+                pretty.contains(".<local ")) {
+              // nothing
+            } else {
+              buffer += s.ResolvedName(Some(range), pretty)
+            }
           }
           super.traverse(tree)
         }

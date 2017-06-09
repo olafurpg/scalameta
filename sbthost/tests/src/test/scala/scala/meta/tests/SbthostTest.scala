@@ -13,6 +13,7 @@ class SbthostTest extends org.scalatest.FunSuite {
       val mattrs =
         new s.Database(List(sattrs)).toMeta(Some(Sourcepath(AbsolutePath(BuildInfo.sourceroot))))
       assert(mattrs.names.nonEmpty)
+      assert(mattrs.denotations.nonEmpty)
     }
   }
 }

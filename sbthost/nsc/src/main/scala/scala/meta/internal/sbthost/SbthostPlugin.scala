@@ -7,6 +7,7 @@ import java.nio.file.Paths
 import scala.collection.mutable.ListBuffer
 import scala.meta.internal.semantic.{schema => s}
 import scala.reflect.internal.util.OffsetPosition
+import scala.reflect.internal.util.Position
 import scala.reflect.internal.util.RangePosition
 import scala.reflect.internal.util.SourceFile
 import scala.tools.nsc.plugins.Plugin
@@ -42,6 +43,31 @@ class SbthostPlugin(val global: Global) extends Plugin {
         .map(_.file.toURI)
         .getOrElse(new File(global.settings.d.value).toURI))
   )
+  def hijackReporter() = {
+    global.reporter match {
+      case s: StoreReporter =>
+      case s =>
+        val newReporter = new StoreReporter {
+          override def info0(pos: Position,
+                             msg: String,
+                             severity: Severity,
+                             force: Boolean): Unit = {
+            super.info0(pos, msg, severity, force)
+            severity match {
+              case INFO => s.info(pos, msg, force)
+              case WARNING => s.warning(pos, msg)
+              case ERROR => s.error(pos, msg)
+              case _ =>
+            }
+          }
+        }
+        global.reporter = newReporter
+    }
+  }
+  // Does not work because:
+  // [error] (sbthostInput/compile:compileIncremental) java.lang.ClassCastException:
+  //   scala.meta.internal.sbthost.SbthostPlugin$$anon$2 cannot be cast to xsbt.DelegatingReporter
+  //  hijackReporter()
 
   override def processOptions(options: List[String], error: (String) => Unit): Unit = {
     val SetSourceroot = "sourceroot:(.*)".r

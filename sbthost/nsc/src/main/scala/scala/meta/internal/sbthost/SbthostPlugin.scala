@@ -18,12 +18,12 @@ import scala.tools.nsc.Phase
 import scala.tools.nsc.io.VirtualFile
 
 case class SbthostConfig(sourceroot: Path, targetroot: Path) {
-  val metainf = targetroot.resolve("META-INF")
-  val semanticdb = metainf.resolve("semanticdb")
+  def target = targetroot.resolve("META-INF").resolve("semanticdb")
   def relativePath(path: Path) = sourceroot.relativize(path)
   def semanticdbPath(relativePath: Path) = {
+    println("Targetroot: " + targetroot.toAbsolutePath)
     val sibling = relativePath.getFileName.toString + ".semanticdb"
-    semanticdb
+    target
       .resolve(relativePath)
       .resolveSibling(sibling)
       .toAbsolutePath
@@ -36,21 +36,24 @@ class SbthostPlugin(val global: Global) extends Plugin {
   val name = "sbthost"
   val description = "Compiler plugin for sbt v1.0 migration."
   val components = List[PluginComponent](SbthostComponent)
-  val workingDirectory = Paths.get(sys.props("user.dir"))
+  def workingDirectory = Paths.get(sys.props("user.dir")).normalize()
   def targetroot = {
-    val default = Paths.get(
-      global.settings.outputDirs.getSingleOutput
-        .map(_.file.toURI)
-        .getOrElse(new File(global.settings.d.value).getAbsoluteFile.toURI))
+    val default = Paths
+      .get(
+        global.settings.outputDirs.getSingleOutput
+          .map(_.file.toURI)
+          .getOrElse(new File(global.settings.d.value).getAbsoluteFile.toURI))
+      .normalize()
     // It seems the default points to the working directory when compiling
     // sbt builds.
     if (default == workingDirectory) workingDirectory.resolve("target")
     else default
   }
   var config = SbthostConfig(
-    sourceroot = workingDirectory,
-    targetroot = targetroot
+    sourceroot = workingDirectory.toAbsolutePath,
+    targetroot = targetroot.toAbsolutePath
   )
+  println(s"CONFIG=$config")
   def hijackReporter() = {
     global.reporter match {
       case s: StoreReporter =>

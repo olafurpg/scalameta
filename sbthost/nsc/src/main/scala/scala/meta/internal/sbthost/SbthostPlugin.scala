@@ -35,13 +35,23 @@ class SbthostPlugin(val global: Global) extends Plugin {
   val name = "sbthost"
   val description = "Compiler plugin for sbt v1.0 migration."
   val components = List[PluginComponent](SbthostComponent)
-  val config = SbthostConfig(
+  var config = SbthostConfig(
     sourceroot = Paths.get(sys.props("user.dir")),
     targetroot = Paths.get(
       global.settings.outputDirs.getSingleOutput
         .map(_.file.toURI)
         .getOrElse(new File(global.settings.d.value).toURI))
   )
+
+  override def processOptions(options: List[String], error: (String) => Unit): Unit = {
+    val SetSourceroot = "sourceroot:(.*)".r
+    options.foreach {
+      case SetSourceroot(sourceroot) =>
+        config = config.copy(sourceroot = Paths.get(sourceroot))
+      case els =>
+        global.reporter.error(global.NoPosition, s"Ignoring unknown scalahost option $els")
+    }
+  }
 
   private object SbthostComponent extends PluginComponent {
     val global = SbthostPlugin.this.global

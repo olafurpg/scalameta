@@ -37,12 +37,20 @@ class SbthostPlugin(val global: Global) extends Plugin {
   val name = "sbthost"
   val description = "Compiler plugin for sbt v1.0 migration."
   val components = List[PluginComponent](SbthostComponent)
-  var config = SbthostConfig(
-    sourceroot = Paths.get(sys.props("user.dir")),
-    targetroot = Paths.get(
+  val workingDirectory = Paths.get(sys.props("user.dir"))
+  def targetroot = {
+    val default = Paths.get(
       global.settings.outputDirs.getSingleOutput
         .map(_.file.toURI)
-        .getOrElse(new File(global.settings.d.value).toURI))
+        .getOrElse(new File(global.settings.d.value).getAbsoluteFile.toURI))
+    // It seems the default points to the working directory when compiling
+    // sbt builds.
+    if (default == workingDirectory) workingDirectory.resolve("target")
+    else default
+  }
+  var config = SbthostConfig(
+    sourceroot = workingDirectory,
+    targetroot = targetroot
   )
   def hijackReporter() = {
     global.reporter match {

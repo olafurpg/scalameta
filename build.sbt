@@ -251,6 +251,19 @@ lazy val scalameta = crossProject
 lazy val scalametaJVM = scalameta.jvm
 lazy val scalametaJS = scalameta.js
 
+lazy val sbthost = project
+  .in(file("sbthost/nsc"))
+  .settings(
+    moduleName := "scalahost",
+    scalaVersion := LatestScala210,
+    crossScalaVersions := List(LatestScala210),
+    description := "Scala 2.x compiler plugin that persists the scalameta semantic DB on compile",
+    publishableSettings,
+    mergeSettings,
+    isFullCrossVersion,
+    libraryDependencies += "org.scala-lang" % "scala-compiler" % scalaVersion.value
+  )
+
 lazy val scalahostNsc = project
   .in(file("scalahost/nsc"))
   .settings(

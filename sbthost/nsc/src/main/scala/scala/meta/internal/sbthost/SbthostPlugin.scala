@@ -154,11 +154,8 @@ class SbthostPlugin(val global: Global) extends Plugin {
             val range = s.Range(tree.pos.point, tree.pos.point)
             val pretty = prettySymbol(tree.symbol)
             // Hack and hacks, this should not be necessary, just trying to get something running.
-            if (pretty.contains("<import>") ||
-                pretty.contains("<none>") ||
-                pretty.contains("<init>") ||
-                pretty.contains("<empty>") ||
-                pretty.contains(".<local ")) {
+            if (pretty.contains("<") ||
+                pretty.contains(">")) {
               // nothing
             } else {
               buffer += s.ResolvedName(Some(range), pretty)

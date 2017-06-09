@@ -1,0 +1,6 @@
+package sbthost
+
+object CompiledWithSbthost {
+
+
+}

@@ -214,14 +214,7 @@ lazy val semantic = crossProject
   .settings(
     publishableSettings,
     description := "Scalameta semantic APIs",
-    // Protobuf setup for binary serialization.
-    PB.targets.in(Compile) := Seq(
-      scalapb.gen(
-        flatPackage = true // Don't append filename to package
-      ) -> sourceManaged.in(Compile).value
-    ),
-    PB.protoSources.in(Compile) := Seq(file("scalameta/semantic/shared/src/main/protobuf")),
-    libraryDependencies += "com.trueaccord.scalapb" %%% "scalapb-runtime" % scalapbVersion
+    protobufSettings
   )
   .dependsOn(common, parsers, trees)
 lazy val semanticJVM = semantic.jvm
@@ -254,14 +247,43 @@ lazy val scalametaJS = scalameta.js
 lazy val sbthost = project
   .in(file("sbthost/nsc"))
   .settings(
-    moduleName := "scalahost",
+    moduleName := "sbthost",
+    mergeSettings,
+    publishableSettings,
+    isFullCrossVersion,
+    isScala210,
+    description := "Scala 2.x compiler plugin that persists the scalameta semantic DB on compile",
+    libraryDependencies += "org.scala-lang" % "scala-compiler" % scalaVersion.value,
+    protobufSettings
+  )
+
+lazy val sbthostInput = project
+  .in(file("sbthost/input"))
+  .settings(
+    isScala210,
+    nonPublishableSettings,
+    scalacOptions ++= {
+      val sbthostPlugin = Keys.`package`.in(sbthost, Compile).value
+      val sbthostPluginPath = sbthostPlugin.getAbsolutePath
+      val dummy = "-Jdummy=" + sbthostPlugin.lastModified
+      s"-Xplugin:$sbthostPluginPath" ::
+        "-Xplugin-require:sbthost" ::
+        "-Yrangepos" ::
+        dummy ::
+        Nil
+    }
+  )
+
+lazy val sbthostTests = project
+  .in(file("sbthost/tests"))
+  .settings(
+    moduleName := "scalahost-tests",
     scalaVersion := LatestScala210,
     crossScalaVersions := List(LatestScala210),
-    description := "Scala 2.x compiler plugin that persists the scalameta semantic DB on compile",
-    publishableSettings,
-    mergeSettings,
-    isFullCrossVersion,
-    libraryDependencies += "org.scala-lang" % "scala-compiler" % scalaVersion.value
+    description := "Tests for sbthost",
+    sharedSettings,
+    nonPublishableSettings,
+    test.in(Test) := test.in(Test).dependsOn(compile.in(sbthostInput, Compile)).value
   )
 
 lazy val scalahostNsc = project
@@ -545,6 +567,17 @@ lazy val mergeSettings = Def.settings(
   }
 )
 
+lazy val protobufSettings = Seq(
+  PB.targets.in(Compile) := Seq(
+    scalapb.gen(
+      flatPackage = true // Don't append filename to package
+    ) -> sourceManaged.in(Compile).value
+  ),
+  PB.protoSources.in(Compile) := Seq(file("scalameta/semantic/shared/src/main/protobuf")),
+  libraryDependencies += "com.trueaccord.scalapb" %%% "scalapb-runtime" % scalapbVersion
+)
+
+
 lazy val publishableSettings = Def.settings(
   publishTo := {
     if (isSonatypePublish)
@@ -608,6 +641,11 @@ lazy val buildInfoSettings = Def.settings(
   ),
   buildInfoPackage := "org.scalameta",
   buildInfoObject := "BuildInfo"
+)
+
+lazy val isScala210 = Seq(
+  scalaVersion := LatestScala210,
+  crossScalaVersions := List(LatestScala210)
 )
 
 lazy val isFullCrossVersion = Seq(

@@ -1,6 +1,11 @@
 package sbthost
+import scala.collection.immutable.Seq
 
 object CompiledWithSbthost {
+  def bar(x: Int) = x
+  def bar(x: String) = x
   1 + 2
-  val x = List.empty[Int].head
+  bar(1)
+  bar("string")
+
 }

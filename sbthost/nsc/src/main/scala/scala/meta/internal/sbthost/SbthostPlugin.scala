@@ -15,6 +15,7 @@ import scala.tools.nsc.plugins.PluginComponent
 import scala.tools.nsc.reporters.StoreReporter
 import scala.tools.nsc.Global
 import scala.tools.nsc.Phase
+import scala.tools.nsc.io.VirtualFile
 
 case class SbthostConfig(sourceroot: Path, targetroot: Path) {
   val metainf = targetroot.resolve("META-INF")
@@ -102,7 +103,7 @@ class SbthostPlugin(val global: Global) extends Plugin {
             s.Message(range, severity, info.msg)
           }
         case els =>
-          global.reporter.warning(NoPosition, s"Unknown reporter $els")
+//          global.reporter.warning(NoPosition, s"Unknown reporter $els")
           Nil
       }
     // Copy-pasted from scalahost.
@@ -162,8 +163,13 @@ class SbthostPlugin(val global: Global) extends Plugin {
     }
     override def newPhase(prev: Phase) = new StdPhase(prev) {
       def apply(unit: global.CompilationUnit): Unit = {
-        val source = Paths.get(unit.source.file.file.getAbsoluteFile.toURI)
-        val filename = config.relativePath(source)
+        val sourcePath = unit.source.file match {
+          case f: VirtualFile =>
+            Paths.get(f.path)
+          case els =>
+            Paths.get(els.file.getAbsoluteFile.toURI)
+        }
+        val filename = config.relativePath(sourcePath)
         val attributes = s.Attributes(
           filename = filename.toString,
           contents = unit.source.content.mkString,

@@ -250,7 +250,7 @@ lazy val sbthost = project
     moduleName := "sbthost",
     mergeSettings,
     publishableSettings,
-    isFullCrossVersion,
+//    isFullCrossVersion,
     isScala210,
     description := "Scala 2.x compiler plugin that persists the scalameta semantic DB on compile",
     libraryDependencies += "org.scala-lang" % "scala-compiler" % scalaVersion.value,
@@ -300,22 +300,7 @@ lazy val scalahostNsc = project
     mergeSettings,
     isFullCrossVersion,
     libraryDependencies += "org.scala-lang" % "scala-compiler" % scalaVersion.value,
-    exposePaths("scalahost", Test),
-    pomPostProcess := { node =>
-      new RuleTransformer(new RewriteRule {
-        private def isScalametaDependency(node: XmlNode): Boolean = {
-          def isArtifactId(node: XmlNode, fn: String => Boolean) =
-            node.label == "artifactId" && fn(node.text)
-          node.label == "dependency" && node.child.exists(child =>
-            isArtifactId(child, _.startsWith("scalameta_")))
-        }
-        override def transform(node: XmlNode): XmlNodeSeq = node match {
-          case e: Elem if isScalametaDependency(node) =>
-            Comment("scalameta dependency has been merged into scalahost via sbt-assembly")
-          case _ => node
-        }
-      }).transform(node).head
-    }
+    exposePaths("scalahost", Test)
   )
   .dependsOn(scalametaJVM, testkit % Test)
 
@@ -569,6 +554,21 @@ lazy val mergeSettings = Def.settings(
     val _ = assembly.value
     IO.copy(List(fatJar -> slimJar), overwrite = true)
     (art, slimJar)
+  },
+  pomPostProcess := { node =>
+    new RuleTransformer(new RewriteRule {
+      private def isScalametaDependency(node: XmlNode): Boolean = {
+        def isArtifactId(node: XmlNode, fn: String => Boolean) =
+          node.label == "artifactId" && fn(node.text)
+        node.label == "dependency" && node.child.exists(child =>
+          isArtifactId(child, _.startsWith("scalameta_")))
+      }
+      override def transform(node: XmlNode): XmlNodeSeq = node match {
+        case e: Elem if isScalametaDependency(node) =>
+          Comment("scalameta dependency has been merged into scalahost via sbt-assembly")
+        case _ => node
+      }
+    }).transform(node).head
   }
 )
 

@@ -1,5 +1,6 @@
 package scala.meta
 
+import java.nio.file._
 import java.text._
 import java.util.Calendar
 import scala.util.Try
@@ -7,9 +8,29 @@ import scalatags.Text.all._
 import org.scalameta.os._
 import scala.compat.Platform.EOL
 import scala.tools.nsc.interpreter._
-import scala.tools.nsc.{Settings, MainGenericRunner}
+import scala.tools.nsc.{MainGenericRunner, Settings}
+import scalatags.Text.TypedTag
+import scalatex.site.Highlighter
 
 object Readme {
+  def main(args: Array[String]): Unit = {
+    println("Hello!")
+    val index = scalatex.Readme().render
+    val out = Paths.get("readme", "target", "site", "index.html")
+    out.getParent.toFile.mkdirs()
+    org.scalameta.logger.elem(index)
+    Files.write(out, index.getBytes)
+  }
+
+  def sect(name: String, id: String)(frag: Frag*): TypedTag[String] = sect(name)(frag: _*)
+  def lnk(name: String, url: String) =
+    a(href := url, name)
+  object hl extends Highlighter
+  def sect(name: String)(frag: Frag*): TypedTag[String] = div(
+    h2(name),
+    frag
+  )
+
   import scalatex.Main._
 
   def url(src: String) = a(href := src, src)
@@ -17,10 +38,11 @@ object Readme {
   private def unindent(frag: String): String = {
     // code frags are passed in raw from *.scalatex.
     val toStrip =
-      " " * Try(frag.lines
-            .withFilter(_.nonEmpty)
-            .map(_.takeWhile(_ == ' ').length)
-            .min).getOrElse(0)
+      " " * Try(
+        frag.lines
+          .withFilter(_.nonEmpty)
+          .map(_.takeWhile(_ == ' ').length)
+          .min).getOrElse(0)
     frag.lines.map(_.stripPrefix(toStrip)).mkString("\n")
   }
 
@@ -33,20 +55,22 @@ object Readme {
       RedFlag("Error", "runtime exception", "runtime exception in repl invocation")
     )
     def validatePrintout(printout: String): Unit = {
-      redFlags.foreach{ case RedFlag(pat, directive, msg) =>
-        if (printout.contains(pat) && !code.contains("// " + directive)) {
-          sys.error(msg + ": " + printout)
-        }
+      redFlags.foreach {
+        case RedFlag(pat, directive, msg) =>
+          if (printout.contains(pat) && !code.contains("// " + directive)) {
+            sys.error(msg + ": " + printout)
+          }
       }
     }
     val s = new Settings
     s.Xnojline.value = true
     s.usejavacp.value = false
     s.classpath.value = sys.props("sbt.paths.readme.runtime.classes")
-    val postprocessedCode = redFlags.foldLeft(code)((acc, curr) => acc.replace("// " + curr.directive, ""))
+    val postprocessedCode =
+      redFlags.foldLeft(code)((acc, curr) => acc.replace("// " + curr.directive, ""))
     val lines = ILoop.runForTranscript(postprocessedCode, s).lines.toList
     validatePrintout(lines.mkString(EOL))
-    lines.drop(3).dropRight(2).map(_.replaceAll("\\s+$","")).mkString(EOL).trim
+    lines.drop(3).dropRight(2).map(_.replaceAll("\\s+$", "")).mkString(EOL).trim
   }
 
   /**
@@ -111,6 +135,8 @@ object Readme {
   def copyrightBadge = {
     val currentYear = Calendar.getInstance().get(Calendar.YEAR)
     val text = s"(c) 2014 - $currentYear scalameta contributors"
-    div(style := "margin: 0px;color: #ccc;text-align: center;padding: 0.5em 2em 0.5em 0em;border-top: 1px solid #eee;display: block;")(text)
+    div(
+      style := "margin: 0px;color: #ccc;text-align: center;padding: 0.5em 2em 0.5em 0em;border-top: 1px solid #eee;display: block;")(
+      text)
   }
 }

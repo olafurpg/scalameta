@@ -237,6 +237,15 @@ trait AttributesOps { self: DatabaseOps =>
                     name.contains(g.nme.DEFAULT_GETTER_STRING)
                   }
                   if (prohibited(gtree.name.decoded)) return
+                  if (gtree.name.decoded == "consWrapper"){
+                    pprint.log(gtree.qualifier)
+                    pprint.log(gtree.name)
+                    pprint.log(gtree)
+                    pprint.log(gtree.symbol.isSynthetic)
+                    pprint.log(gtree.tpe.termSymbol)
+                    pprint.log(gtree.tpe.typeSymbol)
+                    ???
+                  }
                   tryMstart(gpoint)
                 case gtree: g.Import =>
                   val sels = gtree.selectors.flatMap(sel =>
@@ -289,6 +298,10 @@ trait AttributesOps { self: DatabaseOps =>
             }
 
             override def traverse(gtree: g.Tree): Unit = {
+              pprint.log(gtree)
+              if (gtree.symbol != null) {
+                pprint.log(gtree.symbol.debugFlagString)
+              }
               gtree match {
                 case ConstfoldOf(original) =>
                   traverse(original)

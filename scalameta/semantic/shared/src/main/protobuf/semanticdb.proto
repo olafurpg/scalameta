@@ -12,6 +12,7 @@ message Attributes {
   repeated Message messages = 3;
   repeated SymbolDenotation denotations = 4;
   repeated Sugar sugars = 6;
+  string sha256 = 10;
 }
 
 message ResolvedName {

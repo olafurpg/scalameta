@@ -34,7 +34,7 @@ class Database(entries: Seq[Attributes]) {
 
   def toMeta(sourcepath: Option[Sourcepath]): m.Database = {
     val mentries = entries.map {
-      case s.Attributes(sunixfilename, scontents, sdialect, snames, smessages, sdenots, ssugars) =>
+      case s.Attributes(sunixfilename, scontents, sdialect, snames, smessages, sdenots, ssugars, _) =>
         assert(sunixfilename.nonEmpty, "s.Attribute.filename must not be empty")
         val sfilename = PathIO.fromUnix(sunixfilename)
         val minput = {

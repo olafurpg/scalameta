@@ -2,11 +2,16 @@ package scala.meta
 package internal
 import scala.util.Try
 import java.nio.charset.Charset
+import java.nio.file.Files
+import java.security.DigestInputStream
+import java.security.MessageDigest
+import javax.xml.bind.DatatypeConverter
 import scala.collection.immutable.Seq
 import scala.meta.inputs.{Input => mInput}
 import scala.meta.inputs.{Point => mPoint}
 import scala.meta.inputs.{Position => mPosition}
 import scala.meta.internal.io.PathIO
+import scala.meta.internal.io.PlatformFileIO
 import scala.meta.internal.semantic.{schema => s}
 import scala.meta.internal.semantic.{vfs => v}
 import scala.meta.io._
@@ -42,11 +47,12 @@ package object semantic {
               case _ => None
             }
           }
-          val (splatformpath, scontents) = minput match {
+          val (splatformpath, scontents, ssha256) = minput match {
             case mInput.File(path, charset) if charset == Charset.forName("UTF-8") =>
-              path.toRelative(sourceroot).toString -> ""
+              val sha256 = PlatformFileIO.sha256(path)
+              (path.toRelative(sourceroot).toString,  "", sha256)
             case mInput.LabeledString(label, contents) =>
-              label -> contents
+              (label, contents, "")
             case other =>
               sys.error(s"bad database: unsupported input $other")
           }
@@ -73,7 +79,7 @@ package object semantic {
             case (mRange(srange), ssyntax) => s.Sugar(Some(srange), ssyntax)
             case other => sys.error(s"bad database: unsupported sugar $other")
           }
-          s.Attributes(spath, scontents, sdialect, snames, smessages, sdenots, ssugars)
+          s.Attributes(spath, scontents, sdialect, snames, smessages, sdenots, ssugars, ssha256)
         case (other, _) =>
           sys.error(s"unsupported input: $other")
       }

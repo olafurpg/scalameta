@@ -332,6 +332,7 @@ lazy val scalahostIntegration = project
         s"-Xplugin:$pluginJar",
         "-Yrangepos",
         s"-P:scalahost:sourceroot:${baseDirectory.in(ThisBuild).value}",
+        s"-P:scalahost:semanticdb:slim",
         "-Xplugin-require:scalahost"
       )
     }

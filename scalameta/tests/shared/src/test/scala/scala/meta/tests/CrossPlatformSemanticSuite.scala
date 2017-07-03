@@ -36,6 +36,7 @@ class CrossPlatformSemanticSuite extends FunSuite {
     semanticdbs.foreach { path =>
       val sattrs = s.Attributes.parseFrom(path.readAllBytes)
       assert(!sattrs.filename.contains('\\'))
+      assert(sattrs.sha256.nonEmpty)
     }
   }
 }

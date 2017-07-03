@@ -55,4 +55,7 @@ object PlatformFileIO {
     loop(root)
     new ListFiles(root, builder.result())
   }
+
+  def sha256(path: AbsolutePath): String =
+    throw new UnsupportedOperationException("sha256 is not supported in JS.")
 }

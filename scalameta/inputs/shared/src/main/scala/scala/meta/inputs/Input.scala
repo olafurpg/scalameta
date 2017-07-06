@@ -47,9 +47,16 @@ object Input {
     }
   }
 
-  @data class LabeledString(label: scala.Predef.String, contents: scala.Predef.String) extends Input {
+  @data class VirtualFile(path: RelativePath, contents: scala.Predef.String) extends Input {
     lazy val chars = contents.toArray
-    override def toString = s"""Input.LabeledString("$label", "$contents")"""
+    override def toString = s"""Input.LabeledString("$path", "$contents")"""
+  }
+
+  object VirtualFile {
+    def apply(path: RelativePath, contents: scala.Predef.String): VirtualFile =
+      new VirtualFile(path, contents)
+    def apply(path: scala.Predef.String, contents: scala.Predef.String): VirtualFile =
+      apply(RelativePath(path), contents)
   }
 
   @data class File(path: AbsolutePath, charset: Charset) extends Input {

@@ -2,6 +2,7 @@ package scala.meta
 package inputs
 
 import java.nio.charset.Charset
+import java.nio.file.Paths
 import org.scalameta.adt.{Liftables => AdtLiftables}
 import org.scalameta.data._
 import org.scalameta.invariants._
@@ -55,8 +56,17 @@ object Input {
   object VirtualFile {
     def apply(path: RelativePath, contents: scala.Predef.String): VirtualFile =
       new VirtualFile(path, contents)
-    def apply(path: scala.Predef.String, contents: scala.Predef.String): VirtualFile =
-      apply(RelativePath(path), contents)
+    def apply(path: scala.Predef.String, contents: scala.Predef.String): VirtualFile = {
+      val relpath = {
+        val nio = Paths.get(path)
+        if (nio.isAbsolute) {
+          // relative path cannot be absolute.
+          nio.getRoot.relativize(nio)
+        }
+        else nio
+      }
+      apply(RelativePath(relpath), contents)
+    }
   }
 
   @data class File(path: AbsolutePath, charset: Charset) extends Input {

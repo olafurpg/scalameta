@@ -5,6 +5,7 @@ package quasiquotes
 import scala.runtime.ScalaRunTime
 import scala.language.implicitConversions
 import scala.language.experimental.macros
+
 import scala.reflect.macros.whitebox.Context
 import scala.collection.{immutable, mutable}
 import org.scalameta._
@@ -22,6 +23,8 @@ import scala.meta.internal.parsers.Messages
 import scala.meta.internal.parsers.Absolutize._
 import scala.meta.internal.tokens._
 import scala.compat.Platform.EOL
+import scala.meta.io.AbsolutePath
+import scala.meta.io.RelativePath
 
 // TODO: ideally, we would like to bootstrap these macros on top of scala.meta
 // so that quasiquotes can be interpreted by any host, not just scalac

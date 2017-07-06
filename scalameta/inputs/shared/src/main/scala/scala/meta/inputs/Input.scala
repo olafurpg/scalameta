@@ -9,7 +9,7 @@ import scala.meta.common._
 import scala.meta.internal.inputs._
 import scala.meta.io._
 
-trait Input extends Optional with Product with Serializable with InternalInput {
+sealed trait Input extends Optional with Product with Serializable with InternalInput {
   def chars: Array[Char]
   def text: String = new String(chars)
 }

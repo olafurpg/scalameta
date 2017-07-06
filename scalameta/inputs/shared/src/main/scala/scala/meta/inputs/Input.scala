@@ -49,7 +49,7 @@ object Input {
 
   @data class VirtualFile(path: RelativePath, contents: scala.Predef.String) extends Input {
     lazy val chars = contents.toArray
-    override def toString = s"""Input.LabeledString("$path", "$contents")"""
+    override def toString = s"""Input.VirtualFile("$path", "$contents")"""
   }
 
   object VirtualFile {

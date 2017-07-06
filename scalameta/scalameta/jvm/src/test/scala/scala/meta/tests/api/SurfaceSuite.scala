@@ -60,7 +60,7 @@ class SurfaceSuite extends FunSuite {
       |scala.meta.inputs
       |scala.meta.inputs.Input
       |scala.meta.inputs.Input.File
-      |scala.meta.inputs.Input.LabeledString
+      |scala.meta.inputs.Input.VirtualFile
       |scala.meta.inputs.Input.None
       |scala.meta.inputs.Input.Slice
       |scala.meta.inputs.Input.Stream

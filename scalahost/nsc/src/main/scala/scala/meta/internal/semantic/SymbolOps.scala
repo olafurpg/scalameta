@@ -31,6 +31,17 @@ trait SymbolOps { self: DatabaseOps =>
         }
       }
 
+      if (sym.name.decoded == "banana") {
+        org.scalameta.logger.elem(
+          sym == sym.owner,
+          sym.isSynthetic,
+          sym.isByNameParam,
+          sym.infosString,
+          sym.debugLocationString,
+          sym.owner.debugLocationString,
+          sym.owner.owner.debugLocationString
+        )
+      }
       val owner = sym.owner.toSemantic
       val signature = {
         def name(sym: g.Symbol) = sym.name.decoded.stripSuffix(g.nme.LOCAL_SUFFIX_STRING)

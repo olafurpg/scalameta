@@ -161,7 +161,11 @@ trait AttributesOps { self: DatabaseOps =>
                   if (gsym0 != null && isClassRefInCtorCall) gsym0.owner
                   else gsym0 // TODO: fix this in callers of `success`
                 }
-                val symbol = gsym.toSemantic
+
+                val toConvert =
+                  if (mtree.parent.exists(_.is[m.Pat.Var])) gsym.owner
+                  else gsym
+                val symbol = toConvert.toSemantic
                 if (symbol == m.Symbol.None) return
 
                 names(mtree.pos) = symbol

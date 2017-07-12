@@ -36,6 +36,7 @@ trait AttributesOps { self: DatabaseOps =>
         }
 
         val names = mutable.Map[m.Position, m.Symbol]()
+        val preemptOk = mutable.Set.empty[m.Position]
         val denotations = mutable.Map[m.Symbol, m.Denotation]()
         val inferred = mutable.Map[m.Position, Inferred]().withDefaultValue(Inferred())
         val inferredImplicitConv = mutable.Set.empty[g.Tree] // synthesized implicit conversions
@@ -154,7 +155,13 @@ trait AttributesOps { self: DatabaseOps =>
                 // https://github.com/scalameta/scalameta/issues/665
                 // Instead of crashing with "unsupported file", we ignore these cases.
                 if (mtree.pos == m.Position.None) return
-                if (names.contains(mtree.pos)) return // NOTE: in the future, we may decide to preempt preexisting db entries
+
+                if (names.contains(mtree.pos) && !preemptOk.contains(mtree.pos)) {
+                  if (mtree.value == "x") {
+                    org.scalameta.logger.elem(mtree.pos, preemptOk, mtree, gsym0)
+                  }
+                  return // NOTE: in the future, we may decide to preempt preexisting db entries
+                }
 
                 val gsym = {
                   def isClassRefInCtorCall = gsym0.isConstructor && mtree.isNot[m.Name.Anonymous]
@@ -162,14 +169,15 @@ trait AttributesOps { self: DatabaseOps =>
                   else gsym0 // TODO: fix this in callers of `success`
                 }
 
-                val toConvert =
-                  if (mtree.parent.exists(_.is[m.Pat.Var])) gsym.owner
-                  else gsym
-                val symbol = toConvert.toSemantic
+                val symbol = gsym.toSemantic
                 if (symbol == m.Symbol.None) return
 
                 names(mtree.pos) = symbol
                 denotations(symbol) = gsym.toDenotation
+                if (gtree.isInstanceOf[g.Bind] && gsym.owner.isSynthetic) {
+                  org.scalameta.logger.elem(gtree)
+                  preemptOk(mtree.pos)
+                }
                 if (gsym.isClass && !gsym.isTrait) {
                   val gprim = gsym.primaryConstructor
                   denotations(gprim.toSemantic) = gprim.toDenotation
@@ -394,6 +402,7 @@ trait AttributesOps { self: DatabaseOps =>
               super.traverse(gtree)
             }
           }
+          org.scalameta.logger.elem(g.showCode(unit.body))
           traverser.traverse(unit.body)
         }
 

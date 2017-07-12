@@ -412,7 +412,7 @@ class SemanticSuite extends DatabaseSuite(SemanticdbMode.Slim) {
        |  val Name = "name:(.*)".r
        |  val x #:: xs = Stream(1, 2);
        |  val Name(name) = "name:foo"
-       |  1 #:: 2 #:: Stream.empty
+       |  1 #:: x #:: Stream.empty
        |}""".stripMargin,
     """|[7..8): n => _empty_.n.
        |[17..21): Name => _empty_.n.Name.

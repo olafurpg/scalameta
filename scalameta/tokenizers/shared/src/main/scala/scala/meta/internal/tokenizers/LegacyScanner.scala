@@ -235,7 +235,8 @@ class LegacyScanner(input: Input, dialect: Dialect) {
     if (next.token == EMPTY) {
       lastOffset = charOffset - 1
       if (lastOffset > 0 && buf(lastOffset) == '\n' && buf(lastOffset - 1) == '\r') {
-        lastOffset -= 1
+//        ???
+//        lastOffset -= 1
       }
 
       fetchToken()

@@ -19,11 +19,12 @@ object logger {
   }
 
   /** Replaces whitespace characters with non-whitespace characters */
-  def revealWhitespace(s: String): String = s.map {
-    case '\t' => '†'
-    case '\n' => '¶'
-    case ' ' => '∙'
-    case ch => ch
+  def revealWhitespace(s: String): String = s.flatMap {
+    case '\r' => "\\r"
+    case '\t' => "\\t"
+    case '\n' => "\\n"
+    case ' ' => "∙"
+    case ch => ch.toString
   }
 
   /** Prints out the value with and it's source code representation

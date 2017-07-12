@@ -217,9 +217,12 @@ class ScalametaTokenizer(input: Input, dialect: Dialect) {
               emitContents()
             }
           } else {
+            println(curr.endOffset)
+            println(input.chars(curr.endOffset))
             curr.endOffset -= numQuotes
             tokens += Token.Interpolation.Part(input, dialect, curr.offset, curr.endOffset + 1, curr.strVal)
-            require(input.chars(curr.endOffset + 1) == '\"')
+            val toks =logger.revealWhitespace(input.chars(curr.endOffset + 0).toString)
+//            require(input.chars(curr.endOffset + 1) == '\"')
             nextToken()
           }
         }

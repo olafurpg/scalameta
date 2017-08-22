@@ -109,7 +109,6 @@ class DataMacros(val c: Context) extends MacroHelpers {
       // step 1: validate the shape of the class
       if (mods.hasFlag(SEALED)) c.abort(cdef.pos, "sealed is redundant for @data classes")
       if (mods.hasFlag(FINAL)) c.abort(cdef.pos, "final is redundant for @data classes")
-      if (mods.hasFlag(CASE)) c.abort(cdef.pos, "case is redundant for @data classes")
       if (mods.hasFlag(ABSTRACT)) c.abort(cdef.pos, "@data classes cannot be abstract")
       if (paramss.length == 0) c.abort(cdef.pos, "@data classes must define a non-empty parameter list")
 

@@ -25,7 +25,8 @@ class AstNamerMacros(val c: Context) extends AstReflection with CommonNamerMacro
       def abbrevName = fullName.stripPrefix("scala.meta.")
       def is(abbrev: String) = abbrevName == abbrev
       def isQuasi = cdef.name.toString == "Quasi"
-      val q"$imods class $iname[..$tparams] $ctorMods(...$rawparamss) extends { ..$earlydefns } with ..$iparents { $aself => ..$stats }" = cdef
+      val q"$iimods class $iname[..$tparams] $ctorMods(...$rawparamss) extends { ..$earlydefns } with ..$iparents { $aself => ..$stats }" = cdef
+      val imods = iimods.unCase // strip `case` modifier, keeping `case` helps IntelliJ understand trees.
       // TODO: For stack traces, we'd like to have short class names, because stack traces print full names anyway.
       // However debugging macro expansion errors is much-much easier with full names for Api and Impl classes
       // because the typechecker only uses short names in error messages.
@@ -59,7 +60,6 @@ class AstNamerMacros(val c: Context) extends AstReflection with CommonNamerMacro
       // step 1: validate the shape of the class
       if (imods.hasFlag(SEALED)) c.abort(cdef.pos, "sealed is redundant for @ast classes")
       if (imods.hasFlag(FINAL)) c.abort(cdef.pos, "final is redundant for @ast classes")
-      if (imods.hasFlag(CASE)) c.abort(cdef.pos, "case is redundant for @ast classes")
       if (imods.hasFlag(ABSTRACT)) c.abort(cdef.pos, "@ast classes cannot be abstract")
       if (ctorMods.flags != NoFlags) c.abort(cdef.pos, "@ast classes must define a public primary constructor")
       if (rawparamss.length == 0) c.abort(cdef.pos, "@leaf classes must define a non-empty parameter list")

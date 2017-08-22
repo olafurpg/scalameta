@@ -20,6 +20,7 @@ trait MacroHelpers extends DebugFinder
     def mkMutable = mods.transformFlags(_ | MUTABLE)
     def unMutable = mods.transformFlags(_ & ~MUTABLE)
     def mkCase = mods.transformFlags(_ | CASE)
+    def unCase = mods.transformFlags(_ & ~CASE)
     def unVariant = mods.transformFlags(_ & ~COVARIANT & ~CONTRAVARIANT)
     def unOverride = mods.transformFlags(_ & ~OVERRIDE)
     def unDefault = mods.transformFlags(_ & ~DEFAULTPARAM)

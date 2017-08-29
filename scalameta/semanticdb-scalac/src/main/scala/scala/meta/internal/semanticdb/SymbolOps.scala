@@ -1,7 +1,8 @@
-package scala.meta.internal
-package semanticdb
+package scala.meta.internal.sbthost
 
-import scala.{meta => m}
+import java.nio.file.Path
+
+import scala.meta.internal.{sbthost => m}
 import scala.meta.internal.inputs._
 
 trait SymbolOps { self: DatabaseOps =>

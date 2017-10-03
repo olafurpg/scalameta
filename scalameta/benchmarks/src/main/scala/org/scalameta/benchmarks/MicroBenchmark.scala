@@ -38,6 +38,17 @@ abstract class MicroBenchmark(path: String) {
   }
 
   @Benchmark
+  def parse(): Int = {
+    import scala.meta._
+    val tree = code.parse[Source].get
+    var n = 0
+    tree.traverse {
+      case Term.Name(name) => n += 0
+    }
+    n
+  }
+
+  @Benchmark
   def transform(): Tree = {
     import scala.meta._
     val tree = code.parse[Source].get

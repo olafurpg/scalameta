@@ -827,9 +827,6 @@ class SemanticSuite extends DatabaseSuite(SemanticdbMode.Slim) {
       |  [12..15): Foo => _empty_.ab.Foo#
       |  [20..21): y => _empty_.ab.x.$anon#y.
       |  [32..33): z => _empty_.ab.x.$anon#z(Ljava/lang/Object;)Ljava/lang/Object;.
-      |_empty_.ab.x.$anon# => final class $anon
-      |_empty_.ab.x.$anon#`<init>`()V. => primaryctor <init>: (): $anon
-      |  [4..9): $anon => _empty_.ab.x.$anon#
       |_empty_.ab.x.$anon#y. => val y: Int
       |  [0..3): Int => _root_.scala.Int#
       |_empty_.ab.x.$anon#z(Ljava/lang/Object;)Ljava/lang/Object;. => def z: [T] => (e: T): T
@@ -845,9 +842,6 @@ class SemanticSuite extends DatabaseSuite(SemanticdbMode.Slim) {
       |_empty_.ab.zz. => val zz: Bar{val y: Int}
       |  [0..3): Bar => _empty_.ab.Bar#
       |  [8..9): y => _empty_.ab.zz.$anon#y.
-      |_empty_.ab.zz.$anon# => final class $anon
-      |_empty_.ab.zz.$anon#`<init>`()V. => primaryctor <init>: (): $anon
-      |  [4..9): $anon => _empty_.ab.zz.$anon#
       |_empty_.ab.zz.$anon#y. => val y: Int
       |  [0..3): Int => _root_.scala.Int#
       |_root_.java.lang.Object#`<init>`()V. => primaryctor <init>: (): Object
@@ -1083,5 +1077,16 @@ class SemanticSuite extends DatabaseSuite(SemanticdbMode.Slim) {
       |  [11..12): * => _star_.
       |  [58..64): global => _root_.scala.concurrent.ExecutionContext.Implicits.global.
    """.trim.stripMargin
+  )
+
+  targeted(
+    """package oa
+      |trait Foo
+      |object Foo {
+      |  new <<Foo>> {}
+      |}
+    """.stripMargin, { (_, Foo) =>
+      assertNoDiff(Foo.syntax, "_root_.oa.Foo#")
+    }
   )
 }

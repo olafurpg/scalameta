@@ -19,9 +19,20 @@ import org.langmeta.{semanticdb => d}
 package object semanticdb {
   implicit class XtensionSchemaDatabase(sdatabase: s.Database) {
 
+    def append(relpath: RelativePath, targetroot: AbsolutePath): Unit = {
+      write(relpath, targetroot, StandardOpenOption.APPEND)
+    }
     def save(relpath: RelativePath, targetroot: AbsolutePath): Unit = {
-      val semanticdbPath = targetroot.resolve(v.SemanticdbPaths.fromScala(relpath))
-      val out = Files.newOutputStream(semanticdbPath.toNIO)
+      write(relpath, targetroot, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING)
+    }
+    private def write(
+        relpath: RelativePath,
+        targetroot: AbsolutePath,
+        openOptions: OpenOption*): Unit = {
+      val semanticdbPath = targetroot.resolve(v.SemanticdbPaths.fromScala(relpath)).toNIO
+
+      Files.createDirectories(semanticdbPath.getParent)
+      val out = Files.newOutputStream(semanticdbPath, openOptions: _*)
       try sdatabase.writeTo(out)
       finally out.close()
     }

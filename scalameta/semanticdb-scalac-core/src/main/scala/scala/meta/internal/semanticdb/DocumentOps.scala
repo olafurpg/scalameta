@@ -8,6 +8,8 @@ import scala.reflect.internal.{Flags => gf}
 import scala.{meta => m}
 import org.langmeta.internal.semanticdb.{schema => s}
 import scala.meta.internal.inputs._
+import scala.meta.io.AbsolutePath
+import org.langmeta.io.RelativePath
 
 trait DocumentOps { self: DatabaseOps =>
   def validateCompilerState(): Unit = {
@@ -64,6 +66,7 @@ trait DocumentOps { self: DatabaseOps =>
   }
 
   implicit class XtensionCompilationUnitDocument(unit: g.CompilationUnit) {
+    def toRelpath: RelativePath = AbsolutePath(unit.source.file.file).toRelative(config.sourceroot)
     def toDocument: s.Document = {
       val names = mutable.Map[s.Position, s.ResolvedName]()
       type sSymbol = String
@@ -404,11 +407,11 @@ trait DocumentOps { self: DatabaseOps =>
         filename = input.syntax,
         contents = input.text,
         language = language,
-        names = names.values.toSeq
+        names = names.values.toSeq,
+        symbols = symbols,
+        synthetics = synthetics.toList,
+        messages = unit.reportedMessages(mstarts)
 //        names.map { case (pos, sym) => m.ResolvedName(pos, sym, binders(pos)) }.toList,
-//        unit.reportedMessages(mstarts),
-//        symbols,
-//        synthetics.toList
       )
     }
   }

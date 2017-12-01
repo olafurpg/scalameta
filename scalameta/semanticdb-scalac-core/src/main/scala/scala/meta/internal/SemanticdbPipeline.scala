@@ -59,7 +59,7 @@ trait SemanticdbPipeline extends DatabaseOps { self: SemanticdbPlugin =>
           validateCompilerState()
           val sdoc = unit.toDocument
           val sdb = s.Database(sdoc :: Nil)
-          val relpath = AbsolutePath(unit.source.file.file).toRelative(config.sourceroot)
+          val relpath = unit.toRelpath
           sdb.save(relpath, scalametaTargetroot)
         } catch handleError(unit)
       }
@@ -88,16 +88,14 @@ trait SemanticdbPipeline extends DatabaseOps { self: SemanticdbPlugin =>
           if (config.messages.saveMessages) {
             val messages = unit.reportedMessages(Map.empty)
             if (messages.nonEmpty) {
-              val mdoc = m.Document(
-                input = m.Input.File(unit.source.file.file),
+              val relpath = unit.toRelpath
+              val mdoc = s.Document(
+                filename = relpath.toString,
                 language = language,
-                names = Nil,
-                messages = messages,
-                symbols = Nil,
-                synthetics = Nil
+                messages = messages
               )
-              val mdb = m.Database(mdoc :: Nil)
-              mdb.append(scalametaTargetroot, config.sourceroot)
+              val mdb = s.Database(mdoc :: Nil)
+              mdb.append(relpath, config.sourceroot)
             }
           }
         } catch handleError(unit)

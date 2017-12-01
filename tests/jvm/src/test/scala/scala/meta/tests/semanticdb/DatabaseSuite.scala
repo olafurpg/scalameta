@@ -1,6 +1,7 @@
 package scala.meta.tests
 package semanticdb
 
+import org.langmeta.internal.semanticdb.{schema => s}
 import org.scalatest._
 import java.io.{File, PrintWriter}
 import scala.reflect.io._
@@ -83,8 +84,8 @@ abstract class DatabaseSuite(mode: SemanticdbMode, members: MemberMode = MemberM
     g.phase = run.phaseNamed("patmat")
     g.globalPhase = run.phaseNamed("patmat")
 
-    val mdoc = unit.toDocument
-    m.Database(List(mdoc))
+    val mdb =  s.Database(unit.toDocument :: Nil).toDb(None)
+    mdb
   }
 
   private def computeDatabaseSectionFromSnippet(code: String, sectionName: String): String = {

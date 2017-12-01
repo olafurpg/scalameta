@@ -10,6 +10,7 @@ import scala.{meta => m}
 import scala.meta.io._
 import scala.meta.internal.semanticdb.DatabaseOps
 import scala.meta.internal.semanticdb.{vfs => v}
+import org.langmeta.internal.semanticdb.{schema => s}
 
 trait SemanticdbPipeline extends DatabaseOps { self: SemanticdbPlugin =>
   lazy val scalametaTargetroot = AbsolutePath(
@@ -56,9 +57,10 @@ trait SemanticdbPipeline extends DatabaseOps { self: SemanticdbPlugin =>
         try {
           if (unit.isIgnored) return
           validateCompilerState()
-          val mdoc = unit.toDocument
-          val mdb = m.Database(List(mdoc))
-          mdb.save(scalametaTargetroot, config.sourceroot)
+          val sdoc = unit.toDocument
+          val sdb = s.Database(sdoc :: Nil)
+          val relpath = AbsolutePath(unit.source.file.file).toRelative(config.sourceroot)
+          sdb.save(relpath, scalametaTargetroot)
         } catch handleError(unit)
       }
 

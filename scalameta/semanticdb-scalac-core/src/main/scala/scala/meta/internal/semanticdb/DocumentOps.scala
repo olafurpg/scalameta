@@ -1,6 +1,7 @@
 package scala.meta.internal
 package semanticdb
 
+import java.util
 import scala.collection.mutable
 import scala.reflect.internal.util._
 import scala.reflect.internal.{Flags => gf}
@@ -31,6 +32,37 @@ trait DocumentOps { self: DatabaseOps =>
     }
   }
 
+  import scala.tools.nsc.ast.parser.Tokens.isIdentifier
+  case class Iddent(start: Int, end: Int)
+  object Iddent {
+    import scala.collection.JavaConverters._
+    def apply(unit: global.CompilationUnit): mutable.Map[Int, s.Position] = {
+      val tokens = new util.TreeMap[Int, s.Position]()
+      class Scan extends global.syntaxAnalyzer.UnitScanner(unit) {
+        override def deprecationWarning(off: Int, msg: String, since: String) {}
+        override def error(off: Int, msg: String) {}
+        override def incompleteInputError(off: Int, msg: String) {}
+
+        override def nextToken() {
+          val offset0 = offset
+          val code = token
+
+          super.nextToken()
+
+          if (isIdentifier(code)) {
+            val length = (lastOffset - offset0).max(1)
+            tokens.put(offset0, s.Position(offset0, offset0 + length))
+          }
+        }
+      }
+      val parser = new global.syntaxAnalyzer.UnitParser(unit) {
+        override def newScanner = new Scan
+      }
+      parser.parse()
+      tokens.asScala
+    }
+  }
+
   implicit class XtensionCompilationUnitDocument(unit: g.CompilationUnit) {
     def toDocument: s.Document = {
       val names = mutable.Map[s.Position, s.ResolvedName]()
@@ -39,7 +71,7 @@ trait DocumentOps { self: DatabaseOps =>
       val members = mutable.Map[sSymbol, List[m.Signature]]()
       val inferred = mutable.Map[s.Position, Inferred]().withDefaultValue(Inferred())
       val isVisited = mutable.Set.empty[g.Tree] // macro expandees can have cycles, keep tracks of visited nodes.
-      val mstarts = mutable.Map[Int, s.Position]() // start offset -> tree
+      val mstarts = Iddent(unit)
       val mends = mutable.Map[Int, s.Position]() // end offset -> tree
       val margnames = mutable.Map[Int, List[m.Name]]() // start offset of enclosing apply -> its arg names
 //      val mwithins = mutable.Map[m.Tree, m.Name]() // name of enclosing member -> name of private/protected within

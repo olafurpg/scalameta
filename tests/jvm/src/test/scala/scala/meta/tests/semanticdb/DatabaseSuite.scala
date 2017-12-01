@@ -84,7 +84,7 @@ abstract class DatabaseSuite(mode: SemanticdbMode, members: MemberMode = MemberM
     g.phase = run.phaseNamed("patmat")
     g.globalPhase = run.phaseNamed("patmat")
 
-    val mdb =  s.Database(unit.toDocument :: Nil).toDb(None)
+    val mdb = s.Database(unit.toDocument :: Nil).toDb(None)
     mdb
   }
 

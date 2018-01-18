@@ -76,11 +76,6 @@ trait DocumentOps { self: DatabaseOps =>
       val isVisited = mutable.Set.empty[g.Tree] // macro expandees can have cycles, keep tracks of visited nodes.
       val mstarts = Iddent(unit)
       val mends = mutable.Map[Int, s.Position]() // end offset -> tree
-      val margnames = mutable.Map[Int, List[m.Name]]() // start offset of enclosing apply -> its arg names
-//      val mwithins = mutable.Map[m.Tree, m.Name]() // name of enclosing member -> name of private/protected within
-//      val mwithinctors = mutable.Map[m.Tree, m.Name]() // name of enclosing class -> name of private/protected within for primary ctor
-//      val mctordefs = mutable.Map[Int, m.Name]() // start offset of ctor -> ctor's anonymous name
-//      val mctorrefs = mutable.Map[Int, m.Name]() // start offset of new/init -> new's anonymous name
 
       locally {
         object traverser extends g.Traverser {
@@ -121,21 +116,6 @@ trait DocumentOps { self: DatabaseOps =>
               }
               if (isDefinition && config.denotations.saveDefinitions) saveDenotation()
               if (!isDefinition && config.denotations.saveReferences) saveDenotation()
-
-//              def tryWithin(map: mutable.Map[m.Tree, m.Name], gsym0: g.Symbol): Unit = {
-//                if (map.contains(mtree)) {
-//                  val gsym = gsym0.getterIn(gsym0.owner).orElse(gsym0)
-//                  if (!gsym.hasAccessBoundary) return
-//                  val within1 = gsym.privateWithin
-//                  val within2 = within1.owner.info.member({
-//                    if (within1.name.isTermName) within1.name.toTypeName
-//                    else within1.name.toTermName
-//                  })
-//                  success(map(mtree), wrapAlternatives("<within " + symbol + ">", within1, within2))
-//                }
-//              }
-//              tryWithin(mwithins, gsym)
-//              tryWithin(mwithinctors, gsym.primaryConstructor)
             }
             def tryMstart(start: Int): Boolean = {
               if (!mstarts.contains(start)) return false
@@ -160,40 +140,15 @@ trait DocumentOps { self: DatabaseOps =>
             val gpoint = gtree.pos.point
             val gend = gtree.pos.end
 
-//            if (margnames.contains(gstart) || margnames.contains(gpoint)) {
-//              (margnames.get(gstart) ++ margnames.get(gpoint)).flatten.foreach(margname => {
-//                if (gtree.symbol != null && gtree.symbol.isMethod) {
-//                  val gsym = gtree.symbol.paramss.flatten.find(_.name.decoded == margname.value)
-//                  gsym.foreach(success(margname, _))
-//                }
-//              })
-//            }
-
-//            if (mctordefs.contains(gstart)) {
-//              val mname = mctordefs(gstart)
-//              gtree match {
-//                case gtree: g.Template =>
-//                  if (config.members.isAll) {
-//                    gtree.parents.foreach { parent =>
-//                      members(parent.symbol.toSemantic) = parent.tpe.lookupMembers
-//                    }
-//                  }
-//                  val gctor =
-//                    gtree.body.find(x => Option(x.symbol).exists(_.isPrimaryConstructor))
-//                  success(mname, gctor.map(_.symbol).getOrElse(g.NoSymbol))
-//                case gtree: g.DefDef if gtree.symbol.isConstructor =>
-//                  success(mname, gtree.symbol)
-//                case _ =>
-//              }
-//            }
-//
-//            if (mctorrefs.contains(gpoint)) {
-//              val mname = mctorrefs(gpoint)
-//              gtree match {
-//                case g.Select(_, g.nme.CONSTRUCTOR) => success(mname, gtree.symbol)
-//                case _ =>
-//              }
-//            }
+            if (config.members.isAll) {
+              gtree match {
+                case gtree: g.Template =>
+                  gtree.parents.foreach { parent =>
+                    members(parent.symbol.toSemantic.syntax) = parent.tpe.lookupMembers
+                  }
+                case _ =>
+              }
+            }
 
             // Ideally, we'd like a perfect match when gtree.pos == mtree.pos.
             // Unfortunately, this is often not the case as demonstrated by a bunch of cases above and below.
@@ -397,7 +352,12 @@ trait DocumentOps { self: DatabaseOps =>
               denot.name,
               denot.signature,
               denot.names,
-              members.map(_.syntax)
+              members.map {
+                // HACK(olafur) we don't encode names here to avoid double backtick ``c_=``
+                case m.Signature.Term(value) => value + "."
+                case m.Signature.Type(value) => value + "#"
+                case els => els.syntax
+              }
             )
           }
           s.ResolvedSymbol(sym, Some(denotationWithMembers))

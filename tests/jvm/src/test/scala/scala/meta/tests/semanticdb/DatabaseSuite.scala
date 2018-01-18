@@ -55,7 +55,8 @@ abstract class DatabaseSuite(mode: SemanticdbMode, members: MemberMode = MemberM
     val writer = new PrintWriter(javaFile)
     try writer.write(code)
     finally writer.close()
-    databaseOps.config.setSourceroot(AbsolutePath(javaFile.getParentFile))
+    val sourceroot = AbsolutePath(javaFile.getParentFile)
+    databaseOps.config.setSourceroot(sourceroot)
     val run = new g.Run
     val abstractFile = AbstractFile.getFile(javaFile)
     val sourceFile = g.getSourceFile(abstractFile)
@@ -90,7 +91,7 @@ abstract class DatabaseSuite(mode: SemanticdbMode, members: MemberMode = MemberM
 
   private def computeDatabaseSectionFromSnippet(code: String, sectionName: String): String = {
     val database = computeDatabaseFromSnippet(code)
-    val path = g.currentRun.units.toList.last.source.file.file.getAbsolutePath
+    val path = g.currentRun.units.toList.last.source.file.file.getName
     val payload = database.toString.split(EOL)
     val section = payload.dropWhile(_ != sectionName + ":").drop(1).takeWhile(_ != "")
 //     println(section.mkString(EOL).replace(path, "<...>"))

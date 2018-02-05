@@ -150,6 +150,7 @@ lazy val metacp = project
       publishableSettings,
       ignoreMimaSettings,
       description := "Scalac 2.x launcher that generates SemanticDB from a classpath",
+      exposePaths("metacp", Test),
       libraryDependencies ++= List(
         "org.scala-lang.modules" % "scala-asm" % "5.1.0-scala-2",
         "org.scala-lang" % "scalap" % scalaVersion.value,

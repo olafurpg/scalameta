@@ -1,6 +1,6 @@
 package scala.meta.cli
 
-import scala.meta.internal.semanticdb.scalac.SemanticdbPlugin
+import java.nio.file.Files
 import scala.tools.nsc.Settings
 import scala.tools.nsc.Global
 import org.scalameta.logger
@@ -9,15 +9,21 @@ object Metacp {
 
   def process(args: List[String]): Int = {
     val settings = new Settings()
-    settings.processArguments(args, processAll = true)
-    val global = new Global(settings)
-    val mods = args.collect {
-      case arg if arg.startsWith("-P:semanticdb:") => arg.stripPrefix("-P:semanticdb:")
-    }
-    val semanticdb = new SemanticdbPlugin(global)
-    global.classPath.
-    semanticdb.init(mods, settings.errorFn)
-    logger.elem(settings, semanticdb.config.syntax)
+    val out = Files.createTempDirectory("metacp")
+    settings.processArguments(
+      "-Xplugin-require:semanticdb" ::
+        "-Xplugin:" + Metac.pluginClasspath ::
+        args,
+      processAll = true
+    )
+    settings.d.value = out.toString
+    val g = new Global(settings)
+    val run = new g.Run
+    g.phase = run.parserPhase
+    g.globalPhase = run.parserPhase
+    pprint.log(g.rootMirror.RootClass.info.members)
+    g.classPath.asURLs
+    logger.elem(settings, g.classPath)
     2
   }
 

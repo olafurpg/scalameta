@@ -150,7 +150,11 @@ lazy val metacp = project
       publishableSettings,
       ignoreMimaSettings,
       description := "Scalac 2.x launcher that generates SemanticDB from a classpath",
-      libraryDependencies += "org.scala-lang" % "scala-compiler" % scalaVersion.value,
+      libraryDependencies ++= List(
+        "org.scala-lang.modules" % "scala-asm" % "5.1.0-scala-2",
+        "org.scala-lang" % "scalap" % scalaVersion.value,
+        "org.scalatest" %%% "scalatest" % "3.0.1" % Test
+      ),
       mainClass := Some("scala.meta.cli.Metacp")
     )
     // NOTE: workaround for https://github.com/sbt/sbt-core-next/issues/8
@@ -421,7 +425,7 @@ lazy val tests = crossProject
     buildInfoPackage := "scala.meta.tests",
     libraryDependencies += "org.scalatest" %%% "scalatest" % "3.0.1" % "test"
   )
-  .jvmConfigure(_.dependsOn(testkit, interactive, metac))
+  .jvmConfigure(_.dependsOn(testkit, interactive, metac, metacp))
   .enablePlugins(BuildInfoPlugin)
   .dependsOn(scalameta, contrib, metap)
 lazy val testsJVM = tests.jvm

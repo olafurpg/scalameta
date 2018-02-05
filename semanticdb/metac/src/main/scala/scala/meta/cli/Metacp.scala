@@ -4,6 +4,7 @@ import java.nio.file.Files
 import scala.tools.nsc.Settings
 import scala.tools.nsc.Global
 import org.scalameta.logger
+import scala.tools.scalap.scalax.rules.scalasig
 
 object Metacp {
 
@@ -22,6 +23,8 @@ object Metacp {
     g.phase = run.parserPhase
     g.globalPhase = run.parserPhase
     pprint.log(g.rootMirror.RootClass.info.members)
+    val u = g.rootMirror.staticPackage("scala.util")
+    pprint.log(u.info.members)
     g.classPath.asURLs
     logger.elem(settings, g.classPath)
     2

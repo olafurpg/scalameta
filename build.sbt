@@ -144,6 +144,19 @@ lazy val metac = project
   .disablePlugins(BackgroundRunPlugin)
   .dependsOn(semanticdbScalacPlugin)
 
+lazy val metacp = project
+    .in(file("semanticdb/metacp"))
+    .settings(
+      publishableSettings,
+      ignoreMimaSettings,
+      description := "Scalac 2.x launcher that generates SemanticDB from a classpath",
+      libraryDependencies += "org.scala-lang" % "scala-compiler" % scalaVersion.value,
+      mainClass := Some("scala.meta.cli.Metacp")
+    )
+    // NOTE: workaround for https://github.com/sbt/sbt-core-next/issues/8
+    .disablePlugins(BackgroundRunPlugin)
+    .dependsOn(semanticdbScalacPlugin)
+
 lazy val metap = crossProject
   .crossType(CrossType.Pure)
   .in(file("semanticdb/metap"))
@@ -519,7 +532,7 @@ lazy val protobufSettings = Def.settings(
     val isNixOS = sys.props.get("java.home").map(_.startsWith("/nix/store")).getOrElse(false)
     if (isNixOS) {
       // must have protoc installed
-      // nix-env -i protobuf-3.3.0
+      // nix-env -i protobuf-3.3.
       (args => Process("protoc", args)!)
     } else {
       (PB.runProtoc in Compile).value

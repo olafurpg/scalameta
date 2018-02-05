@@ -8,7 +8,7 @@ import org.scalatest.FunSuite
 import scala.meta.cli._
 import scala.meta.testkit.DiffAssertions
 
-class CliSuite extends FunSuite with DiffAssertions {
+abstract class BaseCliSuite extends FunSuite with DiffAssertions {
   val sourceroot = Files.createTempDirectory("sourceroot_")
   val helloWorldScala = sourceroot.resolve("HelloWorld.scala")
   Files.write(helloWorldScala, """
@@ -18,19 +18,22 @@ class CliSuite extends FunSuite with DiffAssertions {
       }
     }
   """.getBytes(UTF_8))
+  val scalaLibraryJar = sys.props("sbt.paths.scalalibrary.classes")
+  if (scalaLibraryJar == null) sys.error("sbt.paths.scalalibrary.classes not set. broken build?")
   val target = Files.createTempDirectory("target_")
   val helloWorldSemanticdb = target.resolve("META-INF/semanticdb/HelloWorld.semanticdb")
 
-  private def communicate[T](op: => T): (T, String) = {
+  protected def communicate[T](op: => T): (T, String) = {
     val baos = new ByteArrayOutputStream
     val ps = new PrintStream(baos, true, UTF_8.name)
     val result = scala.Console.withOut(baos)(scala.Console.withErr(baos)(op))
     (result, new String(baos.toByteArray, UTF_8))
   }
+}
+
+class CliSuite extends BaseCliSuite {
 
   test("metac " + helloWorldScala) {
-    val scalaLibraryJar = sys.props("sbt.paths.scalalibrary.classes")
-    if (scalaLibraryJar == null) sys.error("sbt.paths.scalalibrary.classes not set. broken build?")
     val (exitcode, output) = communicate {
       Metac.process(Array(
         "-cp",

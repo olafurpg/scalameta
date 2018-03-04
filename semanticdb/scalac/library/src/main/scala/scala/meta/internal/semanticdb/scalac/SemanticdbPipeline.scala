@@ -17,6 +17,7 @@ trait SemanticdbPipeline extends DatabaseOps { self: SemanticdbPlugin =>
         .flatMap(so => Option(so.file))
         .map(_.getAbsolutePath)
         .getOrElse(global.settings.d.value)))
+  println("TARGET: " + scalametaTargetroot)
   implicit class XtensionURI(uri: URI) { def toFile: File = new File(uri) }
   implicit class XtensionUnit(unit: g.CompilationUnit) {
     def isIgnored: Boolean = {
@@ -54,6 +55,7 @@ trait SemanticdbPipeline extends DatabaseOps { self: SemanticdbPlugin =>
     class ComputeSemanticdbPhase(prev: Phase) extends StdPhase(prev) {
       override def apply(unit: g.CompilationUnit): Unit = {
         try {
+          println("UNIT: " + unit)
           if (unit.isIgnored) return
           validateCompilerState()
           val mdoc = unit.toDocument

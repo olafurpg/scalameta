@@ -139,13 +139,11 @@ lazy val semanticdbScalacPlugin = project
     pomPostProcess := { node =>
       new RuleTransformer(new RewriteRule {
         private def isAbsorbedDependency(node: XmlNode): Boolean = {
-          def isArtifactId(node: XmlNode, fn: String => Boolean) =
-            node.label == "artifactId" && fn(node.text)
-          node.label == "dependency" && node.child.exists(child =>
-            isArtifactId(child, _.startsWith("semanticdb-scalac-core")))
+          node.label == "dependency"
         }
         override def transform(node: XmlNode): XmlNodeSeq = node match {
           case e: Elem if isAbsorbedDependency(node) =>
+            println(s"Absorb $e")
             Comment("the dependency that was here has been absorbed via sbt-assembly")
           case _ => node
         }

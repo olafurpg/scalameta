@@ -28,8 +28,10 @@ abstract class BaseMetacpSuite extends BaseCliSuite {
     checkMetacp(library.name, () => library.classpath())
   }
 
+
   val scalameta = Library("org.scalameta", "scalameta_2.12", "3.2.0")
   val akka = Library("com.typesafe.akka", "akka-testkit_2.12", "2.5.9")
+  val akkaStream211 = Library("com.typesafe.akka", "akka-stream_2.11", "2.5.9")
   val spark = Library("org.apache.spark", "spark-sql_2.11", "2.2.1")
   val kafka = Library("org.apache.kafka", "kafka_2.12", "1.0.0")
   val flink = Library("org.apache.flink", "flink-parent", "1.4.1")

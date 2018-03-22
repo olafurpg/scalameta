@@ -17,6 +17,9 @@ matrix:
       - CI_TEST: ci-fast
       - CI_SCALA_VERSION: 2.11.12
       - CI_PUBLISH: true
+      deploy:
+        provider: script
+        script: bash bin/ci-publish.sh
     - env:
       - CI_TEST: ci-fast
       - CI_SCALA_VERSION: 2.11.12
@@ -31,6 +34,9 @@ matrix:
       - CI_TEST: ci-fast
       - CI_SCALA_VERSION: 2.12.4
       - CI_PUBLISH: true
+      deploy:
+        provider: script
+        script: bash bin/ci-publish.sh
     - env:
       - CI_TEST: ci-fast
       - CI_SCALA_VERSION: 2.12.4
@@ -39,6 +45,9 @@ matrix:
       - CI_TEST: ci-fast
       - CI_SCALA_VERSION: 2.10.6
       - CI_PUBLISH: true
+      deploy:
+        provider: script
+        script: bash bin/ci-publish.sh
     - env:
       - CI_TEST: ci-metac
       - CI_SCALA_VERSION: 2.12.4
@@ -63,6 +72,3 @@ before_cache:
   - find $HOME/.ivy2/cache -name "ivydata-*.properties" -type f -delete
   - find $HOME/.ivy2/cache -name "*scalafix*.xml" -type f -delete
   - rm -rf $HOME/.ivy2/local
-
-after_success:
-- "./bin/ci-publish.sh"

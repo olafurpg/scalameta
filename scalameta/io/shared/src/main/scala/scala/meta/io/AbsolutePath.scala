@@ -40,6 +40,9 @@ object AbsolutePath {
   // Use working directory as cwd, that's the default behavior of java.io.File.
   def apply(file: File)(implicit cwd: AbsolutePath): AbsolutePath = apply(file.toPath)(cwd)
   def apply(path: String)(implicit cwd: AbsolutePath): AbsolutePath = apply(Paths.get(path))(cwd)
+  def apply(uri: URI)(implicit cwd: AbsolutePath): AbsolutePath =
+    if (uri.isAbsolute) apply(Paths.get(uri))(cwd)
+    else apply(cwd.toURI.resolve(uri))
   def apply(path: Path)(implicit cwd: AbsolutePath): AbsolutePath =
     if (path.isAbsolute) {
       new AbsolutePath(path) {}

@@ -1,12 +1,12 @@
 package scala.meta.internal.index
 
-import java.net.URLDecoder
-import java.nio.charset.StandardCharsets
+import java.net.URI
 import java.nio.file.Files
 import scala.collection.mutable
 import scala.meta.internal.io._
 import scala.meta.internal.{semanticdb => s}
 import scala.meta.internal.semanticdb.Scala._
+import scala.meta.io
 import scala.meta.io._
 
 class Index {
@@ -61,9 +61,8 @@ class Index {
     val fileCache = mutable.Map.empty[String, Boolean]
     def isFile(uri: String): Boolean =
       fileCache.getOrElseUpdate(uri, {
-        val relpath =
-          URLDecoder.decode(uri, StandardCharsets.UTF_8.name()).stripSuffix(".semanticdb")
-        val abspath = sourceroot.resolve(relpath)
+        val relpath = URI.create(uri.stripSuffix(".semanticdb"))
+        val abspath = io.AbsolutePath(sourceroot.toURI.resolve(relpath))
         abspath.isFile
       })
     val newToplevels = old.toplevels.filter(t => isFile(t.uri) && !toplevels.contains(t.symbol))

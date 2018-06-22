@@ -1,6 +1,6 @@
 package scala.meta.internal.semanticdb.scalac
 
-import java.net.URLEncoder
+import java.net.URI
 import java.nio.CharBuffer
 import java.nio.charset.StandardCharsets.UTF_8
 import java.security.MessageDigest
@@ -55,8 +55,8 @@ trait InputOps { self: SemanticdbOps =>
               m.Input.File(gfile.file)
             }
           case gfile: VirtualFile =>
-            val uri = URLEncoder.encode(gfile.path, UTF_8.name)
-            m.Input.VirtualFile(uri, gsource.content.mkString)
+            val uri = new URI(null, null, gfile.path, null)
+            m.Input.VirtualFile(uri.toString, gsource.content.mkString)
           case _ =>
             m.Input.None
         }

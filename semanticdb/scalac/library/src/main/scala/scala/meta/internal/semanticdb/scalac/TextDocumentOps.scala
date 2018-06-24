@@ -159,6 +159,11 @@ trait TextDocumentOps { self: SemanticdbOps =>
 
       locally {
         object traverser extends g.Traverser {
+          def saveSymbol(gs: g.Symbol): Unit = {
+            if (gs.isUseful) {
+              symbols(gs.toSemantic) = gs.toSymbolInformation(SymlinkChildren)
+            }
+          }
           private def tryFindMtree(gtree: g.Tree): Unit = {
             def success(mtree: m.Name, gsym0: g.Symbol): Unit = {
               // We cannot be guaranteed that all symbols have a position, see
@@ -198,11 +203,6 @@ trait TextDocumentOps { self: SemanticdbOps =>
                 binders += mtree.pos
                 occurrences(mtree.pos) = symbol
                 if (config.symbols.isOn) {
-                  def saveSymbol(gs: g.Symbol): Unit = {
-                    if (gs.isUseful) {
-                      symbols(gs.toSemantic) = gs.toSymbolInformation(SymlinkChildren)
-                    }
-                  }
                   saveSymbol(gsym)
                   if (gsym.isClass && !gsym.isTrait) {
                     val gprim = gsym.primaryConstructor
@@ -261,6 +261,11 @@ trait TextDocumentOps { self: SemanticdbOps =>
               return true
             }
 
+            if (unit.isJava &&
+              gtree.isInstanceOf[g.MemberDef] &&
+              !gtree.symbol.isModule) {
+              saveSymbol(gtree.symbol)
+            }
             if (gtree.pos == null || gtree.pos == NoPosition) return
             val gstart = gtree.pos.start
             val gpoint = gtree.pos.point

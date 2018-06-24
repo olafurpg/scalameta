@@ -14,13 +14,14 @@ trait SemanticdbPipeline extends SemanticdbOps { self: SemanticdbPlugin =>
     def isIgnored: Boolean = {
       val matchesExtension = {
         val fileName = unit.source.file.name
-        fileName.endsWith(".scala") || fileName.endsWith(".sc")
+        fileName.endsWith(".scala") ||
+        fileName.endsWith(".java") ||
+        fileName.endsWith(".sc")
       }
       val matchesFilter = {
         Option(unit.source.file)
           .flatMap(f => Option(f.file))
-          .map(f => config.fileFilter.matches(f.getAbsolutePath))
-          .getOrElse(true)
+          .forall(f => config.fileFilter.matches(f.getAbsolutePath))
       }
       !matchesExtension || !matchesFilter
     }
@@ -71,6 +72,7 @@ trait SemanticdbPipeline extends SemanticdbOps { self: SemanticdbPlugin =>
         try {
           timestampComputeStarted = System.nanoTime()
           super.run()
+          g.currentRun.units.filter(_.isJava).foreach(apply)
           synchronizeSourcesAndSemanticdbFiles()
           synchronizeSourcesAndSemanticdbIndex()
           timestampComputeFinished = System.nanoTime()

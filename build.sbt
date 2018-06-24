@@ -187,6 +187,9 @@ lazy val metacp = project
     publishableSettings,
     description := "Scala 2.x classpath to SemanticDB converter",
     libraryDependencies ++= List(
+      "org.apache.commons" % "commons-lang3" % "3.7",
+       "org.apache.bcel" % "bcel" % "6.2",
+      "org.scala-lang.modules" % "scala-asm" % "5.2.0-scala-2",
       "org.scala-lang" % "scalap" % scalaVersion.value,
       "io.github.soc" % "directories" % "10"
     ),

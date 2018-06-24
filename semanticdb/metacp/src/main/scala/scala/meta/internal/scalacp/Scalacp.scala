@@ -7,7 +7,10 @@ import scala.meta.internal.semanticdb.Accessibility.{Tag => a}
 import scala.meta.internal.semanticdb.{Language => l}
 import scala.meta.internal.semanticdb.SymbolInformation.{Kind => k}
 import scala.meta.internal.semanticdb.Scala._
-import scala.tools.scalap.scalax.rules.scalasig._
+import scala.tools.scalap.scalax.rules.scalasig.ByteCode
+import scala.tools.scalap.scalax.rules.scalasig.ClassFileParser
+import scala.tools.scalap.scalax.rules.scalasig.ScalaSigParser
+import scala.tools.scalap.scalax.rules.scalasig.SymbolInfoSymbol
 
 class Scalacp private (classfile: ToplevelClassfile)
     extends AnnotationOps

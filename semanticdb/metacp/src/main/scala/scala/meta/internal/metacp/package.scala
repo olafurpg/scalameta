@@ -11,7 +11,7 @@ package object metacp {
     def toClassNode: ClassNode = {
       val node = new ClassNode()
       val bytes = Files.readAllBytes(path.toNIO)
-      new ClassReader(bytes).accept(node, SKIP_DEBUG | SKIP_FRAMES | SKIP_CODE)
+      new ClassReader(bytes).accept(node, SKIP_DEBUG | SKIP_FRAMES | SKIP_CODE )
       node
     }
   }

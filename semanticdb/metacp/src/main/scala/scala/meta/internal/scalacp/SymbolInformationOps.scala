@@ -66,6 +66,14 @@ trait SymbolInformationOps { self: Scalacp =>
             }
           }
           val isModuleClass = sym.entry.entryType == 10
+          val isInteresting = Set(
+            "Entry",
+            "Map",
+          )
+          if (isInteresting(sym.name)) {
+            pprint.log(sym.isJavaDefined)
+            pprint.log(isModuleClass)
+          }
           if (hasTermName || isModuleClass) k.OBJECT
           else k.CLASS
         case NoSymbol =>

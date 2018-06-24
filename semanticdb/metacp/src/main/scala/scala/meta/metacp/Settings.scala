@@ -9,6 +9,7 @@ import scala.meta.internal.metacp.BuildInfo
 final class Settings private (
     val cacheDir: AbsolutePath,
     val classpath: Classpath,
+    val dependencyClasspath: Classpath,
     val scalaLibrarySynthetics: Boolean,
     val par: Boolean
 ) {
@@ -16,6 +17,7 @@ final class Settings private (
     this(
       cacheDir = Settings.defaultCacheDir,
       classpath = Classpath(Nil),
+      dependencyClasspath = Classpath(Nil),
       scalaLibrarySynthetics = false,
       par = false
     )
@@ -29,6 +31,10 @@ final class Settings private (
     copy(classpath = classpath)
   }
 
+  def withDependencyClasspath(classpath: Classpath): Settings = {
+    copy(dependencyClasspath = classpath)
+  }
+
   def withScalaLibrarySynthetics(include: Boolean): Settings = {
     copy(scalaLibrarySynthetics = include)
   }
@@ -40,12 +46,14 @@ final class Settings private (
   private def copy(
       cacheDir: AbsolutePath = cacheDir,
       classpath: Classpath = classpath,
+      dependencyClasspath: Classpath = dependencyClasspath,
       scalaLibrarySynthetics: Boolean = scalaLibrarySynthetics,
       par: Boolean = par
   ): Settings = {
     new Settings(
       cacheDir = cacheDir,
       classpath = classpath,
+      dependencyClasspath = dependencyClasspath,
       scalaLibrarySynthetics = scalaLibrarySynthetics,
       par = par
     )
@@ -58,6 +66,8 @@ object Settings {
       args match {
         case "--" +: rest =>
           loop(settings, false, rest)
+        case "--dependency-classpath" +: dependencyClasspath +: rest if allowOptions =>
+          loop(settings.copy(dependencyClasspath = Classpath(dependencyClasspath)), true, rest)
         case "--cache-dir" +: cacheDir +: rest if allowOptions =>
           loop(settings.copy(cacheDir = AbsolutePath(cacheDir)), true, rest)
         case "--exclude-scala-library-synthetics" +: rest if allowOptions =>

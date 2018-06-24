@@ -17,8 +17,12 @@ import scala.meta.tests.cli._
 import scala.meta.testkit.DiffAssertions
 import org.scalatest.FunSuite
 import org.scalatest.FunSuiteLike
+import scala.meta.io.Classpath
+import scala.meta.tests.metacp.Libraries
+import scala.meta.tests.metacp.Library
 
 class ExpectSuite extends FunSuite with DiffAssertions {
+  override def trimLines: Boolean = false
   BuildInfo.scalaVersion.split("\\.").take(2).toList match {
     // both the compiler and stdlib are different between Scala versions.
     // For the sake of simplicity, we only run the expect test against the
@@ -133,12 +137,14 @@ trait ExpectHelpers extends FunSuiteLike {
         .Settings()
         .withCacheDir(AbsolutePath(target))
         .withClasspath(Classpath(AbsolutePath(in)))
+        .withDependencyClasspath(Library.scalaLibrary.classpath())
         .withScalaLibrarySynthetics(false)
       val reporter = Reporter().withOut(out).withErr(err)
       Metacp.process(settings, reporter) match {
         case Some(Classpath(List(outPath))) => outPath
         case Some(other) => sys.error(s"unexpected metacp result: $other")
-        case None => null
+        case None =>
+          null
       }
     }
     if (outPath == null) {

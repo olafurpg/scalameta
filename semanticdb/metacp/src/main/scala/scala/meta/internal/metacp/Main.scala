@@ -1,5 +1,6 @@
 package scala.meta.internal.metacp
 
+import java.net.URLClassLoader
 import java.nio.file._
 import java.nio.file.attribute.BasicFileAttributes
 import java.util.concurrent.ConcurrentLinkedQueue
@@ -17,6 +18,14 @@ import java.util.concurrent.atomic.AtomicBoolean
 import scala.collection.GenSeq
 
 class Main(settings: Settings, reporter: Reporter) {
+
+  val classLoader = new URLClassLoader(
+    (settings.classpath.entries ++ settings.dependencyClasspath.entries)
+      .map(_.toURI.toURL)
+      .toArray,
+    null
+  )
+
   def process(): Option[Classpath] = {
     val success = new AtomicBoolean(true)
 
@@ -112,15 +121,14 @@ class Main(settings: Settings, reporter: Reporter) {
               val node = abspath.toClassNode
               val result = {
                 val attrs = if (node.attrs != null) node.attrs.asScala else Nil
+                val classfile = ToplevelClassfile(base, abspath, node, classLoader)
                 if (attrs.exists(_.`type` == "ScalaSig")) {
-                  val classfile = ToplevelClassfile(base, abspath, node)
                   Scalacp.parse(classfile)
                 } else if (attrs.exists(_.`type` == "Scala")) {
                   None
                 } else {
                   val innerClassNode = node.innerClasses.asScala.find(_.name == node.name)
                   if (innerClassNode.isEmpty) {
-                    val classfile = ToplevelClassfile(base, abspath, node)
                     Javacp.parse(classfile)
                   } else {
                     None

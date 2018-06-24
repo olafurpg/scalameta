@@ -1,5 +1,6 @@
 package scala.meta.internal.scalacp
 
+import java.net.URLClassLoader
 import java.util.{HashMap, HashSet}
 import scala.meta.internal.{semanticdb => s}
 import scala.meta.internal.semanticdb.Scala._

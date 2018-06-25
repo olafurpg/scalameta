@@ -16,4 +16,7 @@ class MetacJava {
   javacp.MetacJava.overload(new javacp.MetacJava.Overload3.A())
   val interface: javacp.Interface = null
   val coin: javacp.Coin = javacp.Coin.PENNY
+  val entry: java.util.Map.Entry[String, String] = null
+  val c: Predef.ArrayCharSequence = null
 }
+

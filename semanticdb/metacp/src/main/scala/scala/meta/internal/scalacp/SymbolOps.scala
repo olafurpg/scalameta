@@ -10,6 +10,35 @@ import scala.tools.scalap.scalax.rules.scalasig._
 
 trait SymbolOps { self: Scalacp =>
   lazy val symbolCache = new HashMap[Symbol, String]
+  implicit class XtensionSymbolExternalSymbol(sym: ExternalSymbol) {
+    def isJavaDefined: Boolean = {
+      sym.path.startsWith("java")
+    }
+    def isExternalJavaStaticInnerClass: Boolean = {
+      def loop(s: Symbol): Unit = s match {
+        case e: ExternalSymbol =>
+          val hasTermName = {
+            val idx = e.entry.index + 1
+            if (e.entry.scalaSig.hasEntry(idx)) {
+              val nameEntryType = e.entry.scalaSig.table(idx)._1
+              nameEntryType == 1
+            } else {
+              false
+            }
+          }
+          pprint.log(e.name)
+          pprint.log(hasTermName)
+          s.parent.foreach(loop)
+        case _ =>
+      }
+      loop(sym)
+      sym.entry.entryType == 10 && {
+        val parent = sym.parent.get
+//        parent
+        true
+      }
+    }
+  }
   implicit class XtensionSymbolSSymbol(sym: Symbol) {
     def toSemantic: String = {
       def uncached(sym: Symbol): String = {

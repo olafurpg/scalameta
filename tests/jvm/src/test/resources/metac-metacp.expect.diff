@@ -210,6 +210,20 @@ example.Acc#
 +      symlinks: "example.Acc#m3()."
 
 
+==========================
+example.MetacJava#entry().
+==========================
+--- metac
++++ metacp
+       typeRef {
+         prefix {
+-        symbol: "java.util.Map#Entry#"
++        symbol: "java.util.Map.Entry#"
+         type_arguments {
+           typeRef {
+             prefix {
+
+
 ==============================
 example.MetacJava#nonStatic().
 ==============================

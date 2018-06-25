@@ -17,6 +17,5 @@ class MetacJava {
   val interface: javacp.Interface = null
   val coin: javacp.Coin = javacp.Coin.PENNY
   val entry: java.util.Map.Entry[String, String] = null
-  val c: Predef.ArrayCharSequence = null
+  def source(e: scala.io.Source): e.RelaxedPosition.type = null
 }
-

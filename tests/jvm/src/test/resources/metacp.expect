@@ -1324,7 +1324,7 @@ Schema => SemanticDB v4
 Uri => example/MetacJava.class
 Text => empty
 Language => Scala
-Symbols => 13 entries
+Symbols => 14 entries
 
 Symbols:
 _root_. => package _root_
@@ -1332,8 +1332,6 @@ example. => package example
 example.MetacJava# => class MetacJava extends AnyRef { +10 decls }
   AnyRef => scala.AnyRef#
 example.MetacJava#`<init>`(). => primary ctor <init>()
-example.MetacJava#c(). => val method c: ArrayCharSequence
-  ArrayCharSequence => scala.Predef.ArrayCharSequence#
 example.MetacJava#coin(). => val method coin: Coin
   Coin => com.javacp.Coin#
 example.MetacJava#entry(). => val method entry: Entry[String, String]
@@ -1352,6 +1350,12 @@ example.MetacJava#overload1(). => val method overload1: inner.Overload1
 example.MetacJava#overload2(). => val method overload2: inner.Overload2
   inner => example.MetacJava#inner().
   Overload2 => com.javacp.MetacJava#Overload2#
+example.MetacJava#source(). => method source(e: Source): e.RelaxedPosition.type
+  e => example.MetacJava#source().(e)
+  Source => scala.io.Source#
+  RelaxedPosition => scala.io.Source#RelaxedPosition.
+example.MetacJava#source().(e) => param e: Source
+  Source => scala.io.Source#
 example.MetacJava#staticInner(). => val method staticInner: StaticInner
   StaticInner => com.javacp.MetacJava.StaticInner#
 

@@ -1,5 +1,6 @@
 package scala.meta.internal.metacp
 
+import java.io.PrintWriter
 import java.nio.file._
 import java.nio.file.attribute.BasicFileAttributes
 import java.util.concurrent.ConcurrentLinkedQueue
@@ -15,37 +16,29 @@ import scala.meta.metacp._
 import scala.util.control.NonFatal
 import java.util.concurrent.atomic.AtomicBoolean
 import scala.collection.GenSeq
-import scala.tools.asm.tree.AnnotationNode
-import scala.tools.scalap.Main.SCALA_SIG_ANNOTATION
-import scala.tools.scalap.Main.SCALA_LONG_SIG_ANNOTATION
-
+import scala.tools.nsc
 class Main(settings: Settings, reporter: Reporter) {
 
-  def isScalaDefined(relpath: RelativePath): Boolean = {
-    def hasScalaSignature(annot: AnnotationNode): Boolean =
-      annot.desc == SCALA_LONG_SIG_ANNOTATION ||
-        annot.desc == SCALA_SIG_ANNOTATION
-    def check(path: AbsolutePath): Boolean =
-      path.toClassNode.visibleAnnotations.asScala.exists(hasScalaSignature)
-    (
-      settings.classpath.entries.iterator ++
-        settings.dependencyClasspath.entries.iterator
-    ).exists { path =>
-      if (path.isDirectory) {
-        check(path.resolve(relpath))
-      } else {
-        PlatformFileIO.withJarFileSystem(path, create = false) { path =>
-          check(path.resolve(relpath))
-        }
-      }
-    }
+  lazy val g: nsc.Global = {
+    val settings = new nsc.Settings()
+    val fullClasspath = Classpath(
+      this.settings.classpath.entries ++
+        this.settings.dependencyClasspath.entries
+    )
+    settings.classpath.value = fullClasspath.syntax
+    val reporter = new nsc.reporters.StoreReporter
+    val global = new nsc.Global(settings, reporter)
+    g.rootMirror.RootClass.info.decl(g.TermName("a"))
+    val run = new g.Run
+    g.phase = run.parserPhase
+    g.globalPhase = run.parserPhase
+    global
   }
+
   def process(): Option[Classpath] = {
     val success = new AtomicBoolean(true)
 
-    val classpath: GenSeq[AbsolutePath] =
-      if (settings.par) settings.classpath.entries.par
-      else settings.classpath.entries
+    val classpath = settings.classpath.entries
 
     val buffer = new ConcurrentLinkedQueue[AbsolutePath]()
 
@@ -136,14 +129,14 @@ class Main(settings: Settings, reporter: Reporter) {
               val result = {
                 val attrs = if (node.attrs != null) node.attrs.asScala else Nil
                 if (attrs.exists(_.`type` == "ScalaSig")) {
-                  val classfile = ToplevelClassfile(base, abspath, node)
+                  val classfile = ToplevelClassfile(base, abspath, node, g)
                   Scalacp.parse(classfile)
                 } else if (attrs.exists(_.`type` == "Scala")) {
                   None
                 } else {
                   val innerClassNode = node.innerClasses.asScala.find(_.name == node.name)
                   if (innerClassNode.isEmpty) {
-                    val classfile = ToplevelClassfile(base, abspath, node)
+                    val classfile = ToplevelClassfile(base, abspath, node, null)
                     Javacp.parse(classfile)
                   } else {
                     None

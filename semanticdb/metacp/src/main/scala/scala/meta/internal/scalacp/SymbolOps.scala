@@ -11,35 +11,31 @@ import scala.tools.scalap.scalax.rules.scalasig._
 trait SymbolOps { self: Scalacp =>
   lazy val symbolCache = new HashMap[Symbol, String]
   implicit class XtensionSymbolExternalSymbol(sym: ExternalSymbol) {
-    def isJavaDefined: Boolean = {
-      sym.path.startsWith("java")
-    }
     def isExternalJavaStaticInnerClass: Boolean = {
-      def loop(s: Symbol): Unit = s match {
-        case e: ExternalSymbol =>
-          val hasTermName = {
-            val idx = e.entry.index + 1
-            if (e.entry.scalaSig.hasEntry(idx)) {
-              val nameEntryType = e.entry.scalaSig.table(idx)._1
-              nameEntryType == 1
-            } else {
-              false
-            }
-          }
-          pprint.log(e.name)
-          pprint.log(hasTermName)
-          s.parent.foreach(loop)
-        case _ =>
-      }
-      loop(sym)
-      sym.entry.entryType == 10 && {
-        val parent = sym.parent.get
-//        parent
-        true
-      }
+      sym.toGlobal.isJavaDefined
     }
   }
   implicit class XtensionSymbolSSymbol(sym: Symbol) {
+    def toGlobal: classfile.global.Symbol = {
+      import classfile.{global => g}
+      if (sym.isRootPackage) g.rootMirror.RootPackage
+      else if (sym.isEmptyPackage) g.rootMirror.EmptyPackage
+      else {
+        val name = sym match {
+          case e: ExternalSymbol =>
+            if (e.entry.entryType == 10) g.TermName(sym.name)
+            else g.TypeName(sym.name)
+          case _ =>
+            if (sym.isModule) g.TermName(sym.name)
+            else g.TypeName(sym.name)
+        }
+          sym.name
+        sym.parent match {
+          case Some(parent) => parent.toGlobal.info.decl(name)
+          case _ => g.NoSymbol
+        }
+      }
+    }
     def toSemantic: String = {
       def uncached(sym: Symbol): String = {
         if (sym.isSemanticdbGlobal) Symbols.Global(sym.owner, sym.descriptor)

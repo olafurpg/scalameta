@@ -36,6 +36,7 @@ abstract class SemanticdbSuite extends FunSuite
     val command = new CompilerCommand(args, emptySettings)
     val settings = command.settings
     val g = new Global(settings, reporter)
+    g.rootMirror.RootClass.info.decl(g.TermName("a"))
     val run = new g.Run
     g.phase = run.parserPhase
     g.globalPhase = run.parserPhase

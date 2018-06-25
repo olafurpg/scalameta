@@ -15,7 +15,6 @@ import scala.meta.io._
 import scala.meta.metacp._
 import scala.util.control.NonFatal
 import java.util.concurrent.atomic.AtomicBoolean
-import scala.collection.GenSeq
 import scala.tools.nsc
 class Main(settings: Settings, reporter: Reporter) {
 

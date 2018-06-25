@@ -18,18 +18,18 @@ trait SymbolOps { self: Scalacp =>
   implicit class XtensionSymbolSSymbol(sym: Symbol) {
     def toGlobal: classfile.global.Symbol = {
       import classfile.{global => g}
-      if (sym.isRootPackage) g.rootMirror.RootPackage
+      if (sym == NoSymbol) g.NoSymbol
+      else if (sym.isRootPackage) g.rootMirror.RootPackage
       else if (sym.isEmptyPackage) g.rootMirror.EmptyPackage
       else {
-        val name = sym match {
-          case e: ExternalSymbol =>
-            if (e.entry.entryType == 10) g.TermName(sym.name)
-            else g.TypeName(sym.name)
-          case _ =>
-            if (sym.isModule) g.TermName(sym.name)
-            else g.TypeName(sym.name)
+        val isTerm = sym match {
+          case e: ExternalSymbol => e.entry.entryType == 10
+          case _ => sym.isModule
         }
-          sym.name
+        val name =
+          if (isTerm) g.TermName(sym.name)
+          else g.TypeName(sym.name)
+        sym.name
         sym.parent match {
           case Some(parent) => parent.toGlobal.info.decl(name)
           case _ => g.NoSymbol

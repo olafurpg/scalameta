@@ -15,8 +15,31 @@ import scala.meta.metacp._
 import scala.util.control.NonFatal
 import java.util.concurrent.atomic.AtomicBoolean
 import scala.collection.GenSeq
+import scala.tools.asm.tree.AnnotationNode
+import scala.tools.scalap.Main.SCALA_SIG_ANNOTATION
+import scala.tools.scalap.Main.SCALA_LONG_SIG_ANNOTATION
 
 class Main(settings: Settings, reporter: Reporter) {
+
+  def isScalaDefined(relpath: RelativePath): Boolean = {
+    def hasScalaSignature(annot: AnnotationNode): Boolean =
+      annot.desc == SCALA_LONG_SIG_ANNOTATION ||
+        annot.desc == SCALA_SIG_ANNOTATION
+    def check(path: AbsolutePath): Boolean =
+      path.toClassNode.visibleAnnotations.asScala.exists(hasScalaSignature)
+    (
+      settings.classpath.entries.iterator ++
+        settings.dependencyClasspath.entries.iterator
+    ).exists { path =>
+      if (path.isDirectory) {
+        check(path.resolve(relpath))
+      } else {
+        PlatformFileIO.withJarFileSystem(path, create = false) { path =>
+          check(path.resolve(relpath))
+        }
+      }
+    }
+  }
   def process(): Option[Classpath] = {
     val success = new AtomicBoolean(true)
 

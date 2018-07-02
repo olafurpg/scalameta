@@ -1,6 +1,5 @@
 package scala.meta.tests
 package semanticdb
-
 import scala.meta._
 import scala.meta.internal.semanticdb._
 import scala.meta.internal.semanticdb.scalac._
@@ -10,6 +9,7 @@ import scala.meta.internal.semanticdb.SymbolInformation.{Kind => k}
 import scala.meta.internal.semanticdb.SymbolInformation.{Property => p}
 import scala.util.Properties.{versionNumberString => scalaVersion}
 import Compat._
+import scala.meta.cli.Metap
 
 // Contributing tips:
 // - Create another suite like YYY.scala that extends SemanticdbSuite,
@@ -153,7 +153,7 @@ class TargetedSuite extends SemanticdbSuite {
         |package object F {
         |}
     """.trim.stripMargin,
-    """|F.package. => final package object F extends AnyRef
+      """|F.package. => final package object F extends AnyRef
        |  AnyRef => scala.AnyRef#
        |f. => package f
        |f.C1# => class C1 extends AnyRef { +13 decls }
@@ -832,6 +832,35 @@ class TargetedSuite extends SemanticdbSuite {
       """.stripMargin, { (db, j) =>
       val denot = db.symbols.find(_.symbol == j).get
       assert(denot.symbol.startsWith("local"))
+    }
+  )
+
+  targeted(
+    """|package ap
+       |
+       |@org.scalameta.data.data
+       |class A(a: Int)
+       |class C[T]
+    """.stripMargin, { doc =>
+      val symbols = doc.symbols.map(_.symbol).sorted
+      assert(symbols.contains("ap.A#"))
+      assert(symbols.contains("ap.A#productElement()."))
+      assert(symbols.contains("ap.A.unapply()."))
+      assert(symbols.contains("ap.A.apply()."))
+    }
+  )
+
+  targeted(
+    """package aq
+      |class C[CC[_]] {
+      |  def m1[T[_], _] = ???
+      |}
+    """.stripMargin, { doc =>
+      println(doc.syntax)
+      println(doc.infoSyntax("aq.C#"))
+      println(doc.infoSyntax("aq.C#[CC]"))
+      println(doc.infoSyntax("aq.C#[CC][_]"))
+      println(doc.infoSyntax("aq.C#m1()."))
     }
   )
 }

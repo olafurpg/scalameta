@@ -1,8 +1,11 @@
 package scala.meta.tests
 package semanticdb
 
+import java.io.ByteArrayOutputStream
+import java.io.PrintStream
 import org.scalatest._
 import java.io.{File, PrintWriter}
+import java.net.URLClassLoader
 import scala.reflect.io._
 import scala.tools.cmd.CommandLineParser
 import scala.tools.nsc.{CompilerCommand, Global, Settings}
@@ -10,13 +13,14 @@ import scala.tools.nsc.reporters.StoreReporter
 import scala.compat.Platform.EOL
 import scala.{meta => m}
 import scala.meta.internal.inputs._
+import scala.meta.internal.metap.DocumentPrinter
 import scala.meta.internal.semanticdb.scalac._
 import scala.meta.internal.{semanticdb => s}
 import scala.meta.io._
+import scala.meta.metap.Format
 import scala.meta.testkit.DiffAssertions
 
-abstract class SemanticdbSuite extends FunSuite
-    with DiffAssertions { self =>
+abstract class SemanticdbSuite extends FunSuite with DiffAssertions { self =>
   private def test(code: String)(fn: => Unit): Unit = {
     var name = code.trim.replace(EOL, " ")
     if (name.length > 50) name = name.take(50) + "..."
@@ -25,11 +29,19 @@ abstract class SemanticdbSuite extends FunSuite
 
   lazy val g: Global = {
     def fail(msg: String) = sys.error(s"SemanticdbSuite initialization failed: $msg")
+    import scala.collection.JavaConverters._
     val classpath = sys.props("sbt.paths.tests.test.classes")
     if (classpath == null) fail("classpath not set. broken build?")
     val pluginjar = sys.props("sbt.paths.semanticdb-scalac-plugin.compile.jar")
+    val paradiseJar =
+      sys.props("sbt.paths.tests.test.options").split(" ").find(_.contains("paradise")).getOrElse {
+        sys.error("Missing scalamacros:paradise from scalacOptions")
+      }
     if (pluginjar == null) fail("pluginjar not set. broken build?")
-    val options = "-Yrangepos -Ywarn-unused-import -Ywarn-unused -cp " + classpath + " -Xplugin:" + pluginjar + " -Xplugin-require:semanticdb"
+    val options =
+      "-Yrangepos -Ywarn-unused-import -Ywarn-unused -cp " + classpath +
+        " -Xplugin:" + pluginjar + " -Xplugin-require:semanticdb " +
+        paradiseJar + " -Xplugin-require:macro-paradise-plugin"
     val args = CommandLineParser.tokenize(options)
     val emptySettings = new Settings(error => fail(s"couldn't apply settings because $error"))
     val reporter = new StoreReporter()
@@ -130,7 +142,8 @@ abstract class SemanticdbSuite extends FunSuite
     checkSection(code, expected, "Synthetics")
   }
 
-  private def computeDatabaseAndOccurrencesFromMarkup(markup: String): (s.TextDocument, List[String]) = {
+  private def computeDatabaseAndOccurrencesFromMarkup(
+      markup: String): (s.TextDocument, List[String]) = {
     val chevrons = "<<(.*?)>>".r
     val ps0 = chevrons.findAllIn(markup).matchData.map(m => (m.start, m.end)).toList
     val ps = ps0.zipWithIndex.map { case ((s, e), i) => (s - 4 * i, e - 4 * i - 4) }
@@ -212,6 +225,23 @@ abstract class SemanticdbSuite extends FunSuite
         case _ => sys.error(s"4 chevrons expected, ${occurrences.length} chevrons found")
       }
     }
+  }
+
+  implicit class XtensionTextDocumentSymtab(doc: s.TextDocument) {
+    private def withPrinter(f: DocumentPrinter => Unit): String = {
+
+      val out = new ByteArrayOutputStream()
+      val reporter =
+        scala.meta.cli.Reporter().withOut(new PrintStream(out)).withErr(new PrintStream(out))
+      val settings = scala.meta.metap.Settings().withFormat(Format.Detailed)
+      val printer = new DocumentPrinter(settings, reporter, doc)
+      f(printer)
+      out.toString()
+    }
+    def info(sym: String): s.SymbolInformation =
+      doc.symbols.find(_.symbol == sym).getOrElse(throw new NoSuchElementException(sym))
+    def syntax: String = withPrinter(_.print())
+    def infoSyntax(sym: String): String = withPrinter(_.pprint(this.info(sym)))
   }
 
 }

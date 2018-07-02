@@ -159,6 +159,55 @@ trait TextDocumentOps { self: SemanticdbOps =>
 
       locally {
         object traverser extends g.Traverser {
+          private def trySymbol(gsym: g.Symbol): Unit = {
+            if (config.symbols.isOff) return
+            if (gsym == null) return
+            if (gsym.isUseless) return
+            val symbol = gsym.toSemantic
+            if (symbol == Symbols.None) return
+
+            val isToplevel = gsym.owner.hasPackageFlag
+            if (isToplevel) {
+              unit.source.file match {
+                case gfile: GPlainFile =>
+                  // FIXME: https://github.com/scalameta/scalameta/issues/1396
+                  val scalaRelPath = m.AbsolutePath(gfile.file).toRelative(config.sourceroot)
+                  val semanticdbRelPath = scalaRelPath + ".semanticdb"
+                  val suri = PathIO.toUnix(semanticdbRelPath.toString)
+                  val ssymbol = symbol
+                  val sinfo = s.SymbolInformation(symbol = ssymbol)
+                  index.append(suri, List(sinfo))
+                case _ =>
+                  ()
+              }
+            }
+
+            def saveSymbol(gs: g.Symbol): Unit = {
+              if (gs.isUseful) {
+                symbols(gs.toSemantic) = gs.toSymbolInformation(SymlinkChildren)
+              }
+            }
+
+            saveSymbol(gsym)
+            if (gsym.isClass && !gsym.isTrait) {
+              val gprim = gsym.primaryConstructor
+              saveSymbol(gprim)
+              gprim.info.paramss.flatten.foreach(saveSymbol)
+            }
+            if (gsym.isGetter) {
+              val gsetter = gsym.setterIn(gsym.owner)
+              saveSymbol(gsetter)
+              gsetter.info.paramss.flatten.foreach(saveSymbol)
+            }
+            if (gsym.isUsefulField && gsym.isMutable) {
+              val getterInfo = symbols(symbol)
+              val setterInfos = Synthetics.setterInfos(getterInfo, SymlinkChildren)
+              setterInfos.foreach { info =>
+                val msymbol = info.symbol
+                symbols(msymbol) = info
+              }
+            }
+          }
           private def tryFindMtree(gtree: g.Tree): Unit = {
             def success(mtree: m.Name, gsym0: g.Symbol): Unit = {
               // We cannot be guaranteed that all symbols have a position, see
@@ -180,49 +229,8 @@ trait TextDocumentOps { self: SemanticdbOps =>
               todo -= mtree
 
               if (mtree.isDefinition) {
-                val isToplevel = gsym.owner.hasPackageFlag
-                if (isToplevel) {
-                  unit.source.file match {
-                    case gfile: GPlainFile =>
-                      // FIXME: https://github.com/scalameta/scalameta/issues/1396
-                      val scalaRelPath = m.AbsolutePath(gfile.file).toRelative(config.sourceroot)
-                      val semanticdbRelPath = scalaRelPath + ".semanticdb"
-                      val suri = PathIO.toUnix(semanticdbRelPath.toString)
-                      val ssymbol = symbol
-                      val sinfo = s.SymbolInformation(symbol = ssymbol)
-                      index.append(suri, List(sinfo))
-                    case _ =>
-                      ()
-                  }
-                }
                 binders += mtree.pos
                 occurrences(mtree.pos) = symbol
-                if (config.symbols.isOn) {
-                  def saveSymbol(gs: g.Symbol): Unit = {
-                    if (gs.isUseful) {
-                      symbols(gs.toSemantic) = gs.toSymbolInformation(SymlinkChildren)
-                    }
-                  }
-                  saveSymbol(gsym)
-                  if (gsym.isClass && !gsym.isTrait) {
-                    val gprim = gsym.primaryConstructor
-                    saveSymbol(gprim)
-                    gprim.info.paramss.flatten.foreach(saveSymbol)
-                  }
-                  if (gsym.isGetter) {
-                    val gsetter = gsym.setterIn(gsym.owner)
-                    saveSymbol(gsetter)
-                    gsetter.info.paramss.flatten.foreach(saveSymbol)
-                  }
-                  if (gsym.isUsefulField && gsym.isMutable) {
-                    val getterInfo = symbols(symbol)
-                    val setterInfos = Synthetics.setterInfos(getterInfo, SymlinkChildren)
-                    setterInfos.foreach { info =>
-                      val msymbol = info.symbol
-                      symbols(msymbol) = info
-                    }
-                  }
-                }
               } else {
                 val selectionFromStructuralType = gsym.owner.isRefinementClass
                 if (!selectionFromStructuralType) occurrences(mtree.pos) = symbol
@@ -261,6 +269,12 @@ trait TextDocumentOps { self: SemanticdbOps =>
               return true
             }
 
+            gtree match {
+              case _: g.PackageDef => ()
+              case _: g.DefTree => trySymbol(gtree.symbol)
+              case _ => ()
+            }
+
             if (gtree.pos == null || gtree.pos == NoPosition) return
             val gstart = gtree.pos.start
             val gpoint = gtree.pos.point
@@ -281,8 +295,11 @@ trait TextDocumentOps { self: SemanticdbOps =>
                 case gtree: g.Template =>
                   val gctor =
                     gtree.body.find(x => Option(x.symbol).exists(_.isPrimaryConstructor))
-                  success(mname, gctor.map(_.symbol).getOrElse(g.NoSymbol))
+                  val ctorsym = gctor.map(_.symbol).getOrElse(g.NoSymbol)
+                  trySymbol(ctorsym)
+                  success(mname, ctorsym)
                 case gtree: g.DefDef if gtree.symbol.isConstructor =>
+                  trySymbol(gtree.symbol)
                   success(mname, gtree.symbol)
                 case _ =>
               }

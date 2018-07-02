@@ -404,6 +404,9 @@ lazy val semanticdbIntegration = project
     description := "Sources to compile to build SemanticDB for tests.",
     sharedSettings,
     nonPublishableSettings,
+    libraryDependencies ++= List(
+      "io.circe" %% "circe-derivation" % "0.9.0-M4" // for macro annotation targeted tests
+    ),
     scalacOptions -= "-Xfatal-warnings",
     scalacOptions ++= {
       val pluginJar = Keys.`package`.in(semanticdbScalacPlugin, Compile).value.getAbsolutePath
@@ -420,6 +423,15 @@ lazy val semanticdbIntegration = project
       )
     },
     javacOptions += "-parameters"
+  )
+  .dependsOn(semanticdbIntegrationMacros)
+
+lazy val semanticdbIntegrationMacros = project
+  .in(file("semanticdb/integration-macros"))
+  .settings(
+    sharedSettings,
+    nonPublishableSettings,
+    enableMacros
   )
 
 lazy val testkit = project
@@ -447,6 +459,7 @@ lazy val tests = crossProject(JSPlatform, JVMPlatform, NativePlatform)
     sharedSettings,
     nonPublishableSettings,
     description := "Tests for scalameta APIs",
+    addCompilerPlugin("org.scalamacros" % "paradise" % "2.1.0" cross CrossVersion.full),
     exposePaths("tests", Test),
     fullClasspath.in(Test) := {
       val semanticdbScalacJar =
@@ -479,9 +492,11 @@ lazy val tests = crossProject(JSPlatform, JVMPlatform, NativePlatform)
     // [error] Total time: 19 s, completed Feb 1, 2018 3:12:34 PM
     libraryDependencies ++= List(
       "org.scalacheck" %% "scalacheck" % "1.13.5",
+      "io.circe" %% "circe-derivation" % "0.9.0-M4", // for macro annotation targeted tests
       "io.get-coursier" %% "coursier" % coursier.util.Properties.version,
       "io.get-coursier" %% "coursier-cache" % coursier.util.Properties.version
     ),
+    enableMacros,
     bloopSettings
   )
   .jvmConfigure(_.dependsOn(testkit, interactive, metac, metacp, semanticdbIntegration))
@@ -802,6 +817,11 @@ def exposePaths(projectName: String, config: Configuration) = {
     }
   val prefix = "sbt.paths." + projectName + "." + uncapitalize(config.name) + "."
   Seq(
+    scalacOptions.in(config) := {
+      val defaultValue = scalacOptions.in(config).value
+      System.setProperty(prefix + "options", defaultValue.mkString(" "))
+      defaultValue
+    },
     sourceDirectory.in(config) := {
       val defaultValue = sourceDirectory.in(config).value
       System.setProperty(prefix + "sources", defaultValue.getAbsolutePath)

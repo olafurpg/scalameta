@@ -1299,6 +1299,35 @@ example.Example.x(). => val method x: ClassTag[Int]
   ClassTag => scala.reflect.ClassTag#
   Int => scala.Int#
 
+example/ExampleMacroAnnotation.class
+------------------------------------
+
+Summary:
+Schema => SemanticDB v4
+Uri => example/ExampleMacroAnnotation.class
+Text => empty
+Language => Scala
+Symbols => 9 entries
+
+Symbols:
+_root_. => package _root_
+example. => package example
+example.ExampleMacroAnnotation# => class ExampleMacroAnnotation extends AnyRef { +3 decls }
+  AnyRef => scala.AnyRef#
+example.ExampleMacroAnnotation#`<init>`(). => primary ctor <init>(a: Int)
+  a => example.ExampleMacroAnnotation#`<init>`().(a)
+  Int => scala.Int#
+example.ExampleMacroAnnotation#`<init>`().(a) => param a: Int
+  Int => scala.Int#
+example.ExampleMacroAnnotation#a(). => private[this] val method a: Int
+  Int => scala.Int#
+example.ExampleMacroAnnotation#number(). => method number: Int
+  Int => scala.Int#
+example.ExampleMacroAnnotation. => final object ExampleMacroAnnotation extends AnyRef { +1 decls }
+  AnyRef => scala.AnyRef#
+example.ExampleMacroAnnotation.number(). => method number: Int
+  Int => scala.Int#
+
 example/local$minusfile.class
 -----------------------------
 

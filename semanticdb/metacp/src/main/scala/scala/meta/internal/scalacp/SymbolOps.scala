@@ -94,12 +94,19 @@ trait SymbolOps { _: Scalacp =>
               sys.error(s"unsupported kind $skind for symbol $sym")
           }
         case sym: ExternalSymbol =>
+          if (sym.path == "types.P.x") {
+            pprint.log(sym)
+          }
           symbolIndex.lookup(sym) match {
             case PackageLookup => d.Package(name)
             case JavaLookup => d.Type(name)
-            case ScalaLookup if sym.entry.entryType == 9 => d.Type(name)
-            case ScalaLookup if sym.entry.entryType == 10 => d.Term(name)
-            case ScalaLookup => sys.error(s"unsupported symbol $sym")
+            case ScalaLookup(kind) =>
+              kind match {
+                case ScalaLookup.Term => d.Term(name)
+                case ScalaLookup.Type => d.Type(name)
+                case ScalaLookup.Package => d.Package(name)
+                case ScalaLookup.Method => d.Method(name, "")
+              }
             case MissingLookup => throw MissingSymbolException(sym.path)
           }
         case NoSymbol =>

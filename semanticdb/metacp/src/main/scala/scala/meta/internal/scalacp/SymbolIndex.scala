@@ -9,12 +9,16 @@ final class SymbolIndex private (classpathIndex: ClasspathIndex) {
   private lazy val lookupCache = mutable.Map.empty[Symbol, SymbolLookup]
   def lookup(sym: ExternalSymbol): SymbolLookup = {
     lookupCache.getOrElseUpdate(sym, {
+      val kind =
+        if (sym.entry.entryType == 9) ScalaLookup.Type
+        else if (sym.entry.entryType == 10) ScalaLookup.Term
+        else sys.error((sym.path, sym.entry.entryType).toString())
       if (sym.isRootPackage ||
           sym.isEmptyPackage ||
           classpathIndex.isClassdir(sym.packageResourceName)) {
         PackageLookup
       } else if (sym.isScalalibSynthetic) {
-        ScalaLookup
+        ScalaLookup(kind)
       } else {
         sym.parent match {
           case Some(p: ExternalSymbol) =>
@@ -26,7 +30,7 @@ final class SymbolIndex private (classpathIndex: ClasspathIndex) {
                 }
                 classpathIndex.getClassfile(p.packageResourceName, scalaShortName) match {
                   case Some(entry) =>
-                    if (entry.hasScalaSig) ScalaLookup
+                    if (entry.hasScalaSig) ScalaLookup(kind)
                     else JavaLookup
                   case None =>
                     val javaShortName = sym.name + ".class"

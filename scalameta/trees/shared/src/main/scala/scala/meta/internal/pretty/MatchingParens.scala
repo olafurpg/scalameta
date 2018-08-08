@@ -1,7 +1,7 @@
 package org.scalafmt.internal
 
 import scala.meta.{Token, Tokens}
-import scala.meta.Token._
+import scala.meta.tokens.Token._
 import org.scalafmt.internal.TokenOps._
 
 sealed abstract class MatchingParens(map: Map[TokenHash, Token]) {

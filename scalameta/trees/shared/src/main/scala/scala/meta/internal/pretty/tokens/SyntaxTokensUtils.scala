@@ -2,7 +2,7 @@ package org.scalafmt.internal
 package tokens
 
 import scala.meta._
-import scala.meta.Token._
+import scala.meta.tokens.Token._
 import scala.meta.classifiers.Classifier
 
 import scala.collection.SeqView

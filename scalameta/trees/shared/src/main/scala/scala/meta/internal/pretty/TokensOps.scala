@@ -2,8 +2,8 @@ package org.scalafmt.internal
 
 import org.scalafmt.internal.Order.{LT, GT, EQ}
 
-import scala.meta.{Token, Tokens}
-import scala.meta.Token._
+import scala.meta.tokens._
+import scala.meta.tokens.Token._
 
 import scala.collection.SeqView
 import scala.collection.immutable.IndexedSeq

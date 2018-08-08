@@ -1,6 +1,6 @@
 package org.scalafmt.internal
 
-import scala.meta.Token
+import scala.meta.tokens.Token
 import org.scalameta.logger
 
 object TokenOps {

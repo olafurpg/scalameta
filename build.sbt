@@ -400,6 +400,9 @@ lazy val trees = crossProject(JSPlatform, JVMPlatform, NativePlatform)
   .settings(
     publishableSettings,
     description := "Scalameta abstract syntax trees",
+    libraryDependencies ++= List(
+      "org.scalameta" %%% "paiges" % "0.2.2-SNAP1"
+    ),
     // NOTE: uncomment this to update ast.md
     // scalacOptions += "-Xprint:typer",
     enableMacros

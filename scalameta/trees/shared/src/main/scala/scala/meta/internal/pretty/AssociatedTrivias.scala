@@ -4,9 +4,10 @@ import org.scalafmt.internal.TokensOps._
 import scala.meta.internal.format.Comments._
 
 import scala.meta._
-import scala.meta.Token
-import scala.meta.Token._
-import scala.meta.contrib._
+import scala.meta.tokens._
+import scala.meta.tokens.Token._
+import scala.meta.classifiers._
+//import scala.meta.contrib._
 
 import scala.meta.internal.paiges.Doc
 import scala.meta.internal.paiges.Doc._

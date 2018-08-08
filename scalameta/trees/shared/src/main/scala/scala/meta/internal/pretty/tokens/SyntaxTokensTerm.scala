@@ -5,6 +5,7 @@ import scala.meta.internal.pretty.{ScalaToken => S}
 
 import scala.meta
 import scala.meta._
+import scala.meta.tokens._
 import scala.meta.tokens.Token._
 
 import scala.meta.internal.paiges.Doc

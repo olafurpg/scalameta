@@ -2,6 +2,8 @@ package scala.meta.internal.pretty
 package tokens
 
 import scala.meta._
+import scala.meta.classifiers._
+import scala.meta.tokens._
 import scala.meta.tokens.Token._
 import scala.meta.classifiers.Classifier
 

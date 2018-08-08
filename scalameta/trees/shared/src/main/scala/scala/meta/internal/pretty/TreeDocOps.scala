@@ -6,6 +6,7 @@ import scala.meta.internal.pretty.TokenOps._
 import scala.meta.internal.paiges.Doc
 import scala.meta.internal.paiges.Doc._
 
+import scala.meta.prettyprinters._
 import scala.meta.tokens._
 import scala.meta.classifiers._
 import scala.meta._
@@ -312,7 +313,7 @@ trait TreeDocOps extends SyntacticGroupOps {
             }
             // $COVERAGE-OFF$
             case Some(_) =>
-              sys.error("xml part expect Lit.String: " + part.structure)
+              sys.error("xml part expect Lit.String: " + part.show[Structure])
             case _ => empty // impossible, parts.size = args.size + 1
             // $COVERAGE-ON$
           }

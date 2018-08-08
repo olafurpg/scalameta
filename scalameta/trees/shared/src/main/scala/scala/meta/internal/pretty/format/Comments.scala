@@ -2,6 +2,9 @@ package scala.meta.internal.format
 
 import java.io.InputStream
 import java.nio.charset.StandardCharsets
+import scala.meta.classifiers._
+import scala.meta.tokens._
+import scala.meta.inputs._
 import scala.meta._
 import scala.meta.internal.tokens.TokenStreamPosition
 import scala.meta.internal.trees.Origin

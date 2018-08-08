@@ -40,10 +40,6 @@ object TreePrinter {
     print(root)
   }
 
-  def getRoot(input: String, options: Options): Tree = {
-    getRoot(Input.String(input), options)
-  }
-
 }
 
 trait WithPrinter {
@@ -437,8 +433,8 @@ class TreePrinter private ()(implicit val trivia: AssociatedTrivias)
         val dstats: Doc = {
           val isEmptySelf = isEmpty(t.self)
           if (isEmptySelf &&
-            t.stats.isEmpty &&
-            !(t.inits.lengthCompare(1) == 0 && isTermNewAnon)) empty
+              t.stats.isEmpty &&
+              !(t.inits.lengthCompare(1) == 0 && isTermNewAnon)) empty
           else {
             val x =
               if (isEmptySelf) dBlock(t.stats)

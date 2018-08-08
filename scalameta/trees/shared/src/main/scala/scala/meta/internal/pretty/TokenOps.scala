@@ -1,5 +1,6 @@
-package org.scalafmt.internal
+package scala.meta.internal.pretty
 
+import scala.meta.classifiers._
 import scala.meta.tokens.Token
 import org.scalameta.logger
 

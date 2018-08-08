@@ -2,7 +2,7 @@ package scala.meta.internal.fmt
 
 import scala.meta.Tree
 
-import org.scalafmt.internal.TreeSyntacticGroup
+import scala.meta.internal.pretty.TreeSyntacticGroup
 
 sealed trait SyntacticGroup {
   def categories: List[String]

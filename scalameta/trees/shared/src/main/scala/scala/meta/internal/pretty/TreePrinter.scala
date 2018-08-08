@@ -1,19 +1,22 @@
-package org.scalafmt.internal
+package scala.meta.internal.pretty
 
-import org.scalafmt.Options
-import org.scalafmt.internal.ScalaToken._
-import org.scalafmt.internal.tokens.SyntaxTokensDecl._
-import org.scalafmt.internal.tokens.SyntaxTokensDefn._
-import org.scalafmt.internal.tokens.SyntaxTokensMisc._
-import org.scalafmt.internal.tokens.SyntaxTokensMod._
-import org.scalafmt.internal.tokens.SyntaxTokensTerm._
-// import org.scalafmt.internal.tokens.SyntaxTokensType._
-// import org.scalafmt.internal.tokens.SyntaxTokensUtils._
+import scala.meta.internal.pretty.ScalaToken._
+import scala.meta.internal.pretty.tokens.SyntaxTokensDecl._
+import scala.meta.internal.pretty.tokens.SyntaxTokensDefn._
+import scala.meta.internal.pretty.tokens.SyntaxTokensMisc._
+import scala.meta.internal.pretty.tokens.SyntaxTokensMod._
+import scala.meta.internal.pretty.tokens.SyntaxTokensTerm._
+// import scala.meta.internal.pretty.tokens.SyntaxTokensType._
+// import scala.meta.internal.pretty.tokens.SyntaxTokensUtils._
 
 import scala.meta.internal.paiges.Doc
 import scala.meta.internal.paiges.Doc._
 
-import scala.meta.{`package` => _, _}
+import scala.meta.prettyprinters._
+import scala.meta.classifiers._
+import scala.meta.inputs._
+import scala.meta.tokens._
+import scala.meta._
 import scala.meta.internal.fmt.SyntacticGroup.Pat._
 import scala.meta.internal.fmt.SyntacticGroup.Term._
 import scala.meta.internal.fmt.SyntacticGroup.Type._
@@ -23,14 +26,14 @@ import scala.meta.internal.prettyprinters._
 
 import scala.language.implicitConversions
 
+trait Options {
+  def maxColumn: Int
+}
+
 object TreePrinter {
   def print(tree: Tree): Doc = {
     val trivia = AssociatedTrivias(tree)
     (new TreePrinter()(trivia)).print(tree)
-  }
-
-  def printInput(input: Input, options: Options): Doc = {
-    printTree(getRoot(input, options), options)
   }
 
   def printTree(root: Tree, options: Options): Doc = {
@@ -41,9 +44,6 @@ object TreePrinter {
     getRoot(Input.String(input), options)
   }
 
-  def getRoot(input: Input, options: Options): Tree = {
-    options.parser.apply(input, options.dialect).get
-  }
 }
 
 trait WithPrinter {

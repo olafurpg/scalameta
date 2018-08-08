@@ -1,6 +1,6 @@
-package org.scalafmt.internal
+package scala.meta.internal.pretty
 
-import org.scalafmt.internal.ScalaToken._
+import scala.meta.internal.pretty.ScalaToken._
 
 import scala.meta.Tree
 import scala.meta.internal.fmt.SyntacticGroup

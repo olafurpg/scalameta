@@ -1,4 +1,4 @@
-package org.scalafmt.internal
+package scala.meta.internal.pretty
 
 import scala.meta.internal.paiges.Doc
 import scala.meta.internal.paiges.Doc._

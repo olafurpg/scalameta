@@ -2,7 +2,7 @@
 // https://github.com/lihaoyi/Ammonite/blob/73a874173cd337f953a3edc9fb8cb96556638fdd/amm/util/src/main/scala/ammonite/util/Model.scala#L71-L121
 // Original licence: MIT
 // Original author: Li Haoyi
-package org.scalafmt.internal
+package scala.meta.internal.pretty
 
 object Identifier {
   private val alphaKeywords = Set(

@@ -1,9 +1,12 @@
-package org.scalafmt.internal
+package scala.meta.internal.pretty
 
-import org.scalafmt.internal.TokensOps._
+import scala.meta.prettyprinters.Syntax
+import scala.meta.prettyprinters.Structure
+import scala.meta.internal.pretty.TokensOps._
 import scala.meta.internal.format.Comments._
 
 import scala.meta._
+import scala.meta.prettyprinters._
 import scala.meta.tokens._
 import scala.meta.tokens.Token._
 import scala.meta.classifiers._
@@ -149,7 +152,7 @@ final case class AssociatedTrivias(
       assert(tokens.nonEmpty, "expected one token, got empty")
       assert(
         tokens.size == 1, {
-          val structure = tokens.map(_.structure).mkString("[", ", ", "]")
+          val structure = tokens.map(_.show[Structure]).mkString("[", ", ", "]")
           s"""expected one token, got $structure"""
         }
       )
@@ -204,7 +207,7 @@ final case class AssociatedTrivias(
     if (token.is[Token.BOF]) {
       "BOF"
     } else {
-      token.syntax
+      token.show[Syntax]
     }
   }
   private def pretty(association: Map[Token, Tokens]): String =

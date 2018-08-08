@@ -1,4 +1,4 @@
-package org.scalafmt.internal
+package scala.meta.internal.pretty
 package tokens
 
 import scala.meta._

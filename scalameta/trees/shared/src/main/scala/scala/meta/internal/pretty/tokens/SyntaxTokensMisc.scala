@@ -1,7 +1,7 @@
-package org.scalafmt.internal
+package scala.meta.internal.pretty
 package tokens
 
-import org.scalafmt.internal.{ScalaToken => S}
+import scala.meta.internal.pretty.{ScalaToken => S}
 
 import scala.meta._
 import scala.meta.tokens.Token._

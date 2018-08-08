@@ -1,11 +1,13 @@
-package org.scalafmt.internal
+package scala.meta.internal.pretty
 
-import org.scalafmt.internal.ScalaToken._
-import org.scalafmt.internal.TokenOps._
+import scala.meta.internal.pretty.ScalaToken._
+import scala.meta.internal.pretty.TokenOps._
 
 import scala.meta.internal.paiges.Doc
 import scala.meta.internal.paiges.Doc._
 
+import scala.meta.tokens._
+import scala.meta.classifiers._
 import scala.meta._
 import scala.meta.internal.fmt.SyntacticGroup.Term._
 import scala.meta.internal.fmt.SyntacticGroup.Type._

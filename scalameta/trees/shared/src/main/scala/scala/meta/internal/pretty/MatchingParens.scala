@@ -1,8 +1,9 @@
-package org.scalafmt.internal
+package scala.meta.internal.pretty
 
-import scala.meta.{Token, Tokens}
+import scala.meta.tokens.Token
+import scala.meta.tokens.Tokens
 import scala.meta.tokens.Token._
-import org.scalafmt.internal.TokenOps._
+import scala.meta.internal.pretty.TokenOps._
 
 sealed abstract class MatchingParens(map: Map[TokenHash, Token]) {
   private def lookup(token: Token) = map.get(hash(token))

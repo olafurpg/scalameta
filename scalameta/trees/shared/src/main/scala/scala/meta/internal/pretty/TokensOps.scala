@@ -1,7 +1,8 @@
-package org.scalafmt.internal
+package scala.meta.internal.pretty
 
-import org.scalafmt.internal.Order.{LT, GT, EQ}
+import scala.meta.internal.pretty.Order.{LT, GT, EQ}
 
+import scala.meta.classifiers._
 import scala.meta.tokens._
 import scala.meta.tokens.Token._
 

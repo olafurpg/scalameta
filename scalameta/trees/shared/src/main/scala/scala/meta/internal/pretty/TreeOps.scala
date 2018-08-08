@@ -1,4 +1,4 @@
-package org.scalafmt.internal
+package scala.meta.internal.pretty
 
 import scala.meta.{Term, Tree, Lit}
 import scala.meta.internal.fmt.SyntacticGroup

@@ -401,7 +401,11 @@ lazy val trees = crossProject(JSPlatform, JVMPlatform, NativePlatform)
     publishableSettings,
     description := "Scalameta abstract syntax trees",
     libraryDependencies ++= List(
-      "org.scalameta" %%% "paiges" % "0.2.2-SNAP1"
+      "org.scalameta" %%% "paiges" % "0.2.2-SNAP1",
+      "com.lihaoyi" %% "utest" % "0.6.3" % Test
+    ),
+    testFrameworks := List(
+      new TestFramework("org.scalafmt.tests.CustomFramework")
     ),
     // NOTE: uncomment this to update ast.md
     // scalacOptions += "-Xprint:typer",

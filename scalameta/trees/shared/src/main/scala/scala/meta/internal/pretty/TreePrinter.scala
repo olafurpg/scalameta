@@ -6,8 +6,8 @@ import scala.meta.internal.pretty.tokens.SyntaxTokensDefn._
 import scala.meta.internal.pretty.tokens.SyntaxTokensMisc._
 import scala.meta.internal.pretty.tokens.SyntaxTokensMod._
 import scala.meta.internal.pretty.tokens.SyntaxTokensTerm._
-// import scala.meta.internal.pretty.tokens.SyntaxTokensType._
-// import scala.meta.internal.pretty.tokens.SyntaxTokensUtils._
+import scala.meta.internal.pretty.tokens.SyntaxTokensType._
+import scala.meta.internal.pretty.tokens.SyntaxTokensUtils._
 
 import scala.meta.internal.paiges.Doc
 import scala.meta.internal.paiges.Doc._
@@ -33,7 +33,7 @@ trait Options {
 object TreePrinter {
   def print(tree: Tree): Doc = {
     val trivia = AssociatedTrivias(tree)
-    (new TreePrinter()(trivia)).print(tree)
+    new TreePrinter()(trivia).print(tree)
   }
 
   def printTree(root: Tree, options: Options): Doc = {

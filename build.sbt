@@ -523,7 +523,8 @@ lazy val prettyprinters = crossProject(JSPlatform, JVMPlatform, NativePlatform)
       new TestFramework("scala.meta.tests.pretty.PrettyprintersFramework")
     ),
     libraryDependencies ++= List(
-      "com.lihaoyi" %%% "utest" % "0.6.4" % Test
+      "me.tongfei" % "progressbar" % "0.5.5",
+      "com.lihaoyi" %%% "utest" % "0.6.4"
     )
   )
   .settings(slowTestSettings:_*)

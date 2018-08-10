@@ -1,8 +1,8 @@
-package org.scalafmt.internal
-
-import scala.meta.testkit._
+package scala.meta.tests.pretty
 
 import scala.collection.GenIterable
+import scala.meta.testkit.CorpusFile
+import scala.meta.testkit.Phase
 import scala.util.control.NonFatal
 
 object SyntaxAnalysis {

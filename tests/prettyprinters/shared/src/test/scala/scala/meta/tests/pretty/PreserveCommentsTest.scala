@@ -1,4 +1,4 @@
-package org.scalafmt.internal
+package scala.meta.tests.pretty
 
 import scala.meta._
 import scala.meta.tokens.Token

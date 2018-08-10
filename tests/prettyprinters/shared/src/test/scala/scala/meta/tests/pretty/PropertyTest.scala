@@ -1,4 +1,4 @@
-package org.scalafmt.internal
+package scala.meta.tests.pretty
 
 import java.io.File
 import java.nio.charset.StandardCharsets
@@ -7,7 +7,6 @@ import java.util.concurrent.atomic.AtomicInteger
 
 import me.tongfei.progressbar.{ProgressBar => PB, ProgressBarStyle}
 
-import org.scalafmt.tests.BaseScalaPrinterTest
 import org.scalameta.logger
 
 import scala.meta._

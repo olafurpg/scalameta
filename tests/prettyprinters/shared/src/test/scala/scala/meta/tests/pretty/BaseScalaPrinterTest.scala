@@ -1,18 +1,15 @@
 package scala.meta.tests.pretty
 
 import scala.meta._
-import scala.meta.internal.ScalametaInternal
 import scala.meta.parsers.Parse
 import scala.meta.testkit.AnyDiff
 import scala.meta.testkit.StructurallyEqual
 import scala.meta.transversers.Transformer
-
 import scala.collection.JavaConverters._
 import difflib.DiffUtils
-
 import org.scalameta.logger
 import scala.meta.internal.pretty.TreePrinter
-
+import scala.meta.internal.trees.Origin
 import scala.util.control.NonFatal
 
 case class InternalOptions(
@@ -283,8 +280,8 @@ abstract class BaseScalaPrinterTest extends DiffSuite {
       .mkString("\n")
   }
   def getDiff(filename: String, original: Tree, modified: Tree): String = {
-    val originalCode = ScalametaInternal.resetOrigin(original).syntax
-    val modifiedCode = ScalametaInternal.resetOrigin(modified).syntax
+    val originalCode = original.withOrigin(Origin.None).syntax
+    val modifiedCode = modified.withOrigin(Origin.None).syntax
     val result = unified(filename, originalCode, modifiedCode)
     result
   }

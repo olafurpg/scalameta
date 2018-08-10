@@ -401,11 +401,7 @@ lazy val trees = crossProject(JSPlatform, JVMPlatform, NativePlatform)
     publishableSettings,
     description := "Scalameta abstract syntax trees",
     libraryDependencies ++= List(
-      "org.scalameta" %%% "paiges" % "0.2.2-SNAP1",
-      "com.lihaoyi" %% "utest" % "0.6.3" % Test
-    ),
-    testFrameworks := List(
-      new TestFramework("org.scalafmt.tests.CustomFramework")
+      "org.scalameta" %%% "paiges" % "0.2.2-SNAP1"
     ),
     // NOTE: uncomment this to update ast.md
     // scalacOptions += "-Xprint:typer",
@@ -522,9 +518,16 @@ lazy val prettyprinters = crossProject(JSPlatform, JVMPlatform, NativePlatform)
   .settings(
     sharedSettings,
     nonPublishableSettings,
-    description := "Tests for Scalameta pretty-printers"
+    description := "Tests for Scalameta pretty-printers",
+    testFrameworks := List(
+      new TestFramework("org.scalafmt.tests.CustomFramework")
+    ),
+    libraryDependencies ++= List(
+      "com.lihaoyi" %%% "utest" % "0.6.4" % Test
+    )
   )
   .settings(slowTestSettings:_*)
+  .jvmConfigure(_.dependsOn(testkit))
   .dependsOn(scalameta)
 lazy val prettyprintersJVM = prettyprinters.jvm
 lazy val prettyprintersJS = prettyprinters.js
@@ -701,7 +704,9 @@ lazy val sharedSettings = Def.settings(
   logBuffered := false,
   updateOptions := updateOptions.value.withCachedResolution(true),
   triggeredMessage.in(ThisBuild) := Watched.clearWhenTriggered,
-  incOptions := incOptions.value.withLogRecompileOnMacro(false)
+  incOptions := incOptions.value.withLogRecompileOnMacro(false),
+  SettingKey[Boolean]("ide-skip-project") :=
+    platformDepsCrossVersion.value == ScalaNativeCrossVersion.binary
 )
 
 lazy val mergeSettings = Def.settings(
@@ -749,8 +754,6 @@ lazy val adhocRepoCredentials = sys.props("scalameta.repository.credentials")
 lazy val isCustomRepository = adhocRepoUri != null && adhocRepoCredentials != null
 
 lazy val publishableSettings = Def.settings(
-  SettingKey[Boolean]("ide-skip-project") :=
-    platformDepsCrossVersion.value == ScalaNativeCrossVersion.binary,
   publishTo := Some {
     if (isCustomRepository) "adhoc" at adhocRepoUri
     // NOTE: isSnapshot.value does not work with sbt-dynver

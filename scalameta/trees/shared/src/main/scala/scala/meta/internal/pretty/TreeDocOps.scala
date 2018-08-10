@@ -10,8 +10,8 @@ import scala.meta.prettyprinters._
 import scala.meta.tokens._
 import scala.meta.classifiers._
 import scala.meta._
-import scala.meta.internal.fmt.SyntacticGroup.Term._
-import scala.meta.internal.fmt.SyntacticGroup.Type._
+import scala.meta.internal.pretty.fmt.SyntacticGroup.Term._
+import scala.meta.internal.pretty.fmt.SyntacticGroup.Type._
 import scala.meta.internal.format.CustomTrees._
 import scala.meta.internal.prettyprinters._
 

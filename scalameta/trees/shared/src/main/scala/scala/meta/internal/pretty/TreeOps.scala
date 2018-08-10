@@ -1,8 +1,8 @@
 package scala.meta.internal.pretty
 
 import scala.meta.{Term, Tree, Lit}
-import scala.meta.internal.fmt.SyntacticGroup
-import scala.meta.internal.fmt.{SyntacticGroup => g}
+import scala.meta.internal.pretty.fmt.SyntacticGroup
+import scala.meta.internal.pretty.fmt.{SyntacticGroup => g}
 
 object TreeOps {
   def operatorNeedsParenthesis(

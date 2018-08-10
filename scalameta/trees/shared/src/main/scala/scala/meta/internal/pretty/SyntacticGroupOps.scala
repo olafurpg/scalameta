@@ -3,7 +3,7 @@ package scala.meta.internal.pretty
 import scala.meta.internal.pretty.ScalaToken._
 
 import scala.meta.Tree
-import scala.meta.internal.fmt.SyntacticGroup
+import scala.meta.internal.pretty.fmt.SyntacticGroup
 
 import scala.meta.internal.paiges.Doc
 

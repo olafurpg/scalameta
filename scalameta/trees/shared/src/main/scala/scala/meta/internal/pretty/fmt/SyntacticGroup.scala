@@ -1,4 +1,5 @@
-package scala.meta.internal.fmt
+package scala.meta.internal.pretty.fmt
+
 
 import scala.meta.Tree
 

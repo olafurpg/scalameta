@@ -516,6 +516,19 @@ lazy val testkit = project
   )
   .dependsOn(contribJVM)
 
+lazy val prettyprinters = crossProject(JSPlatform, JVMPlatform, NativePlatform)
+  .in(file("tests/prettyprinters"))
+  .configs(Slow, All)
+  .settings(
+    sharedSettings,
+    nonPublishableSettings,
+    description := "Tests for Scalameta pretty-printers"
+  )
+  .settings(slowTestSettings:_*)
+  .dependsOn(scalameta)
+lazy val prettyprintersJVM = prettyprinters.jvm
+lazy val prettyprintersJS = prettyprinters.js
+lazy val prettyprintersNative = prettyprinters.native
 lazy val tests = crossProject(JSPlatform, JVMPlatform, NativePlatform)
   .in(file("tests"))
   .configs(Slow, All)
@@ -586,7 +599,10 @@ lazy val testSettings: List[Def.SettingsDefinition] = List(
   libraryDependencies ++= List(
     "com.lihaoyi" %%% "fansi" % "0.2.5" % "test",
     "org.scalatest" %%% "scalatest" % "3.2.0-SNAP10" % "test"
-  ),
+  )
+) ++ slowTestSettings
+
+lazy val slowTestSettings: List[Def.SettingsDefinition] = List(
   testOptions.in(Test) += Tests.Argument("-l", "org.scalatest.tags.Slow"),
   inConfig(Slow)(Defaults.testTasks),
   inConfig(All)(Defaults.testTasks),

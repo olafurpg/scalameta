@@ -1,4 +1,4 @@
-package scala.meta.tests
+package scala.meta.tests.pretty
 
 import scala.meta.testkit.DiffAssertions
 

@@ -1,9 +1,9 @@
-package scala.meta.tests
+package scala.meta.tests.pretty
 package tokens
 
 import scala.meta._
 
-import scala.meta.internal.tokens.SyntaxTokensDefn._
+import scala.meta.internal.pretty.tokens.SyntaxTokensDefn._
 
 object SyntaxTokensDefnSuite extends SyntaxTokensSuiteUtils {
   checkOne[Defn.Class](_.tokensClass)("→class← A")

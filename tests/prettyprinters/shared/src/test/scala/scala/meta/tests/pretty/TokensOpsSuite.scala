@@ -1,11 +1,11 @@
-package scala.meta.tests
+package scala.meta.tests.pretty
 
 import utest.intercept
 
 import scala.meta._
 import scala.meta.dialects.Scala211
 
-import scala.meta.internal.TokensOps._
+import scala.meta.internal.pretty.TokensOps._
 
 object TokensOpsSuite extends FunSuite {
 

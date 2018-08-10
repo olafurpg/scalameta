@@ -1,4 +1,4 @@
-package scala.meta.tests
+package scala.meta.tests.pretty
 
 object TermApplyUnarySuite extends BaseScalaPrinterTest {
   check("(!a).b")

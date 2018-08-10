@@ -1,4 +1,4 @@
-package scala.meta.tests
+package scala.meta.tests.pretty
 
 object ImportSuite extends BaseScalaPrinterTest {
   checkSource("package a.b")

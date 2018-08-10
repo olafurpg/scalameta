@@ -1,9 +1,9 @@
-package scala.meta.tests
+package scala.meta.tests.pretty
 package tokens
 
 import scala.meta._
 
-import scala.meta.internal.tokens.SyntaxTokensType._
+import scala.meta.internal.pretty.tokens.SyntaxTokensType._
 
 object SyntaxTokensTypesSuite extends SyntaxTokensSuiteUtils {
   checkOneType[Type.ByName](_.tokensRightArrow)("→=>← A")

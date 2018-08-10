@@ -1,4 +1,4 @@
-package scala.meta.tests
+package scala.meta.tests.pretty
 
 object TermInterpolateSuite extends BaseScalaPrinterTest {
   check(""" s"$$a" """.stripMargin)

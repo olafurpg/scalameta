@@ -1,5 +1,5 @@
 // format: off
-package scala.meta.tests
+package scala.meta.tests.pretty
 
 import scala.meta.{Pkg, Term, Lit, Input}
 

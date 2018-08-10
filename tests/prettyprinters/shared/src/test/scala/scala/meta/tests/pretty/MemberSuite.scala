@@ -1,4 +1,4 @@
-package scala.meta.tests
+package scala.meta.tests.pretty
 
 object MemberSuite extends BaseScalaPrinterTest {
   check("val a = 1")

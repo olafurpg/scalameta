@@ -1,4 +1,4 @@
-package scala.meta.tests
+package scala.meta.tests.pretty
 
 object TermMatchSuite extends BaseScalaPrinterTest {
   check("A((a match { case 1 => }): _*)")

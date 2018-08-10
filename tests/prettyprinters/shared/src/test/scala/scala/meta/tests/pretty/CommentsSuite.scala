@@ -1,5 +1,5 @@
 // format: off
-package scala.meta.tests
+package scala.meta.tests.pretty
 
 object CommentsSuite extends BaseScalaPrinterTest {
 

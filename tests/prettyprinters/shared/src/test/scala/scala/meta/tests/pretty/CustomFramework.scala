@@ -1,10 +1,10 @@
-package scala.meta.tests
+package scala.meta.tests.pretty
 
 import utest.framework._
 import utest.runner._
 import utest.ufansi
 
-class CustomFramework extends Framework {
+class PrettyprintersFramework extends Framework {
   override def formatSingle(
       path: Seq[String],
       r: Result

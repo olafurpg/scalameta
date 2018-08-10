@@ -520,7 +520,7 @@ lazy val prettyprinters = crossProject(JSPlatform, JVMPlatform, NativePlatform)
     nonPublishableSettings,
     description := "Tests for Scalameta pretty-printers",
     testFrameworks := List(
-      new TestFramework("org.scalafmt.tests.CustomFramework")
+      new TestFramework("scala.meta.tests.pretty.PrettyprintersFramework")
     ),
     libraryDependencies ++= List(
       "com.lihaoyi" %%% "utest" % "0.6.4" % Test

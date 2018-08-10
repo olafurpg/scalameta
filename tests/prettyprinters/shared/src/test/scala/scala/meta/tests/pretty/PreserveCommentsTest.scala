@@ -1,7 +1,7 @@
 package scala.meta.tests.pretty
 
 import scala.meta._
-import scala.meta.tokens.Token
+import TestMethods._
 
 object PreserveCommentsTest extends PropertyTest("comments") {
 
@@ -22,7 +22,7 @@ object PreserveCommentsTest extends PropertyTest("comments") {
   ): PropertyResult = {
     if (originalComments != formattedComments) {
       val maxSizeForDiff = 1000
-      if (originalComments.size < maxSizeForDiff && formattedComments.size < maxSizeForDiff) {
+      if (originalComments.length < maxSizeForDiff && formattedComments.length < maxSizeForDiff) {
         val diff = unified(relativePath, originalComments, formattedComments)
         if (diff.isEmpty) Success
         else Failure(diff)
@@ -42,4 +42,5 @@ object PreserveCommentsTest extends PropertyTest("comments") {
 
     noDiff(relativePath, originalComments, formattedComments)
   }
+
 }

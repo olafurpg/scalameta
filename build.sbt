@@ -528,11 +528,14 @@ lazy val prettyprinters = crossProject(JSPlatform, JVMPlatform, NativePlatform)
     )
   )
   .settings(slowTestSettings:_*)
+  .settings(buildInfoSettings:_*)
   .jvmConfigure(_.dependsOn(testkit))
   .dependsOn(scalameta)
+  .enablePlugins(BuildInfoPlugin)
 lazy val prettyprintersJVM = prettyprinters.jvm
 lazy val prettyprintersJS = prettyprinters.js
 lazy val prettyprintersNative = prettyprinters.native
+
 lazy val tests = crossProject(JSPlatform, JVMPlatform, NativePlatform)
   .in(file("tests"))
   .configs(Slow, All)
@@ -582,8 +585,16 @@ lazy val testSettings: List[Def.SettingsDefinition] = List(
     sys.props("sbt.paths.semanticdb-scalac-plugin.compile.jar") = semanticdbScalacJar
     fullClasspath.in(Test).value
   },
+  libraryDependencies ++= List(
+    "com.lihaoyi" %%% "fansi" % "0.2.5" % "test",
+    "org.scalatest" %%% "scalatest" % "3.2.0-SNAP10" % "test"
+  )
+) ++ slowTestSettings ++ buildInfoSettings
+
+lazy val buildInfoSettings: List[Def.SettingsDefinition] = List(
   buildInfoKeys := Seq[BuildInfoKey](
     scalaVersion,
+    "resourceDirectory" -> resourceDirectory.in(Compile).value,
     "databaseSourcepath" ->
       baseDirectory.in(ThisBuild).value.getAbsolutePath,
     "commonJVMClassDirectory" -> classDirectory
@@ -599,13 +610,8 @@ lazy val testSettings: List[Def.SettingsDefinition] = List(
       .value
       .getAbsolutePath
   ),
-  buildInfoPackage := "scala.meta.tests",
-  libraryDependencies ++= List(
-    "com.lihaoyi" %%% "fansi" % "0.2.5" % "test",
-    "org.scalatest" %%% "scalatest" % "3.2.0-SNAP10" % "test"
-  )
-) ++ slowTestSettings
-
+  buildInfoPackage := "scala.meta.tests"
+)
 lazy val slowTestSettings: List[Def.SettingsDefinition] = List(
   testOptions.in(Test) += Tests.Argument("-l", "org.scalatest.tags.Slow"),
   inConfig(Slow)(Defaults.testTasks),

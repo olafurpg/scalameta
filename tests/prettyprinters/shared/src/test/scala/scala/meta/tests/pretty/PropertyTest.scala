@@ -10,6 +10,7 @@ import me.tongfei.progressbar.{ProgressBar => PB, ProgressBarStyle}
 import org.scalameta.logger
 
 import scala.meta._
+import scala.meta.tests.BuildInfo
 import scala.meta.testkit.Corpus
 
 import scala.collection.concurrent.TrieMap
@@ -19,7 +20,17 @@ sealed trait PropertyResult
 case object Success extends PropertyResult
 case class Failure(explanation: String) extends PropertyResult
 
-abstract class PropertyTest(name: String) extends BaseScalaPrinterTest {
+object PropertyTest {
+  val all = Map[String, PropertyTest](
+    "comments" -> PreserveCommentsTest,
+    "idempotent" -> PreserveCommentsTest
+  )
+  def main(args: Array[String]): Unit = {
+    all(args.head).runTest()
+  }
+}
+
+abstract class PropertyTest(name: String) {
 
   def check(file: Input.File, relativePath: String): PropertyResult
 
@@ -27,9 +38,10 @@ abstract class PropertyTest(name: String) extends BaseScalaPrinterTest {
   private val regressions = TrieMap.empty[File, Boolean]
   private val nl = "\n"
   private val prefix = "target/repos/"
+  private val root = BuildInfo.resourceDirectory.toPath
 
-  private val coverageFile = Paths.get(s"coverage-${name}.txt")
-  private val todoFile = Paths.get(s"todo-${name}.diff")
+  private val coverageFile = root.resolve(s"coverage-${name}.txt")
+  private val todoFile = root.resolve(s"todo-${name}.diff")
 
   if (Files.exists(todoFile)) {
     Files.delete(todoFile)
@@ -50,7 +62,7 @@ abstract class PropertyTest(name: String) extends BaseScalaPrinterTest {
       .sorted
       .mkString("", sep, sep)
 
-  test(name) {
+  def runTest(): Unit = {
     val failureCount = new AtomicInteger(0)
     val successCount = new AtomicInteger(0)
 

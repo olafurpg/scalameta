@@ -6,17 +6,8 @@ import scala.collection.JavaConverters._
 import org.scalameta.logger
 import scala.util.control.NonFatal
 
-case class InternalOptions(
-    maxColumn: Int,
-    dialect: Dialect = dialects.Scala212,
-    parser: Parse[_ <: Tree] = Parse.parseSource
-) {
-  def getRoot(code: String): Tree = {
-    dialect(code).parse(parser).get
-  }
-}
 
-abstract class BaseScalaPrinterTest extends DiffSuite with TestMethods {
+abstract class BaseScalaPrinterTest extends DiffSuite with TestHelpers {
 
   def checkType(
       original: String,

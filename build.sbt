@@ -514,7 +514,7 @@ lazy val testkit = project
 
 lazy val prettyprinters = crossProject(JSPlatform, JVMPlatform, NativePlatform)
   .in(file("tests/prettyprinters"))
-  .configs(IntegrationTest, Slow, All)
+  .configs(IntegrationTest)
   .settings(
     Defaults.itSettings,
     sharedSettings,
@@ -528,8 +528,7 @@ lazy val prettyprinters = crossProject(JSPlatform, JVMPlatform, NativePlatform)
       "com.lihaoyi" %%% "utest" % "0.6.4"
     )
   )
-  .settings(slowTestSettings: _*)
-  .settings(buildInfoSettings: _*)
+  .settings(testSettings:_*)
   .jvmConfigure(_.dependsOn(testkit))
   .jvmSettings(
     cancelable in Global := true,
@@ -566,9 +565,15 @@ lazy val tests = crossProject(JSPlatform, JVMPlatform, NativePlatform)
     sharedSettings,
     nonPublishableSettings,
     description := "Tests for scalameta APIs",
-    exposePaths("tests", Test)
+    exposePaths("tests", Test),
+    fullClasspath.in(Test) := {
+      val semanticdbScalacJar =
+        Keys.`package`.in(semanticdbScalacPlugin, Compile).value.getAbsolutePath
+      sys.props("sbt.paths.semanticdb-scalac-plugin.compile.jar") = semanticdbScalacJar
+      fullClasspath.in(Test).value
+    }
   )
-  .settings(testSettings: _*)
+  .settings(testSettings:_*)
   .jvmSettings(
     // FIXME: https://github.com/scalatest/scalatest/issues/1112
     // Without adding scalacheck to library dependencies, we get the following error:
@@ -602,19 +607,10 @@ lazy val testsJS = tests.js
 lazy val testsNative = tests.native
 
 lazy val testSettings: List[Def.SettingsDefinition] = List(
-  fullClasspath.in(Test) := {
-    val semanticdbScalacJar =
-      Keys.`package`.in(semanticdbScalacPlugin, Compile).value.getAbsolutePath
-    sys.props("sbt.paths.semanticdb-scalac-plugin.compile.jar") = semanticdbScalacJar
-    fullClasspath.in(Test).value
-  },
   libraryDependencies ++= List(
     "com.lihaoyi" %%% "fansi" % "0.2.5" % "test",
     "org.scalatest" %%% "scalatest" % "3.2.0-SNAP10" % "test"
-  )
-) ++ slowTestSettings ++ buildInfoSettings
-
-lazy val buildInfoSettings: List[Def.SettingsDefinition] = List(
+  ),
   buildInfoKeys := Seq[BuildInfoKey](
     scalaVersion,
     "resourceDirectory" -> resourceDirectory.in(Compile).value,
@@ -633,9 +629,7 @@ lazy val buildInfoSettings: List[Def.SettingsDefinition] = List(
       .value
       .getAbsolutePath
   ),
-  buildInfoPackage := "scala.meta.tests"
-)
-lazy val slowTestSettings: List[Def.SettingsDefinition] = List(
+  buildInfoPackage := "scala.meta.tests",
   testOptions.in(Test) += Tests.Argument("-l", "org.scalatest.tags.Slow"),
   inConfig(Slow)(Defaults.testTasks),
   inConfig(All)(Defaults.testTasks),

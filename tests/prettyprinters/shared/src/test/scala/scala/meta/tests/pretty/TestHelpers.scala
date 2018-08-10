@@ -7,13 +7,21 @@ import scala.meta.testkit.StructurallyEqual
 import scala.meta.transversers.Transformer
 import scala.collection.JavaConverters._
 import difflib.DiffUtils
-import org.scalameta.logger
 import scala.meta.internal.pretty.TreePrinter
 import scala.meta.internal.trees.Origin
-import scala.util.control.NonFatal
 
-object TestMethods extends TestMethods
-trait TestMethods {
+case class InternalOptions(
+    maxColumn: Int,
+    dialect: Dialect = dialects.Scala212,
+    parser: Parse[_ <: Tree] = Parse.parseSource
+) {
+  def getRoot(code: String): Tree = {
+    dialect(code).parse(parser).get
+  }
+}
+
+object TestHelpers extends TestHelpers
+trait TestHelpers {
 
   val defaultOptions: InternalOptions = InternalOptions(100).copy(
     dialect = dialects.Sbt1.copy(
@@ -95,6 +103,5 @@ trait TestMethods {
   def isSameTree(filename: String, a: Tree, b: Tree): Either[String, Unit] = {
     isStructurallyEqual(a, b).left.map(_ => getDiff(filename, a, b))
   }
-
 
 }

@@ -3,7 +3,7 @@ package scala.meta.tests.pretty
 import scala.meta._
 
 import scala.meta.testkit.StructurallyEqual
-import TestMethods._
+import TestHelpers._
 
 // The ast must stay the same after it's pretty printed
 object IdempotentAstTest extends PropertyTest("idempotent-ast") {

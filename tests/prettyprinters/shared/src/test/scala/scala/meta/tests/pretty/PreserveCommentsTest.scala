@@ -1,7 +1,7 @@
 package scala.meta.tests.pretty
 
 import scala.meta._
-import TestMethods._
+import TestHelpers._
 
 object PreserveCommentsTest extends PropertyTest("comments") {
 

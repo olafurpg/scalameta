@@ -514,13 +514,13 @@ lazy val testkit = project
 
 lazy val prettyprinters = crossProject(JSPlatform, JVMPlatform, NativePlatform)
   .in(file("tests/prettyprinters"))
-  .configs(IntegrationTest)
+  .configs(IntegrationTest, Slow, All)
   .settings(
     Defaults.itSettings,
     sharedSettings,
     nonPublishableSettings,
     description := "Tests for Scalameta pretty-printers",
-    testFrameworks := List(
+    testFrameworks.in(Test) := List(
       new TestFramework("scala.meta.tests.pretty.PrettyprintersFramework")
     ),
     libraryDependencies ++= List(
@@ -528,7 +528,7 @@ lazy val prettyprinters = crossProject(JSPlatform, JVMPlatform, NativePlatform)
       "com.lihaoyi" %%% "utest" % "0.6.4"
     )
   )
-  .settings(testSettings:_*)
+  .settings(testSettings: _*)
   .jvmConfigure(_.dependsOn(testkit))
   .jvmSettings(
     cancelable in Global := true,
@@ -573,7 +573,7 @@ lazy val tests = crossProject(JSPlatform, JVMPlatform, NativePlatform)
       fullClasspath.in(Test).value
     }
   )
-  .settings(testSettings:_*)
+  .settings(testSettings: _*)
   .jvmSettings(
     // FIXME: https://github.com/scalatest/scalatest/issues/1112
     // Without adding scalacheck to library dependencies, we get the following error:
@@ -583,7 +583,6 @@ lazy val tests = crossProject(JSPlatform, JVMPlatform, NativePlatform)
     // [error] (testsJVM/test:executeTests) java.lang.NoClassDefFoundError: org/scalacheck/Test$TestCallback
     // [error] Total time: 19 s, completed Feb 1, 2018 3:12:34 PM
     libraryDependencies ++= List(
-      "org.scalacheck" %% "scalacheck" % "1.13.5",
       "io.get-coursier" %% "coursier" % coursier.util.Properties.version,
       "io.get-coursier" %% "coursier-cache" % coursier.util.Properties.version
     )
@@ -609,6 +608,7 @@ lazy val testsNative = tests.native
 lazy val testSettings: List[Def.SettingsDefinition] = List(
   libraryDependencies ++= List(
     "com.lihaoyi" %%% "fansi" % "0.2.5" % "test",
+    "org.scalacheck" %% "scalacheck" % "1.13.5",
     "org.scalatest" %%% "scalatest" % "3.2.0-SNAP10" % "test"
   ),
   buildInfoKeys := Seq[BuildInfoKey](

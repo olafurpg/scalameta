@@ -3,7 +3,7 @@ package scala.meta.tests.pretty
 import scala.meta._
 import TestHelpers._
 
-object PreserveCommentsTest extends PropertyTest("comments") {
+class PreserveCommentsTest extends PropertyTest("comments") {
 
   def extractComments(tree: Tree): String = {
     val nl = "\n"

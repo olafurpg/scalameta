@@ -6,7 +6,7 @@ import scala.meta.testkit.StructurallyEqual
 import TestHelpers._
 
 // The ast must stay the same after it's pretty printed
-object IdempotentAstTest extends PropertyTest("idempotent-ast") {
+class IdempotentAstTest extends PropertyTest("idempotent-ast") {
   def check(file: Input.File, relativePath: String): PropertyResult = {
     val originalTree = file.parse[Source].get
     val formatted = prettyPrint(originalTree)

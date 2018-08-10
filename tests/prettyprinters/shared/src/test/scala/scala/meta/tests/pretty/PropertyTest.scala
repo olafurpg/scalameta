@@ -47,13 +47,10 @@ abstract class PropertyTest(name: String) {
     Files.delete(todoFile)
   }
 
-  private val previouslyFailed: Set[File] =
-    if (Files.exists(coverageFile)) {
-      val input = new String(Files.readAllBytes(coverageFile))
-      input.split(nl).filterNot(_ == "").map(f => new File(prefix + f)).toSet
-    } else {
-      Set()
-    }
+  private val previouslyFailed: Set[File] = {
+    val input = new String(Files.readAllBytes(coverageFile))
+    input.split(nl).filterNot(_ == "").map(f => new File(prefix + f)).toSet
+  }
 
   private def fileList(in: TrieMap[File, Boolean], sep: String): String =
     in.keys

@@ -4,15 +4,12 @@ import java.io.File
 import java.nio.charset.StandardCharsets
 import java.nio.file._
 import java.util.concurrent.atomic.AtomicInteger
-
-import me.tongfei.progressbar.{ProgressBar => PB, ProgressBarStyle}
-
+import me.tongfei.progressbar.{ProgressBarStyle, ProgressBar => PB}
 import org.scalameta.logger
-
+import org.scalatest.tagobjects.Slow
 import scala.meta._
 import scala.meta.tests.BuildInfo
 import scala.meta.testkit.Corpus
-
 import scala.collection.concurrent.TrieMap
 import scala.util.control.NonFatal
 
@@ -30,7 +27,7 @@ object PropertyTest {
   }
 }
 
-abstract class PropertyTest(name: String) {
+abstract class PropertyTest(name: String) extends org.scalatest.FunSuite {
 
   def check(file: Input.File, relativePath: String): PropertyResult
 
@@ -59,7 +56,7 @@ abstract class PropertyTest(name: String) {
       .sorted
       .mkString("", sep, sep)
 
-  def runTest(): Unit = {
+  test(name, Slow) {
     val failureCount = new AtomicInteger(0)
     val successCount = new AtomicInteger(0)
 

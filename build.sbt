@@ -514,8 +514,9 @@ lazy val testkit = project
 
 lazy val prettyprinters = crossProject(JSPlatform, JVMPlatform, NativePlatform)
   .in(file("tests/prettyprinters"))
-  .configs(Slow, All)
+  .configs(IntegrationTest, Slow, All)
   .settings(
+    Defaults.itSettings,
     sharedSettings,
     nonPublishableSettings,
     description := "Tests for Scalameta pretty-printers",
@@ -527,9 +528,31 @@ lazy val prettyprinters = crossProject(JSPlatform, JVMPlatform, NativePlatform)
       "com.lihaoyi" %%% "utest" % "0.6.4"
     )
   )
-  .settings(slowTestSettings:_*)
-  .settings(buildInfoSettings:_*)
+  .settings(slowTestSettings: _*)
+  .settings(buildInfoSettings: _*)
   .jvmConfigure(_.dependsOn(testkit))
+  .jvmSettings(
+    cancelable in Global := true,
+    fork.in(IntegrationTest, test) := true,
+    fork.in(IntegrationTest, testOnly) := true,
+    fork.in(IntegrationTest, testQuick) := true,
+    javaOptions.in(Test, test) ++= {
+      val mem =
+        if (sys.env.contains("CI")) "4"
+        else sys.env.getOrElse("SLOWMEM", "20")
+
+      Seq(
+        "-Xss20m",
+        "-Xms4G",
+        s"-Xmx${mem}G",
+        "-XX:ReservedCodeCacheSize=1024m",
+        "-XX:+TieredCompilation",
+        "-XX:+CMSClassUnloadingEnabled"
+      )
+    },
+    javaOptions.in(Test, testOnly) ++= javaOptions.in(Test, test).value,
+    javaOptions.in(Test, testQuick) ++= javaOptions.in(Test, test).value
+  )
   .dependsOn(scalameta)
   .enablePlugins(BuildInfoPlugin)
 lazy val prettyprintersJVM = prettyprinters.jvm

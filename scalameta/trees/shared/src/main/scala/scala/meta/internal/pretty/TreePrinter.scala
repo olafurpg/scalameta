@@ -36,7 +36,7 @@ object TreePrinter {
     new TreePrinter()(trivia).print(tree)
   }
 
-  def printTree(root: Tree, options: Options): Doc = {
+  def printTree(root: Tree): Doc = {
     print(root)
   }
 

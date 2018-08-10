@@ -1,4 +1,4 @@
-package org.scalafmt.tests
+package scala.meta.tests
 
 object LiteralSuite extends BaseScalaPrinterTest {
   check(

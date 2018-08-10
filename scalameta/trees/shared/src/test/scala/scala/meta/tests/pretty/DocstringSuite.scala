@@ -1,8 +1,8 @@
-package org.scalafmt.tests
+package scala.meta.tests
 
 import scala.meta._
 import scala.meta.internal.format.Comments._
-import org.scalafmt.internal.TreePrinter
+import scala.meta.internal.TreePrinter
 
 object DocstringSuite extends BaseScalaPrinterTest {
   test("docstring") {

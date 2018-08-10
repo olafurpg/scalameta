@@ -1,9 +1,9 @@
-package org.scalafmt.tests
+package scala.meta.tests
 package tokens
 
 import scala.meta._
 
-import org.scalafmt.internal.tokens.SyntaxTokensTerm._
+import scala.meta.internal.tokens.SyntaxTokensTerm._
 
 object SyntaxTokensTermSuite extends SyntaxTokensSuiteUtils {
   checkOne[Term.ApplyType](_.tokensLeftBracket)("a→[←B]")

@@ -1,4 +1,4 @@
-package org.scalafmt.tests
+package scala.meta.tests
 import org.scalameta.logger
 
 trait DiffSuite extends FunSuite {

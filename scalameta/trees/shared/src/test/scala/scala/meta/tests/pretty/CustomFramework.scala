@@ -1,4 +1,4 @@
-package org.scalafmt.tests
+package scala.meta.tests
 
 import utest.framework._
 import utest.runner._

@@ -1,4 +1,4 @@
-package org.scalafmt.tests
+package scala.meta.tests
 
 object PatSuite extends BaseScalaPrinterTest {
   checkPat("1 | 2")

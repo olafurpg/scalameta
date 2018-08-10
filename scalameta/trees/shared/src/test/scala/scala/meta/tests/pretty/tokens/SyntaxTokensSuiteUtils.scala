@@ -1,11 +1,11 @@
-package org.scalafmt.tests
+package scala.meta.tests
 package tokens
 
 import scala.meta._
 import scala.meta.parsers.Parse
 
-import org.scalafmt.internal.tokens.SyntaxTokensDefn._
-import org.scalafmt.internal.tokens.SyntaxTokensTerm._
+import scala.meta.internal.tokens.SyntaxTokensDefn._
+import scala.meta.internal.tokens.SyntaxTokensTerm._
 
 abstract class SyntaxTokensSuiteUtils extends FunSuite {
   val dq = '"'

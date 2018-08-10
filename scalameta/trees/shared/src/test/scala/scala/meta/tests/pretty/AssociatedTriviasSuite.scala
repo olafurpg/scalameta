@@ -1,6 +1,6 @@
-package org.scalafmt.tests
+package scala.meta.tests
 
-import org.scalafmt.internal.AssociatedTrivias
+import scala.meta.internal.pretty.AssociatedTrivias
 
 import scala.meta._
 

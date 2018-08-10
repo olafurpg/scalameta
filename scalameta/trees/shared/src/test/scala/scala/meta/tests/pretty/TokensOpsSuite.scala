@@ -1,11 +1,11 @@
-package org.scalafmt.tests
+package scala.meta.tests
 
 import utest.intercept
 
 import scala.meta._
 import scala.meta.dialects.Scala211
 
-import org.scalafmt.internal.TokensOps._
+import scala.meta.internal.TokensOps._
 
 object TokensOpsSuite extends FunSuite {
 

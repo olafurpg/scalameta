@@ -1,4 +1,4 @@
-package org.scalafmt.tests
+package scala.meta.tests
 
 import scala.meta._
 import scala.meta.internal.ScalametaInternal
@@ -9,10 +9,10 @@ import scala.meta.transversers.Transformer
 
 import scalafix.diff.DiffUtils
 
-import org.scalafmt.InternalOptions
-import org.scalafmt.Options
+import scala.meta.InternalOptions
+import scala.meta.Options
 import org.scalameta.logger
-import org.scalafmt.internal.TreePrinter
+import scala.meta.internal.TreePrinter
 
 import scala.util.control.NonFatal
 

@@ -17,16 +17,6 @@ sealed trait PropertyResult
 case object Success extends PropertyResult
 case class Failure(explanation: String) extends PropertyResult
 
-object PropertyTest {
-  val all = Map[String, PropertyTest](
-    "comments" -> PreserveCommentsTest,
-    "idempotent" -> PreserveCommentsTest
-  )
-  def main(args: Array[String]): Unit = {
-    all(args.head).runTest()
-  }
-}
-
 abstract class PropertyTest(name: String) extends org.scalatest.FunSuite {
 
   def check(file: Input.File, relativePath: String): PropertyResult

@@ -16,21 +16,21 @@ class PreserveCommentsTest extends PropertyTest("comments") {
   }
 
   def noDiff(
-      relativePath: String,
+      url: String,
       originalComments: String,
       formattedComments: String
   ): PropertyResult = {
     if (originalComments != formattedComments) {
       val maxSizeForDiff = 1000
       if (originalComments.length < maxSizeForDiff && formattedComments.length < maxSizeForDiff) {
-        val diff = unified(relativePath, originalComments, formattedComments)
+        val diff = unified(url, originalComments, formattedComments)
         if (diff.isEmpty) Success
         else Failure(diff)
       } else Failure("-- no diff --")
     } else Success
   }
 
-  def check(file: Input.File, relativePath: String): PropertyResult = {
+  def check(file: Input.File, url: String): PropertyResult = {
     val originalTree = file.parse[Source].get
     val originalComments = extractComments(originalTree)
 
@@ -40,7 +40,7 @@ class PreserveCommentsTest extends PropertyTest("comments") {
       extractComments(formattedTree)
     }
 
-    noDiff(relativePath, originalComments, formattedComments)
+    noDiff(url, originalComments, formattedComments)
   }
 
 }

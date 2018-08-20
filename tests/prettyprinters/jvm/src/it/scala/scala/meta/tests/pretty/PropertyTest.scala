@@ -1,6 +1,5 @@
 package scala.meta.tests.pretty
 
-import java.io.File
 import java.nio.charset.StandardCharsets
 import java.nio.file._
 import java.util.concurrent.atomic.AtomicInteger
@@ -19,12 +18,11 @@ case class Failure(explanation: String) extends PropertyResult
 
 abstract class PropertyTest(name: String) extends org.scalatest.FunSuite {
 
-  def check(file: Input.File, relativePath: String): PropertyResult
+  def check(file: Input.File, url: String): PropertyResult
 
-  private val failed = TrieMap.empty[File, Boolean]
-  private val regressions = TrieMap.empty[File, Boolean]
+  private val failed = TrieMap.empty[String, Boolean]
+  private val regressions = TrieMap.empty[String, Boolean]
   private val nl = "\n"
-  private val prefix = "target/repos/"
   private val root = BuildInfo.resourceDirectory.toPath
 
   private val coverageFile = root.resolve(s"coverage-${name}.txt")
@@ -34,17 +32,14 @@ abstract class PropertyTest(name: String) extends org.scalatest.FunSuite {
     Files.delete(todoFile)
   }
 
-  private val previouslyFailed: Set[File] = {
+  private val previouslyFailed: Set[String] = {
     val input = new String(Files.readAllBytes(coverageFile))
-    input.split(nl).filterNot(_ == "").map(f => new File(prefix + f)).toSet
+    input.split(nl).filterNot(_ == "").toSet
   }
 
-  private def fileList(in: TrieMap[File, Boolean], sep: String): String =
-    in.keys
-      .map(_.toString.drop(prefix.size))
-      .toList
-      .sorted
-      .mkString("", sep, sep)
+  private def fileList(in: TrieMap[String, Boolean], sep: String): String =
+    in.keys.toSeq.sorted.mkString("", sep, sep)
+  val prefix = Paths.get("target", "repos")
 
   test(name, Slow) {
     val failureCount = new AtomicInteger(0)
@@ -68,20 +63,23 @@ abstract class PropertyTest(name: String) extends org.scalatest.FunSuite {
       try {
         val jFile = file.jFile
         val input = Input.File(jFile, StandardCharsets.UTF_8)
-        val relativePath = "tests/slow/" + jFile.toString
+        val githubUrl = file.githubUrl
 
-        check(input, relativePath) match {
+        check(input, githubUrl) match {
           case Success => successCount.incrementAndGet()
           case Failure(explanation) => {
             val failures = failureCount.incrementAndGet()
-            failed += jFile -> true
+            failed(githubUrl) = true
 
             if (failures < 100) {
               logger.elem(explanation)
             }
 
-            if (!previouslyFailed.contains(file.jFile)) {
-              regressions += file.jFile -> true
+            val relpath = prefix.relativize(file.jFile.toPath).toString
+
+            if (!previouslyFailed.contains(githubUrl) &&
+                !previouslyFailed.contains(relpath)) {
+              regressions(githubUrl) = true
               print(Console.RED)
               println("*************************")
               println("Regression: " + file.jFile)
@@ -99,6 +97,8 @@ abstract class PropertyTest(name: String) extends org.scalatest.FunSuite {
         }
       } catch {
         case NonFatal(_) => ()
+        case _: StackOverflowError =>
+          println(s"\nStack overflow at ${file.githubUrl}")
       }
 
       progress.synchronized {

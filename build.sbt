@@ -43,6 +43,7 @@ addCommandAlias("benchQuick", benchQuick.command)
 // it runs `test` sequentially in every defined module.
 commands += Command.command("ci-fast") { s =>
   s"wow $ciScalaVersion" ::
+    ("prettyprinters" + ciPlatform + "/test") ::
     ("tests" + ciPlatform + "/test") ::
     ci("doc") ::
     s
@@ -535,7 +536,7 @@ lazy val prettyprinters = crossProject(JSPlatform, JVMPlatform, NativePlatform)
     fork.in(IntegrationTest, test) := true,
     fork.in(IntegrationTest, testOnly) := true,
     fork.in(IntegrationTest, testQuick) := true,
-    javaOptions.in(Test, test) ++= {
+    javaOptions.in(IntegrationTest, test) ++= {
       val mem =
         if (sys.env.contains("CI")) "4"
         else sys.env.getOrElse("SLOWMEM", "20")
@@ -549,8 +550,8 @@ lazy val prettyprinters = crossProject(JSPlatform, JVMPlatform, NativePlatform)
         "-XX:+CMSClassUnloadingEnabled"
       )
     },
-    javaOptions.in(Test, testOnly) ++= javaOptions.in(Test, test).value,
-    javaOptions.in(Test, testQuick) ++= javaOptions.in(Test, test).value
+    javaOptions.in(IntegrationTest, testOnly) ++= javaOptions.in(Test, test).value,
+    javaOptions.in(IntegrationTest, testQuick) ++= javaOptions.in(Test, test).value
   )
   .dependsOn(scalameta)
   .enablePlugins(BuildInfoPlugin)

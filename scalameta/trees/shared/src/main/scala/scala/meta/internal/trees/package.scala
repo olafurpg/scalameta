@@ -224,22 +224,22 @@ package object trees {
     tree
   }
 
-  implicit class XtensionClassifiableToken(private val x: Token) extends AnyVal {
-    def is[U](implicit classifier: Classifier[Token, U]): Boolean = {
-      classifier.apply(x)
-    }
-
-    def isNot[U](implicit classifier: Classifier[Token, U]): Boolean = {
-      !classifier.apply(x)
-    }
-  }
-  implicit class XtensionClassifiableTree(private val x: Tree) extends AnyVal {
-    def is[U](implicit classifier: Classifier[Tree, U]): Boolean = {
-      classifier.apply(x)
-    }
-
-    def isNot[U](implicit classifier: Classifier[Tree, U]): Boolean = {
-      !classifier.apply(x)
-    }
-  }
+//  implicit class XtensionClassifiableToken(private val x: Token) extends AnyVal {
+//    def is[U](implicit classifier: Classifier[Token, U]): Boolean = {
+//      classifier.apply(x)
+//    }
+//
+//    def isNot[U](implicit classifier: Classifier[Token, U]): Boolean = {
+//      !classifier.apply(x)
+//    }
+//  }
+//  implicit class XtensionClassifiableTree(private val x: Tree) extends AnyVal {
+//    def is[U](implicit classifier: Classifier[Tree, U]): Boolean = {
+//      classifier.apply(x)
+//    }
+//
+//    def isNot[U](implicit classifier: Classifier[Tree, U]): Boolean = {
+//      !classifier.apply(x)
+//    }
+//  }
 }

@@ -22,24 +22,25 @@ class Parser {
   @BenchmarkMode(Array(Mode.SingleShotTime))
   @OutputTimeUnit(TimeUnit.MILLISECONDS)
   def parseSources(): Int = {
-    var nodes = 0
+    var n = 0
     jars.foreach { jar =>
       FileIO.withJarFileSystem(jar, create = false, close = true) { root =>
         FileIO.listAllFilesRecursively(root).foreach { path =>
           if (PathIO.extension(path.toNIO) == "scala") {
             val text = FileIO.slurp(path, StandardCharsets.UTF_8)
+//            n += text.linesIterator.length
             text
               .parse[Source]
               .toOption
               .foreach(_.traverse {
                 case _ =>
-                  nodes += 1
+                  n += 1
               })
           }
         }
       }
     }
-    nodes
+    n
   }
 }
 
@@ -47,7 +48,7 @@ object Parser {
   def main(args: Array[String]): Unit = {
     val p = new Parser()
     p.setup()
-    val nodes = p.parseSources()
-    pprint.log(nodes)
+    pprint.log(p.parseSources())
+    sys.exit(0)
   }
 }

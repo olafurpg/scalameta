@@ -30,12 +30,6 @@ trait InternalTree extends Product {
     parent: Tree = privateParent,
     destination: String = null,
     origin: Origin = privateOrigin): Tree
-  private[meta] def privateSetChildrenParents(): this.type = {
-    children.foreach { child =>
-      child.privateParent = this
-    }
-    this
-  }
 
   // =============================================================================================
   // Getters for pieces of internal state defined above.

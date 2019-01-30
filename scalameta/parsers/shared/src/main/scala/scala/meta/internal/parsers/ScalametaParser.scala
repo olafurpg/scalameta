@@ -3443,7 +3443,13 @@ object ScalametaParser {
     def apply(input: Input, dialect: Dialect): Parsed[T] = {
       try {
         val parser = new ScalametaParser(input, dialect)
-        Parsed.Success(fn(parser))
+        val result = fn(parser)
+        result match {
+          case t: Tree =>
+            privateSetChildrenParents(t)
+          case _ =>
+        }
+        Parsed.Success(result)
       } catch {
         case details @ TokenizeException(pos, message) =>
           Parsed.Error(pos, message, details)

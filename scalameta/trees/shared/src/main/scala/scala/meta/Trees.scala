@@ -14,6 +14,8 @@ import scala.meta.internal.trees._
   def pos: Position
   def tokens(implicit dialect: Dialect): Tokens
 
+  def is[T](implicit classifier: Classifier[Tree, T]): Boolean = classifier.apply(this)
+
   final override def canEqual(that: Any): Boolean = this eq that.asInstanceOf[AnyRef]
   final override def equals(that: Any): Boolean = this eq that.asInstanceOf[AnyRef]
   final override def hashCode: Int = System.identityHashCode(this)

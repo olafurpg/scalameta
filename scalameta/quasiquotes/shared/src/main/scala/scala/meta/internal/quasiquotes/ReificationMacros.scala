@@ -48,7 +48,10 @@ class ReificationMacros(val c: Context) extends AstReflection with AdtLiftables 
   val InternalUnlift = c.mirror.staticModule("scala.meta.internal.quasiquotes.Unlift")
   val QuasiquotePrefix = c.freshName("quasiquote")
 
-  def apply(args: ReflectTree*)(dialect: ReflectTree): ReflectTree = expand(dialect)
+  def apply(args: ReflectTree*)(dialect: ReflectTree): ReflectTree = {
+    q"_root_.scala.meta.internal.trees.privateSetChildrenParents(${expand(dialect)})"
+
+  }
   def unapply(scrutinee: ReflectTree)(dialect: ReflectTree): ReflectTree = expand(dialect)
   def expand(dialectTree: ReflectTree): ReflectTree = {
     val (input, mode) = extractQuasiquotee()

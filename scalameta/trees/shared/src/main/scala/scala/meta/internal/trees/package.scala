@@ -215,10 +215,11 @@ package object trees {
     else arrayClass(ScalaRunTime.arrayClass(clazz), rank - 1)
   }
 
-  def privateSetChildrenParents(tree: Tree): Unit = {
+  def privateSetChildrenParents(tree: Tree): tree.type = {
     tree.children.foreach { child =>
       child.privateParent = tree
       privateSetChildrenParents(child)
     }
+    tree
   }
 }

@@ -14,7 +14,7 @@ class ParseSuite extends FunSuite with CommonTrees {
   val escapedEOL = if (EOL == "\n") """\n""" else """\r\n"""
 
   //This should eventually be replaced by DiffAssertions.assertNoDiff
-  def assertSameLines(actual: String, expected: String) = {
+  def assertSameLines(actual: String, expected: String)(implicit pos: org.scalactic.source.Position): Unit = {
     val actualLines = actual.linesIterator.toList
     val expectedLines = expected.linesIterator.toList
     assert(actualLines === expectedLines)

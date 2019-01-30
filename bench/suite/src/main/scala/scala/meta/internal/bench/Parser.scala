@@ -60,10 +60,10 @@ import scala.meta.io.AbsolutePath
 import scala.meta.io.Classpath
 
 case class LibrarySources(
-                           name: String,
-                           classpath: Classpath,
-                           sources: Classpath
-                         )
+    name: String,
+    classpath: Classpath,
+    sources: Classpath
+)
 
 object LibrarySources {
   def all: List[LibrarySources] = {

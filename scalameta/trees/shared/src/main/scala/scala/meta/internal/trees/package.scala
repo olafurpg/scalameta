@@ -7,6 +7,7 @@ import org.scalameta.invariants._
 import scala.annotation.switch
 import scala.meta.classifiers._
 import scala.meta.internal.trees.Metadata.Ast
+import scala.meta.tokens.Token
 
 package object trees {
   implicit class XtensionTreesName(name: Name) {
@@ -221,5 +222,23 @@ package object trees {
       privateSetChildrenParents(child)
     }
     tree
+  }
+  implicit class XtensionClassifiableToken(private val x: Token) extends AnyVal {
+    def is[U](implicit classifier: Classifier[Token, U]): Boolean = {
+      classifier.apply(x)
+    }
+
+    def isNot[U](implicit classifier: Classifier[Token, U]): Boolean = {
+      !classifier.apply(x)
+    }
+  }
+  implicit class XtensionClassifiableTree(private val x: Tree) extends AnyVal {
+    def is[U](implicit classifier: Classifier[Tree, U]): Boolean = {
+      classifier.apply(x)
+    }
+
+    def isNot[U](implicit classifier: Classifier[Tree, U]): Boolean = {
+      !classifier.apply(x)
+    }
   }
 }

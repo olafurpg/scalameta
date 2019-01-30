@@ -20,7 +20,7 @@ class Parser {
   def setup(): Unit = {
     val bytes = InputStreamIO.readBytes(this.getClass.getResourceAsStream("/GenJSCode.scala"))
     genjs = new String(bytes, StandardCharsets.UTF_8)
-//    jars = LibrarySources.all.flatMap(_.sources.entries)
+    jars = LibrarySources.all.flatMap(_.sources.entries)
   }
 
   @Benchmark

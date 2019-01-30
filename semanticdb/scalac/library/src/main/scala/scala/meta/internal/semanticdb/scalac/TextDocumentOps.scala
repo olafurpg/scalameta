@@ -101,7 +101,7 @@ trait TextDocumentOps { self: SemanticdbOps =>
           }
           private def indexWithin(mname: m.Name.Indeterminate): Unit = {
             todo += mname
-            val mencl = mname.parent.flatMap(_.parent).get
+            val mencl: m.Tree = null // mname.parent.flatMap(_.parent).get
             mencl match {
               case mencl: m.Ctor.Primary =>
                 val menclDefn = mencl.parent.get.asInstanceOf[m.Member]
@@ -112,20 +112,20 @@ trait TextDocumentOps { self: SemanticdbOps =>
                 }
                 mwithinctors(menclName) = mname
               case _ =>
-                def findBinder(pat: m.Pat) =
-                  pat.collect { case m.Pat.Var(name) => name }.head
-                val menclName = mencl match {
-                  case mtree: m.Member => mtree.name
-                  case m.Decl.Val(_, pat :: Nil, _) => findBinder(pat)
-                  case m.Decl.Var(_, pat :: Nil, _) => findBinder(pat)
-                  case m.Defn.Val(_, pat :: Nil, _, _) => findBinder(pat)
-                  case m.Defn.Var(_, pat :: Nil, _, _) => findBinder(pat)
-                }
-                if (mwithins.contains(menclName)) {
-                  val details = syntaxAndPos(mname) + " " + syntaxAndPos(mwithins(menclName))
-                  sys.error(s"ambiguous mwithins $details")
-                }
-                mwithins(menclName) = mname
+//                def findBinder(pat: m.Pat) =
+//                  pat.collect { case m.Pat.Var(name) => name }.head
+//                val menclName = mencl match {
+//                  case mtree: m.Member => mtree.name
+//                  case m.Decl.Val(_, pat :: Nil, _) => findBinder(pat)
+//                  case m.Decl.Var(_, pat :: Nil, _) => findBinder(pat)
+//                  case m.Defn.Val(_, pat :: Nil, _, _) => findBinder(pat)
+//                  case m.Defn.Var(_, pat :: Nil, _, _) => findBinder(pat)
+//                }
+//                if (mwithins.contains(menclName)) {
+//                  val details = syntaxAndPos(mname) + " " + syntaxAndPos(mwithins(menclName))
+//                  sys.error(s"ambiguous mwithins $details")
+//                }
+//                mwithins(menclName) = mname
             }
           }
           def indexPats(pats: List[m.Pat], pos: m.Position): Unit = pats match {

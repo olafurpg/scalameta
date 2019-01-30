@@ -3444,11 +3444,11 @@ object ScalametaParser {
       try {
         val parser = new ScalametaParser(input, dialect)
         val result = fn(parser)
-//        result match {
-//          case t: Tree =>
-//            privateSetChildrenParents(t)
-//          case _ =>
-//        }
+        result match {
+          case t: Tree =>
+            privateSetChildrenParents(t)
+          case _ =>
+        }
         Parsed.Success(result)
       } catch {
         case details @ TokenizeException(pos, message) =>

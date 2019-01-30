@@ -223,6 +223,7 @@ package object trees {
     }
     tree
   }
+
   implicit class XtensionClassifiableToken(private val x: Token) extends AnyVal {
     def is[U](implicit classifier: Classifier[Token, U]): Boolean = {
       classifier.apply(x)

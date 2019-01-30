@@ -6,6 +6,7 @@ import scala.meta.io.AbsolutePath
 import java.util.concurrent.TimeUnit
 import scala.meta._
 import scala.meta.internal.io.FileIO
+import scala.meta.internal.io.InputStreamIO
 import scala.meta.internal.io.PathIO
 
 @State(Scope.Benchmark)
@@ -13,9 +14,13 @@ class Parser {
 
   var jars: List[AbsolutePath] = Nil
 
+  var genjs: String = ""
+
   @Setup
   def setup(): Unit = {
-    jars = LibrarySources.all.flatMap(_.sources.entries)
+    val bytes = InputStreamIO.readBytes(this.getClass.getResourceAsStream("/GenJSCode.scala"))
+    genjs = new String(bytes, StandardCharsets.UTF_8)
+//    jars = LibrarySources.all.flatMap(_.sources.entries)
   }
 
   @Benchmark
@@ -41,6 +46,13 @@ class Parser {
       }
     }
     n
+  }
+
+  @Benchmark
+  @BenchmarkMode(Array(Mode.SingleShotTime))
+  @OutputTimeUnit(TimeUnit.MILLISECONDS)
+  def parseGenjs(): Unit = {
+    genjs.parse[Source].get
   }
 }
 

@@ -18,7 +18,7 @@ import scala.meta.internal.prettyprinters._
   def end: Int
   def pos: Position
   def text: String = pos.text
-  def is[T](implicit classifier: Classifier[Token, T]): Boolean = classifier.apply(this)
+  final def is[T](implicit classifier: Classifier[Token, T]): Boolean = classifier.apply(this)
 }
 
 object Token {

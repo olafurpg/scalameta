@@ -106,7 +106,7 @@ class AstNamerMacros(val c: Context) extends AstReflection with CommonNamerMacro
 
       // step 5: implement the unimplemented methods in InternalTree (part 1)
       bparams1 += q"@$TransientAnnotation private[meta] val privatePrototype: $iname"
-      bparams1 += q"private[meta] val privateParent: $TreeClass"
+      bparams1 += q"private[meta] var privateParent: $TreeClass"
       bparams1 += q"private[meta] val privateOrigin: $OriginClass"
 
       // step 6: implement the unimplemented methods in InternalTree (part 1)

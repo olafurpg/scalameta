@@ -23,12 +23,19 @@ trait InternalTree extends Product {
 
   private[meta] def privatePrototype: Tree
   private[meta] def privateParent: Tree
+  private[meta] def privateParent_=(other: Tree): Unit
   private[meta] def privateOrigin: Origin
   private[meta] def privateCopy(
     prototype: Tree = this,
     parent: Tree = privateParent,
     destination: String = null,
     origin: Origin = privateOrigin): Tree
+  private[meta] def privateSetChildrenParents(): this.type = {
+    children.foreach { child =>
+      child.privateParent = this
+    }
+    this
+  }
 
   // =============================================================================================
   // Getters for pieces of internal state defined above.

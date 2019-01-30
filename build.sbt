@@ -601,7 +601,10 @@ lazy val bench = project
   .settings(
     sharedSettings,
     nonPublishableSettings,
-    libraryDependencies += "org.scala-lang" % "scala-compiler" % scalaVersion.value,
+    libraryDependencies ++= List(
+      "org.scala-lang" % "scala-compiler" % scalaVersion.value,
+      "com.geirsson" %% "coursier-small" % "1.3.3"
+    ),
     buildInfoKeys := Seq[BuildInfoKey](
       "sourceroot" -> (baseDirectory in ThisBuild).value
     ),

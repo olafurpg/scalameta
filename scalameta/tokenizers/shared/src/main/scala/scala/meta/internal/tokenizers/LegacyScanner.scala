@@ -830,11 +830,11 @@ class LegacyScanner(input: Input, dialect: Dialect) {
    *  if one is present.
    */
   protected def getFraction(): Unit = {
-    token = DOUBLELIT
-    while ('0' <= ch && ch <= '9') {
+    while ('0' <= ch && ch <= '9' || isNumberSeparator(ch)) {
       putChar(ch)
       nextChar()
     }
+    checkNoTrailingSeparator()
     if (ch == 'e' || ch == 'E') {
       val lookahead = lookaheadReader
       lookahead.nextChar()
@@ -848,10 +848,11 @@ class LegacyScanner(input: Input, dialect: Dialect) {
           putChar(ch)
           nextChar()
         }
-        while ('0' <= ch && ch <= '9') {
+        while ('0' <= ch && ch <= '9' || isNumberSeparator(ch)) {
           putChar(ch)
           nextChar()
         }
+        checkNoTrailingSeparator()
       }
       token = DOUBLELIT
     }
@@ -863,15 +864,30 @@ class LegacyScanner(input: Input, dialect: Dialect) {
       putChar(ch)
       nextChar()
       token = FLOATLIT
+    } else {
+      token = DOUBLELIT
     }
     checkNoLetter()
     setStrVal()
   }
 
+
   def checkNoLetter(): Unit = {
     if (isIdentifierPart(ch) && ch >= ' ')
       syntaxError("Invalid literal number", at = offset)
   }
+
+  @inline private def isNumberSeparator(c: Char): Boolean = c == '_' //|| c == '\''
+
+  @inline private def removeNumberSeparators(s: String): String =
+    if (s.indexOf('_') > 0) s.replaceAllLiterally("_", "") /*.replaceAll("'","")*/ else s
+  
+  // disallow trailing numeric separator char, but let lexing limp along
+  def checkNoTrailingSeparator(): Unit =
+    if (cbuf.nonEmpty && isNumberSeparator(cbuf.last)) {
+      syntaxError("trailing separator is not allowed", offset + cbuf.length - 1)
+      cbuf.setLength(cbuf.length - 1)
+    }
 
   /** Read a number into strVal and set base
   */
@@ -882,14 +898,14 @@ class LegacyScanner(input: Input, dialect: Dialect) {
     // from an octal literal 0123... (which we want to disallow), we check whether there
     // are any additional digits coming after the first one we have already read.
     var notSingleZero = false
-    while (digit2int(ch, base1) >= 0) {
+    while (isNumberSeparator(ch) || digit2int(ch, base1) >= 0) {
       putChar(ch)
       nextChar()
       notSingleZero = true
     }
     token = INTLIT
 
-    /* When we know for certain it's a number after using a touch of lookahead */
+    /* When we know for c it's a number after using a touch of lookahead */
     def restOfNumber() = {
       putChar(ch)
       nextChar()
@@ -981,7 +997,7 @@ class LegacyScanner(input: Input, dialect: Dialect) {
       case Parsed.Success(_, endExclusive) =>
         endExclusive
       case Parsed.Failure(_, failIndex, extra) =>
-        syntaxError(s"malformed xml literal, expected: ${extra.traced.expected}", at = failIndex)
+        syntaxError(s"malformed xml literal, expected: ${extra.traced.expected}",at = failIndex)
     }
 
     // 2. Populate upcomingXmlLiteralParts with xml literal part positions.

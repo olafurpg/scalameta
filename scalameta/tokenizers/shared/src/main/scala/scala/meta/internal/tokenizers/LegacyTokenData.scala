@@ -5,6 +5,7 @@ package tokenizers
 import LegacyToken._
 import Chars._
 import scala.meta.inputs._
+import scala.annotation.tailrec
 
 trait LegacyTokenData {
   /** the input that is currently being tokenized */
@@ -48,55 +49,106 @@ trait LegacyTokenData {
   lazy val reporter: Reporter = Reporter(input)
   import reporter._
 
-  /** Convert current strVal to char value
-   */
-  def charVal: Char = if (strVal.length > 0) strVal.charAt(0) else 0
+      /** Convert current strVal to char value
+     */
+    def charVal: Char = if (strVal.length > 0) strVal.charAt(0) else 0
 
-  /** Convert current strVal, base to an integer value
-   *  This is tricky because of max negative value.
-   */
-  private def integerVal: BigInt = {
-    var input = strVal
-    if (input.startsWith("0x") || input.startsWith("0X")) input = input.substring(2)
-    if (input.endsWith("l") || input.endsWith("L")) input = input.substring(0, input.length - 1)
-    var value: BigInt = 0
-    val divider = if (base == 10) 1 else 2
-    var i = 0
-    val len = input.length
-    while (i < len) {
-      val d = digit2int(input charAt i, base)
-      if (d < 0) {
-        syntaxError("malformed integer number", at = offset)
+    /** Convert current strVal, base to long value.
+     *  This is tricky because of max negative value.
+     *
+     *  Conversions in base 10 and 16 are supported. As a permanent migration
+     *  path, attempts to write base 8 literals except `0` emit a verbose error.
+     */
+    def intVal(negated: Boolean): Long = {
+      def malformed: Long = {
+        if (base == 8) syntaxError("Decimal integer literals may not have a leading zero. (Octal syntax is obsolete.)", at = offset)
+        else syntaxError("malformed integer number", at = offset)
+        0
       }
-      value = value * base + d
-      i += 1
+      def tooBig: Long = {
+        syntaxError("integer number too large", at = offset)
+        0
+      }
+      def intConvert: Long = {
+        val len = strVal.length
+        if (len == 0) {
+          if (base != 8) syntaxError("missing integer number", at = offset)  // e.g., 0x;
+          0
+        } else {
+          val divider     = if (base == 10) 1 else 2
+          val limit: Long = if (token == LONGLIT) Long.MaxValue else Int.MaxValue
+          @tailrec def convert(value: Long, i: Int): Long =
+            if (i >= len) value
+            else {
+              val c = strVal.charAt(i)
+              if (isNumberSeparator(c)) convert(value, i + 1)
+              else {
+                val d = digit2int(c, base)
+                if (d < 0)
+                  malformed
+                else if (value < 0 ||
+                    limit / (base / divider) < value ||
+                    limit - (d / divider) < value * (base / divider) &&
+                    !(negated && limit == value * base - 1 + d))
+                  tooBig
+                else
+                  convert(value * base + d, i + 1)
+              }
+            }
+          val result = convert(0, 0)
+          if (base == 8) malformed else if (negated) -result else result
+        }
+      }
+      if (token == CHARLIT && !negated) charVal.toLong else intConvert
     }
-    value
-  }
 
-  /** Convert current strVal, base to double value
-  */
-  private def floatingVal: BigDecimal = {
-    def isDeprecatedForm = {
-      val idx = strVal indexOf '.'
-      (idx == strVal.length - 1) || (
-           (idx >= 0)
-        && (idx + 1 < strVal.length)
-        && (!Character.isDigit(strVal charAt (idx + 1)))
-      )
-    }
-    if (isDeprecatedForm) {
-      syntaxError("floating point number is missing digit after dot", at = offset)
-    } else {
-      val designatorSuffixes = List('d', 'D', 'f', 'F')
-      val parsee = if (strVal.nonEmpty && designatorSuffixes.contains(strVal.last)) strVal.dropRight(1) else strVal
-      try BigDecimal(parsee)
-      catch { case ex: Exception => syntaxError("malformed floating point number", at = offset) }
-    }
-  }
+    def intVal: Long = intVal(negated = false)
+    def longVal: Long = intVal
 
-  def intVal: BigInt = integerVal
-  def longVal: BigInt = integerVal
-  def floatVal: BigDecimal = floatingVal
-  def doubleVal: BigDecimal = floatingVal
+    private val zeroFloat = raw"[0.]+(?:[eE][+-]?[0-9]+)?[fFdD]?".r
+
+    /** Convert current strVal, base to float value.
+     */
+    def floatVal(negated: Boolean): Float = {
+      val text = removeNumberSeparators(strVal)
+      try {
+        val value: Float = java.lang.Float.parseFloat(text)
+        if (value > Float.MaxValue)
+          syntaxError("floating point number too large", at = offset)
+        if (value == 0.0f && !zeroFloat.pattern.matcher(text).matches)
+          syntaxError("floating point number too small", at = offset)
+        if (negated) -value else value
+      } catch {
+        case _: NumberFormatException =>
+          syntaxError("malformed floating point number", at = offset)
+          0.0f
+      }
+    }
+
+    def floatVal: Float = floatVal(negated = false)
+
+    /** Convert current strVal, base to double value.
+     */
+    def doubleVal(negated: Boolean): Double = {
+      val text = removeNumberSeparators(strVal)
+      try {
+        val value: Double = java.lang.Double.parseDouble(text)
+        if (value > Double.MaxValue)
+          syntaxError("double precision floating point number too large", at = offset)
+        if (value == 0.0d && !zeroFloat.pattern.matcher(text).matches)
+          syntaxError("double precision floating point number too small", at = offset)
+        if (negated) -value else value
+      } catch {
+        case _: NumberFormatException =>
+          syntaxError("malformed double precision floating point number", at = offset)
+          0.0
+      }
+    }
+
+  def doubleVal: Double = doubleVal(negated = false)
+
+  @inline private def isNumberSeparator(c: Char): Boolean = c == '_' //|| c == '\''
+
+  @inline private def removeNumberSeparators(s: String): String =
+    if (s.indexOf('_') > 0) s.replaceAllLiterally("_", "") /*.replaceAll("'","")*/ else s
 }

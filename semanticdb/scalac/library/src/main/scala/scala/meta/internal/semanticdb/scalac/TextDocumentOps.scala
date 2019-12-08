@@ -228,6 +228,19 @@ trait TextDocumentOps { self: SemanticdbOps =>
             }
           }
           private def success(mtree: m.Name, gsym0: g.Symbol): Unit = {
+            pprint.log(mtree)
+            pprint.log(gsym0.isUselessOccurrence)
+            pprint.log(gsym0.isUseless)
+      pprint.log(gsym0)
+      pprint.log(gsym0.isSyntheticConstructor)
+      pprint.log(gsym0.isStaticConstructor)
+      pprint.log(gsym0.isLocalChild)
+      pprint.log(gsym0.isSyntheticValueClassCompanion)
+      pprint.log(gsym0.isUselessField)
+      pprint.log(gsym0.isSyntheticCaseAccessor)
+      pprint.log(gsym0.isRefinementClass)
+      pprint.log(gsym0.isSyntheticJavaModule)
+            pprint.log(occurrences.contains(mtree.pos))
             // We cannot be guaranteed that all symbols have a position, see
             // https://github.com/scalameta/scalameta/issues/665
             // Instead of crashing with "unsupported file", we ignore these cases.
@@ -235,6 +248,7 @@ trait TextDocumentOps { self: SemanticdbOps =>
             if (gsym0.isUselessOccurrence) return
             if (mtree.pos == m.Position.None) return
             if (occurrences.contains(mtree.pos)) return
+            pprint.log(mtree)
 
             val gsym = {
               def isClassRefInCtorCall = gsym0.isConstructor && mtree.isNot[m.Name.Anonymous]
@@ -303,12 +317,19 @@ trait TextDocumentOps { self: SemanticdbOps =>
               if (!mstarts.contains(start)) return false
               val mtree = mstarts(start)
               if (mtree.pos.end != end) return false
+              pprint.log(gtree)
+              if (gtree.symbol == g.NoSymbol) {
+                pprint.log(gtree.tpe)
+              }
               success(mtree, gtree.symbol)
               return true
             }
 
             gtree match {
               case _: g.DefTree => trySymbolDefinition(gtree.symbol)
+              case _: g.Ident =>
+              pprint.log(gtree)
+              pprint.log(gtree.pos)
               case _ =>
             }
 

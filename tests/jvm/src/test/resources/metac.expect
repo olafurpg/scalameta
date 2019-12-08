@@ -1880,6 +1880,30 @@ Synthetics:
 [14:2..14:5): map => *.update
   update => scala/collection/mutable/MapLike#update().
 
+semanticdb/integration/src/main/scala/example/Issue1916.scala
+-------------------------------------------------------------
+
+Summary:
+Schema => SemanticDB v4
+Uri => semanticdb/integration/src/main/scala/example/Issue1916.scala
+Text => non-empty
+Language => Scala
+Symbols => 2 entries
+Occurrences => 3 entries
+
+Symbols:
+example/Issue1916# => class Issue1916 extends AnyRef { self: Map[String, Int] => +1 decls }
+  AnyRef => scala/AnyRef#
+  Map => scala/Predef.Map#
+  String => scala/Predef.String#
+  Int => scala/Int#
+example/Issue1916#`<init>`(). => primary ctor <init>()
+
+Occurrences:
+[1:8..1:15): example <= example/
+[3:6..3:15): Issue1916 <= example/Issue1916#
+[3:16..3:16):  <= example/Issue1916#`<init>`().
+
 semanticdb/integration/src/main/scala/example/local-file.scala
 --------------------------------------------------------------
 

@@ -9,7 +9,7 @@ abstract class BaseTokenizerCoverageSuite extends FunSuite {
   private val nl = "\n"
   private val whiteOnBlack = fansi.Back.Black ++ fansi.Color.White
   private val whiteOnGray = fansi.Back.DarkGray ++ fansi.Color.White
-  val dotty = dialects.Dotty
+  def defaultDialect = dialects.Scala213
   val maxCol = 73
 
   def checkNone[T <: Tree](source: String): Unit = {
@@ -92,42 +92,46 @@ abstract class BaseTokenizerCoverageSuite extends FunSuite {
   implicit val valValParam: Projection[Defn.Class, Mod.ValParam] = ctorMod[Mod.ValParam]
   implicit val varVarParam: Projection[Defn.Class, Mod.VarParam] = ctorMod[Mod.VarParam]
 
-  def check[T <: Tree](annotedSource: String): Unit =
+  def check[T <: Tree](annotedSource: String)(implicit loc: munit.Location): Unit =
     check0[T](annotedSource)()
 
   def check[R <: Tree, T <: Tree](
       annotedSource: String
-  )(implicit projection: Projection[T, R]): Unit =
+  )(implicit projection: Projection[T, R], loc: munit.Location): Unit =
     check0[T](annotedSource)(tree => projection(tree))
 
-  def checkSelf[R <: Tree, T <: Tree](annotedSource: String, dialect: Dialect = dialects.Scala212)(
-      implicit projection: Projection[T, R]
+  def checkSelf[R <: Tree, T <: Tree](annotedSource: String, dialect: Dialect = defaultDialect)(
+      implicit projection: Projection[T, R],
+      loc: munit.Location
   ): Unit =
     check0[T](annotedSource)(tree => projection(tree), checkChilds = false, dialect = dialect)
 
-  def checkSource[T <: Tree](annotedSource: String): Unit =
+  def checkSource[T <: Tree](annotedSource: String)(implicit loc: munit.Location): Unit =
     check0[T](annotedSource)(project = _.children.head, parser = Parse.parseSource)
 
-  def checkType[T <: Tree](annotedSource: String): Unit =
+  def checkType[T <: Tree](annotedSource: String)(implicit loc: munit.Location): Unit =
     check0[T](annotedSource)(parser = Parse.parseType)
 
-  def checkCase[T <: Tree](annotedSource: String): Unit =
+  def checkCase[T <: Tree](annotedSource: String)(implicit loc: munit.Location): Unit =
     check0[T](annotedSource)(parser = Parse.parseCase)
 
-  def checkPat[T <: Tree](annotedSource: String): Unit =
+  def checkPat[T <: Tree](annotedSource: String)(implicit loc: munit.Location): Unit =
     check0[T](annotedSource)(parser = Parse.parsePat)
 
-  def checkEnumerator[T <: Tree](annotedSource: String): Unit =
+  def checkEnumerator[T <: Tree](annotedSource: String)(implicit loc: munit.Location): Unit =
     check0[T](annotedSource)(parser = Parse.parseEnumerator)
 
-  def checkCase0(annotedSource: String): Unit =
+  def checkCase0(annotedSource: String)(implicit loc: munit.Location): Unit =
     check0[Case](annotedSource)(parser = Parse.parseCase)
 
-  def checkType[T <: Tree](annotedSource: String, dialect: Dialect): Unit =
+  def checkType[T <: Tree](annotedSource: String, dialect: Dialect)(
+      implicit loc: munit.Location
+  ): Unit =
     check0[T](annotedSource)(parser = Parse.parseType, dialect = dialect)
 
-  def checkType[R <: Tree, T <: Tree](annotedSource: String, dialect: Dialect = dialects.Scala212)(
-      implicit projection: Projection[T, R]
+  def checkType[R <: Tree, T <: Tree](annotedSource: String, dialect: Dialect = defaultDialect)(
+      implicit projection: Projection[T, R],
+      loc: munit.Location
   ): Unit =
     check0[T](annotedSource)(tree => projection(tree), dialect = dialect)
 
@@ -137,8 +141,8 @@ abstract class BaseTokenizerCoverageSuite extends FunSuite {
       project: T => Tree = identity[Tree] _,
       checkChilds: Boolean = true,
       parser: Parse[_ <: Tree] = Parse.parseStat,
-      dialect: Dialect = dialects.Scala212
-  ): Unit = {
+      dialect: Dialect = defaultDialect
+  )(implicit loc: munit.Location): Unit = test(annotedSource) {
     val startMarker = '→'
     val stopMarker = '←'
 
@@ -190,14 +194,9 @@ abstract class BaseTokenizerCoverageSuite extends FunSuite {
     val markersBuilder = List.newBuilder[(Int, Int)]
     var lastStart: Option[Int] = None
     def error(msg: String, pos: Int): Unit = {
-      test(annotedSource) {
-        sys.error(
-          msg + nl +
-            annotedSource + nl +
-            (" " * pos) + "^"
-        )
-      }
+      fail(msg + nl + annotedSource + nl + (" " * pos) + "^")
     }
+
     annotedSource.foreach { c =>
       if (c == startMarker) {
         if (lastStart.nonEmpty)
@@ -229,26 +228,24 @@ abstract class BaseTokenizerCoverageSuite extends FunSuite {
       acc.overlay(color, start, end)
     }
 
-    test(markedSource.toString) {
-      val toCheck =
-        if (checkChilds) tree.children
-        else List(tree)
-      val tokens = toCheck.map(_.tokens).filter(_.nonEmpty)
-      val tokensSorted =
-        tokens.map { token =>
-          val tokenStart = token.head.start
-          val tokenEnd = token.last.end
-          (tokenStart, tokenEnd)
-        }.sorted
+    val toCheck =
+      if (checkChilds) tree.children
+      else List(tree)
+    val tokens = toCheck.map(_.tokens).filter(_.nonEmpty)
+    val tokensSorted =
+      tokens.map { token =>
+        val tokenStart = token.head.start
+        val tokenEnd = token.last.end
+        (tokenStart, tokenEnd)
+      }.sorted
 
-      val noPosition = (0, 0)
-      assertPos(tokensSorted.zipAll(markers, noPosition, noPosition))
+    val noPosition = (0, 0)
+    assertPos(tokensSorted.zipAll(markers, noPosition, noPosition))
 
-      assert(
-        tokens.size == markers.size,
-        s"incorrect number of tokens, expected: ${markers.size}, obtained: ${tokens.size}"
-      )
-    }
+    assert(
+      tokens.size == markers.size,
+      s"incorrect number of tokens, expected: ${markers.size}, obtained: ${tokens.size}"
+    )
   }
 
   private def testName(source: String, tree: Tree): fansi.Str = {

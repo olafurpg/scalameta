@@ -85,7 +85,7 @@ package object dialects {
   implicit val ParadiseTypelevel212 = Typelevel212
     .withAllowInlineMods(true)
 
-  implicit val Dotty = Scala213
+  implicit val Scala3 = Scala213
     .withAllowAndTypes(true)
     .withAllowAtForExtractorVarargs(true) // both @ and : work currently for Scala 3
     .withAllowColonForExtractorVarargs(true) // both @ and : work currently for Scala 3
@@ -126,6 +126,9 @@ package object dialects {
     .withAllowTypeMatch(true)
     .withAllowInfixMods(true)
     .withAllowSymbolLiterals(false)
+
+  @deprecated("Use Scala3 instead", "4.4.2")
+  implicit val Dotty = Scala3
 
   private[meta] def QuasiquoteTerm(underlying: Dialect, multiline: Boolean) = {
     require(!underlying.allowUnquotes)

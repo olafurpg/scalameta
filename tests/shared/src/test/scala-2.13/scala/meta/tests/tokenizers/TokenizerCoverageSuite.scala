@@ -37,14 +37,14 @@ class TokenizerCoverageSuite() extends BaseTokenizerCoverageSuite {
   checkType[Type.Tuple]("(→A←, →B←)")
   checkType[Type.With]("→A← with →B←")
   checkType[Type.And]("→A← →&← →B←")
-  checkType[Type.And]("→A← & →B←", dotty)
-  checkType[Type.Or]("→A← | →B←", dotty)
+  checkType[Type.And]("→A← & →B←", dialects.Scala3)
+  checkType[Type.Or]("→A← | →B←", dialects.Scala3)
   checkType[Type.Refine]("→A← { →def f: B← }")
   checkType[Type.Refine]("→A←{}")
   checkType[Type.Refine]("{ →def f: B← }")
   checkType[Type.Existential]("→A← forSome { →type T← }")
   checkType[Type.Annotate]("→T← →@A←")
-  checkType[Type.Lambda]("[→X←] =>> →(X, X)←", dotty)
+  checkType[Type.Lambda]("[→X←] =>> →(X, X)←", dialects.Scala3)
   checkType[Type.Placeholder]("_")
   checkType[Type.Bounds]("_ →>: A <: B←")
   checkType[Type.Bounds]("_ →<: B←")
@@ -158,7 +158,7 @@ class TokenizerCoverageSuite() extends BaseTokenizerCoverageSuite {
   checkSelf[Mod.Implicit, Defn.Val]("→implicit← val a = 1")
   checkSelf[Mod.Final, Defn.Val]("→final← val a = 1")
   checkSelf[Mod.Sealed, Defn.Trait]("→sealed← trait a")
-  checkSelf[Mod.Open, Defn.Trait]("→open← trait a", dotty)
+  checkSelf[Mod.Open, Defn.Trait]("→open← trait a", dialects.Scala3)
   checkSelf[Mod.Override, Defn.Def]("→override← def f = 1")
   checkSelf[Mod.Case, Defn.Object]("→case← object B")
   checkSelf[Mod.Abstract, Defn.Class]("→abstract← class A")
@@ -167,7 +167,7 @@ class TokenizerCoverageSuite() extends BaseTokenizerCoverageSuite {
   checkSelf[Mod.Lazy, Defn.Val]("→lazy← val a = 1")
   checkSelf[Mod.ValParam, Defn.Class]("class A(→val← b: B)")
   checkSelf[Mod.VarParam, Defn.Class]("class A(→var← b: B)")
-  checkSelf[Mod.Inline, Defn.Def]("→inline← def f = 1", dotty)
+  checkSelf[Mod.Inline, Defn.Def]("→inline← def f = 1", dialects.Scala3)
 
   // Misc
   check[Self, Defn.Trait]("trait A { →self←: →B← => }")
@@ -193,4 +193,7 @@ class TokenizerCoverageSuite() extends BaseTokenizerCoverageSuite {
   checkPat[Pat.Xml]("→<h1>a←{→b←}→c←{→d←}→e←{→f←}→g</h1>←")
   checkPat[Pat.Typed]("→x←: →T←")
   checkPat[Pat.Typed]("→y←: →T←")
+
+  // Extension group
+  checkPat[Defn.ExtensionGroup]("extension (i: Int) def isZero = i == 0")
 }

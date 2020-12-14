@@ -94,12 +94,12 @@ class TokenizerCoverageSuite() extends BaseTokenizerCoverageSuite {
   check[Term.Super]("→a.super[B]←.→c←")
   check[Term.This]("→a←.this")
   check[Term.Throw]("throw →(e)←")
-  check[Term.Try]("try (→f←) catch { →case x => x;← →case y => y← } finally →{ }←")
+  check[Term.Try]("try →(f)← catch { →case x => x;← →case y => y← } finally →{ }←")
   check0[Term.Try]("try →()←")(dialect = dialects.Scala213)
   check0[Term.Try]("try →(true, false)←")(dialect = dialects.Scala213)
   check0[Term.Try]("try →{1 + 2}.toString←")(dialect = dialects.Scala213)
   check0[Term.Try]("try →(a.b).c←")(dialect = dialects.Scala213)
-  check[Term.TryWithHandler]("try (→f←) catch →(h)← finally →{ }←")
+  check[Term.TryWithHandler]("try →(f)← catch →(h)← finally →{ }←")
   check0[Term.TryWithHandler]("try →(true, false)← catch →(h)← finally →(1, 2)←")(dialect =
     dialects.Scala213
   )
@@ -194,6 +194,4 @@ class TokenizerCoverageSuite() extends BaseTokenizerCoverageSuite {
   checkPat[Pat.Typed]("→x←: →T←")
   checkPat[Pat.Typed]("→y←: →T←")
 
-  // Extension group
-  checkPat[Defn.ExtensionGroup]("extension (i: Int) def isZero = i == 0")
 }

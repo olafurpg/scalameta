@@ -690,6 +690,9 @@ class ScalametaParser(input: Input)(implicit dialect: Dialect) { parser =>
   implicit def modsToPos(mods: List[Mod]): Pos = mods.headOption.map(TreePos).getOrElse(AutoPos)
   def auto = AutoPos
 
+  def atPos[T <: Tree](pos: Position)(body: => T): T = {
+    atPos(pos.start, pos.end)(body)
+  }
   def atPos[T <: Tree](token: Token)(body: => T): T = {
     atPos(token.startTokenPos, token.endTokenPos)(body)
   }
@@ -2295,20 +2298,20 @@ class ScalametaParser(input: Input)(implicit dialect: Dialect) { parser =>
                 case Term.Select(kwUsing @ Term.Name(soft.KwUsing.name), name) =>
                   Some(
                     atPos(tree, tree)(
-                      Term.Param(List(atPos(kwUsing, kwUsing)(Mod.Using())), name, None, None)
+                      Term.Param(List(atPos(kwUsing.pos)(Mod.Using())), name, None, None)
                     )
                   )
                 case Term.Ascribe(Term.Select(kwUsing @ Term.Name(soft.KwUsing.name), name), tpt) =>
                   Some(
                     atPos(tree, tree)(
-                      Term.Param(List(atPos(kwUsing, kwUsing)(Mod.Using())), name, Some(tpt), None)
+                      Term.Param(List(atPos(kwUsing.pos)(Mod.Using())), name, Some(tpt), None)
                     )
                   )
                 case Term.Ascribe(eta @ Term.Eta(kwUsing @ Term.Name(soft.KwUsing.name)), tpt) =>
                   Some(
                     atPos(tree, tree)(
                       Term.Param(
-                        List(atPos(kwUsing, kwUsing)(Mod.Using())),
+                        List(atPos(kwUsing.pos)(Mod.Using())),
                         atPos(eta.endTokenPos, eta.endTokenPos)(Name.Anonymous()),
                         Some(tpt),
                         None

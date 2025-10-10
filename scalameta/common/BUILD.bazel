@@ -1,0 +1,16 @@
+load("//:cross_scala.bzl", "scala_cross_library")
+
+scala_cross_library(
+    name = "common",
+    srcs = glob([
+        "shared/src/main/scala/**/*.scala",
+        "jvm/src/main/scala/**/*.scala",
+    ]),
+    scala_deps = [
+        "//semanticdb/semanticdb",
+    ],
+    deps = [
+        "@maven//:com_lihaoyi_sourcecode_2_13",
+    ],
+    visibility = ["//visibility:public"],
+)

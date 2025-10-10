@@ -1,0 +1,31 @@
+# Bazel configuration for Scalameta
+
+# Use WORKSPACE instead of Bzlmod
+common --noenable_bzlmod
+
+# Use Java 11 for building
+build --java_language_version=11
+build --tool_java_language_version=11
+
+# Scala compiler options
+build --strategy=Scalac=worker
+build --worker_sandboxing
+build --worker_max_instances=4
+
+# Output options
+build --show_timestamps
+build --color=yes
+build --curses=yes
+
+# Error reporting
+build --verbose_failures
+
+# Performance
+build --experimental_reuse_sandbox_directories
+
+# Test output
+test --test_output=errors
+test --test_summary=detailed
+
+# Cache
+build --disk_cache=~/.cache/bazel/scalameta

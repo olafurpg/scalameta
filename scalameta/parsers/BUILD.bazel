@@ -1,0 +1,18 @@
+load("//:cross_scala.bzl", "scala_cross_library")
+
+scala_cross_library(
+    name = "parsers",
+    srcs = glob([
+        "shared/src/main/scala/**/*.scala",
+        "jvm/src/main/scala/**/*.scala",
+    ]),
+    scala_deps = [
+        "//scalameta/common",
+        "//scalameta/dialects",
+        "//scalameta/inputs",
+        "//scalameta/tokens",
+        "//scalameta/tokenizers",
+        "//scalameta/trees",
+    ],
+    visibility = ["//visibility:public"],
+)

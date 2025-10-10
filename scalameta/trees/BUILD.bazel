@@ -1,0 +1,17 @@
+load("//:cross_scala.bzl", "scala_cross_library")
+
+scala_cross_library(
+    name = "trees",
+    srcs = glob([
+        "shared/src/main/scala/**/*.scala",
+        "jvm/src/main/scala/**/*.scala",
+    ]),
+    scala_deps = [
+        "//scalameta/common",
+        "//scalameta/dialects",
+        "//scalameta/inputs",
+        "//scalameta/tokens",
+        "//scalameta/tokenizers",
+    ],
+    visibility = ["//visibility:public"],
+)

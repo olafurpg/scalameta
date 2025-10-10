@@ -1,0 +1,22 @@
+load("//:cross_scala.bzl", "scala_cross_library")
+
+# Scalameta umbrella module that includes all public APIs
+scala_cross_library(
+    name = "scalameta",
+    srcs = glob([
+        "shared/src/main/scala/**/*.scala",
+        "jvm/src/main/scala/**/*.scala",
+    ]),
+    scala_deps = [
+        "//scalameta/common",
+        "//scalameta/dialects",
+        "//scalameta/parsers",
+        "//scalameta/quasiquotes",
+        "//scalameta/tokenizers",
+        "//scalameta/transversers",
+        "//scalameta/trees",
+        "//scalameta/inputs",
+        "//scalameta/io",
+    ],
+    visibility = ["//visibility:public"],
+)

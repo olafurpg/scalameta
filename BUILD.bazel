@@ -1,0 +1,4 @@
+# Root BUILD file for Scalameta
+# This file exists to allow loading .bzl files from the root directory
+
+exports_files(["cross_scala.bzl"])

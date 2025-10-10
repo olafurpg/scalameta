@@ -1,0 +1,105 @@
+"""
+Scalameta Bazel Build Configuration
+Using JVM external dependencies with Bazel
+"""
+
+module(
+    name = "scalameta",
+    version = "4.0.0",
+)
+
+# JVM external dependencies
+bazel_dep(name = "rules_jvm_external", version = "6.5")
+
+# Maven dependencies
+maven = use_extension("@rules_jvm_external//:extensions.bzl", "maven")
+
+# Scala 2.12 dependencies
+maven.install(
+    name = "maven_2_12",
+    artifacts = [
+        # Scala standard library and compiler
+        "org.scala-lang:scala-library:2.12.20",
+        "org.scala-lang:scala-compiler:2.12.20",
+        "org.scala-lang:scala-reflect:2.12.20",
+        "org.scala-lang:scalap:2.12.20",
+
+        # ScalaPB for protobuf support
+        "com.thesamet.scalapb:scalapb-runtime_2.12:1.0.0",
+        "com.thesamet.scalapb:lenses_2.12:1.0.0",
+        "com.thesamet.scalapb:scalapb-runtime-grpc_2.12:1.0.0",
+        "com.thesamet.scalapb:compilerplugin_2.12:1.0.0",
+
+        # Common dependencies
+        "com.lihaoyi:sourcecode_2.12:0.1.4",
+        "com.lihaoyi:fastparse_2.12:1.0.0",
+        "com.lihaoyi:fansi_2.12:0.2.5",
+        "com.lihaoyi:geny_2.12:0.1.2",
+
+        # Test dependencies
+        "org.scalatest:scalatest_2.12:3.2.0-SNAP10",
+        "org.scalacheck:scalacheck_2.12:1.13.5",
+
+        # For testkit (Java libraries - no Scala version suffix)
+        "org.rauschig:jarchivelib:0.7.1",
+        "commons-io:commons-io:2.5",
+        "com.googlecode.java-diff-utils:diffutils:1.3.0",
+
+        # Coursier for tests
+        "io.get-coursier:coursier_2.12:2.1.0",
+        "io.get-coursier:coursier-cache_2.12:2.1.0",
+
+        # Protobuf (Java library - no Scala version suffix)
+        "com.google.protobuf:protobuf-java:4.29.2",
+    ],
+    fetch_sources = True,
+    repositories = [
+        "https://repo1.maven.org/maven2",
+    ],
+)
+
+# Scala 2.13 dependencies
+maven.install(
+    name = "maven_2_13",
+    artifacts = [
+        # Scala standard library and compiler
+        "org.scala-lang:scala-library:2.13.16",
+        "org.scala-lang:scala-compiler:2.13.16",
+        "org.scala-lang:scala-reflect:2.13.16",
+        "org.scala-lang:scalap:2.13.16",
+
+        # ScalaPB for protobuf support
+        "com.thesamet.scalapb:scalapb-runtime_2.13:1.0.0",
+        "com.thesamet.scalapb:lenses_2.13:1.0.0",
+        "com.thesamet.scalapb:scalapb-runtime-grpc_2.13:1.0.0",
+        "com.thesamet.scalapb:compilerplugin_2.13:1.0.0",
+
+        # Common dependencies
+        "com.lihaoyi:sourcecode_2.13:0.1.4",
+        "com.lihaoyi:fastparse_2.13:1.0.0",
+        "com.lihaoyi:fansi_2.13:0.2.5",
+        "com.lihaoyi:geny_2.13:0.1.2",
+
+        # Test dependencies
+        "org.scalatest:scalatest_2.13:3.2.0-SNAP10",
+        "org.scalacheck:scalacheck_2.13:1.13.5",
+
+        # For testkit (Java libraries - no Scala version suffix)
+        "org.rauschig:jarchivelib:0.7.1",
+        "commons-io:commons-io:2.5",
+        "com.googlecode.java-diff-utils:diffutils:1.3.0",
+
+        # Coursier for tests
+        "io.get-coursier:coursier_2.13:2.1.0",
+        "io.get-coursier:coursier-cache_2.13:2.1.0",
+
+        # Protobuf (Java library - no Scala version suffix)
+        "com.google.protobuf:protobuf-java:4.29.2",
+    ],
+    fetch_sources = True,
+    repositories = [
+        "https://repo1.maven.org/maven2",
+    ],
+)
+
+use_repo(maven, "maven_2_12", "maven_2_13")

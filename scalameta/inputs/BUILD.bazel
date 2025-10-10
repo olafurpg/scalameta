@@ -1,0 +1,14 @@
+load("//:cross_scala.bzl", "scala_cross_library")
+
+scala_cross_library(
+    name = "inputs",
+    srcs = glob([
+        "shared/src/main/scala/**/*.scala",
+        "jvm/src/main/scala/**/*.scala",
+    ]),
+    scala_deps = [
+        "//scalameta/common",
+        "//scalameta/io",
+    ],
+    visibility = ["//visibility:public"],
+)
